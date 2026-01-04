@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="header_head">
+	<script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            feather.replace();
+        });
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการร้าน pre-order : SRIUNDEE_SHOP</title>
+	<link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/choices.js/choices.min.css}" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/mazer/dist/assets/css/bootstrap.css}">
+	<link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/sweetalert2/sweetalert2.min.css}">
+    <link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/iconly/bold.css}">
+	<link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/simple-datatables/style.css}">
+	<link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/fontawesome/all.min.css}">
+    <link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.css}">
+    <link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/mazer/dist/assets/css/app.css}">
+	<link rel="stylesheet" th:href="@{/mazer/dist/assets/css/css-style.css}">
+</head>
+
+<body>
+    <header th:fragment="header_nav" class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+</body>
+</html>

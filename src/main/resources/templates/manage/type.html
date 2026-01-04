@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<script th:src="@{/script/type.js}"></script>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+		
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>ข้อมูลประเภท</h3>
+            </div>
+            
+			<div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-12">
+								<div class="card">
+									<div class="card-header">
+										<div class="buttons">
+									        <a class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มข้อมูลใหม่</a>
+									    </div>
+									</div>
+			                        <div class="card-body">
+			                            <table class="table table-striped" id="table1">
+			                                <thead>
+			                                    <tr>
+													<th class="fix_width">#</th>
+			                                        <th class="auto_width">ชื่อ</th>
+			                                        <th class="fix_width"></th>
+			                                        <th class="fix_width"></th>
+			                                    </tr>
+			                                </thead>
+			                                <tbody th:utext="${mainType}"></tbody>
+			                            </table>
+										<div class="modal fade text-left" id="modalManageData" tabindex="-1"
+                                            role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+                                                role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+	                                                	<h4 class="modal-title" id="myModalLabel18">จัดการข้อมูล</h4>
+                                                    </div>
+													<div class="modal-body">
+														<div class="row">
+															<div class="col-md-3">
+																<input type="hidden" id="IdType">
+				                                                <label>ชื่อประเภท</label>
+															</div>
+															<div class="col-md-9 form-group">
+																<input type="text" placeholder="ชื่อประเภท . . ." class="form-control" id="tName">
+															</div>
+														</div>
+		                                            </div>
+                                                    <div class="modal-footer">
+														<button type="button" class="btn btn-warning ml-1" onclick="save_edit_data()" id="btn_edit" style="display: none;">
+														    <i class="bx bx-check d-block d-sm-none"></i>
+														    <span class="d-none d-sm-block">แก้ไข</span>
+														</button>
+														<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
+														    <i class="bx bx-check d-block d-sm-none"></i>
+														    <span class="d-none d-sm-block">บันทึก</span>
+														</button>
+                                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                                            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+			                        </div>
+			                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+			
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+</body>
+</html>

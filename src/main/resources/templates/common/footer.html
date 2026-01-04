@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<footer th:fragment="footer">
+    <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
+    <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>
+	<script th:src="@{/mazer/dist/assets/vendors/fontawesome/all.min.js}"></script>
+    <script th:src="@{/mazer/dist/assets/js/pages/dashboard.js}"></script>
+    <script th:src="@{/mazer/dist/assets/js/extensions/sweetalert2.js}"></script>
+    <script th:src="@{/mazer/dist/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
+	<script th:src="@{/mazer/dist/assets/vendors/choices.js/choices.min.js}"></script>
+    <script th:src="@{/mazer/dist/assets/js/main.js}"></script>
+	<script>
+	    let table1 = document.querySelector('.table');
+	    let dataTable = new simpleDatatables.DataTable(table1);
+
+		dataTable = new simpleDatatables.DataTable(".table", {
+		    fixedColumns: false
+		});
+	</script>
+</footer>
+</html>

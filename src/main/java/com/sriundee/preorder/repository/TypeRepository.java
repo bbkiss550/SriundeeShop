@@ -1,0 +1,16 @@
+package com.sriundee.preorder.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.sriundee.preorder.model.Type;
+
+@Repository
+public interface TypeRepository extends JpaRepository<Type, Integer> {
+	
+    @Query(value = "SELECT * FROM t_type WHERE t_delete = 'A'", nativeQuery = true)
+    List<Type> getDataAll();
+}
