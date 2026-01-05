@@ -30,10 +30,10 @@ public class VersionController {
 	    for (Version a : versionList) {
 	        row_id += 1;
 	        strVersion.append("<tr>");
-	        strVersion.append("<td>" + row_id + "</td>");
-	        strVersion.append("<td>" + a.getName() + "</td>");
 	        strVersion.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='ver_edit_data(" + a.getId() + ")'><i data-feather='edit'></i></a></div></td>");
 	        strVersion.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='ver_delete_data(" + a.getId() + ")'><i data-feather='trash-2'></i></a></div></td>");
+	        strVersion.append("<td>" + row_id + "</td>");
+	        strVersion.append("<td>" + a.getName() + "</td>");
 	        strVersion.append("</tr>");
 	    }
 

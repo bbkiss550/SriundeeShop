@@ -4,6 +4,7 @@
 
 <script th:src="@{/script/product/product.js}"></script>
 <script th:src="@{/script/product/version.js}"></script>
+<script th:src="@{/script/product/cover.js}"></script>
 
 <body>
     <div id="app">
@@ -31,19 +32,20 @@
 			                            <table class="table table-striped" id="table1">
 			                                <thead>
 			                                    <tr>
-													<th class="fix_width"></th>
+													<th class="fix_width">แก้ไข</th>
+													<th class="fix_width">ลบ</th>
+													<th class="fix_width">ปก</th>
+													<th class="fix_width">เวอร์ชั่น</th>
+													<th class="fix_width">#</th>
 													<th class="auto_width">ภาพ</th>
 			                                        <th class="auto_width">ชื่อ</th>
 													<th class="auto_width">ประเภท</th>
 													<th class="auto_width">ศิลปิน</th>
-													<th class="auto_width">ปิดรับ</th>
+													<th class="status_width">ปิดรับ</th>
 													<!--th class="auto_width">กำหนดส่ง<th>
 													<th class="auto_width">ชำระงวดที่สอง</th>
 													<th class="auto_width">เก็บยอดที่เหลือ</th-->
-													<th class="auto_width">สถานะ</th>
-													<th class="fix_width"></th>
-			                                        <th class="fix_width"></th>
-			                                        <th class="fix_width"></th>
+													<th class="status_width">สถานะ</th>
 			                                    </tr>
 			                                </thead>
 			                                <tbody th:utext="${mainProduct}"></tbody>
@@ -163,7 +165,7 @@
                                             </div>
                                         </div>
 										<div class="modal fade text-left" id="modalVersion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"
+                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"
                                                 role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -204,10 +206,10 @@
 									                            <table class="table table-striped" id="table2">
 									                                <thead>
 									                                    <tr>
-																			<th class="fix_width"></th>
+																			<th class="fix_width">แก้ไข</th>
+																			<th class="fix_width">ลบ</th>
+																			<th class="fix_width">#</th>
 																			<th class="auto_width">ชื่อเวอร์ชั่น</th>
-									                                        <th class="fix_width"></th>
-									                                        <th class="fix_width"></th>
 									                                    </tr>
 									                                </thead>
 									                                <tbody id="mainVersion"></tbody>

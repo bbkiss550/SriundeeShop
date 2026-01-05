@@ -56,6 +56,10 @@ public class ProductController {
 		for (ProductBean p : productList) {
 			row_id +=1;
 			strProduct.append("<tr>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-dark' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='image'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
 			strProduct.append("<td><img src='" + p.getP_pic() + "' class='table-img'></td>");
 			strProduct.append("<td>" + p.getP_name() + "</td>");
@@ -65,10 +69,11 @@ public class ProductController {
 			/*strProduct.append("<td>" + p.getP_send_date() + "</td>");
 			strProduct.append("<td>" + p.getP_second_pay_date() + "</td>");
 			strProduct.append("<td>" + p.getP_last_pay_date() + "</td>");*/
-			strProduct.append("<td>" + p.getPs_name() + "</td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
+			if (p.getID_pro_status() == 1) {
+				strProduct.append("<td><span class='badge bg-success' style='padding: 15px;'>" + p.getPs_name() + "</span></td>");
+			} else {
+				strProduct.append("<td><span class='badge bg-danger' style='padding: 15px;'>" + p.getPs_name() + "</span></td>");
+			}
 			strProduct.append("</tr>");
 		}
 	    model.addAttribute("mainProduct", strProduct);
