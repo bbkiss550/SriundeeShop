@@ -91,7 +91,7 @@ function delete_data(id) {
 		denyButtonText: "ยกเลิก"
 	}).then((result) => {
 		if (result.isConfirmed) {
-			fetch('/manage/website/delete/' + id , {
+			fetch('/product/delete/' + id , {
 			    method: 'POST'
 			})
 			.then(response => {
@@ -321,11 +321,4 @@ function save_edit_data() {
         }
     })
     .catch(err => console.error("Error:", err));
-}
-
-function modal_cover(id) {
-	document.getElementById('cover_IdProduct').value = "";
-
-    var myModal = new bootstrap.Modal(document.getElementById('modalCover'));
-    myModal.show();
 }

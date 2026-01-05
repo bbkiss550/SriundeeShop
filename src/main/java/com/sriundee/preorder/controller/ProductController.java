@@ -66,7 +66,7 @@ public class ProductController {
 			strProduct.append("<td>" + p.getP_second_pay_date() + "</td>");
 			strProduct.append("<td>" + p.getP_last_pay_date() + "</td>");*/
 			strProduct.append("<td>" + p.getPs_name() + "</td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strProduct.append("</tr>");

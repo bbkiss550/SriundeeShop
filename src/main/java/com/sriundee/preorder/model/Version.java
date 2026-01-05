@@ -7,7 +7,9 @@ import lombok.Data;
 @Table(name = "t_version")
 @Data
 public class Version {
+	
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_ver")
     private Integer id;
 
@@ -17,6 +19,9 @@ public class Version {
     @Column(name = "v_name")
     private String name;
 
+    @Column(name = "v_delete")
+    private String delete;
+    
 	public Integer getId() {
 		return id;
 	}
@@ -39,5 +44,13 @@ public class Version {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDelete() {
+		return delete;
+	}
+
+	public void setDelete(String delete) {
+		this.delete = delete;
 	}
 }

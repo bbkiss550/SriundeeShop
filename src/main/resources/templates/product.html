@@ -2,7 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/header :: header_head"></head>
 
-<script th:src="@{/script/product.js}"></script>
+<script th:src="@{/script/product/product.js}"></script>
+<script th:src="@{/script/product/version.js}"></script>
 
 <body>
     <div id="app">
@@ -161,15 +162,58 @@
                                                 </div>
                                             </div>
                                         </div>
-										<div class="modal fade text-left" id="modalCover" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+										<div class="modal fade text-left" id="modalVersion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"
                                                 role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title" id="myModalLabel18">ข้อมูลปก</h4>
+                                                        <h4 class="modal-title" id="myModalLabel18">ข้อมูลเวอร์ชั่น</h4>
                                                     </div>
 													<div class="modal-body">
 														<input type="hidden" id="cover_IdProduct">
+														<div class="card">
+															<div class="card-header">
+																<div class="row">
+																	<div class="col-md-2">
+																		<input type="hidden" id="ver_IdProduct">
+																		<input type="hidden" id="IdVersion">
+																		<label>ชื่อเวอร์ชั่น</label>
+																	</div>
+																	<div class="col-md-4 form-group">
+																	    <input type="text" placeholder="ชื่อเวอร์ชั่น . . ." class="form-control" id="vName">
+																	</div>
+																	<div class="col-md-6">
+																		<div class="col-md-10 form-group">
+																			<button type="button" class="btn btn-success ml-1" onclick="ver_save_new_data()" id="ver_btn_save">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">บันทึก</span>
+																			</button>
+																			<button type="button" class="btn btn-warning ml-1" onclick="ver_save_edit_data()" id="ver_btn_edit" style="display: none;">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">แก้ไข</span>
+																			</button>
+																			<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">ยกเลิก</span>
+																			</button>
+																		</div>
+																	</div>
+																</div>
+															</div>
+															<div class="card-body">
+									                            <table class="table table-striped" id="table2">
+									                                <thead>
+									                                    <tr>
+																			<th class="fix_width"></th>
+																			<th class="auto_width">ชื่อเวอร์ชั่น</th>
+									                                        <th class="fix_width"></th>
+									                                        <th class="fix_width"></th>
+									                                    </tr>
+									                                </thead>
+									                                <tbody id="mainVersion"></tbody>
+									                            </table>
+															</div>
+														</div>
 													</div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
