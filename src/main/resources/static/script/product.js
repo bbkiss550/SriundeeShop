@@ -7,6 +7,14 @@ function updateImage() {
     }
 }
 
+function pt1_check(id) {
+	if (id == 1 ) {
+		document.getElementById('pt1').style.display = '';
+	} else if (id == 2 ) {
+		document.getElementById('pt1').style.display = 'none';
+	}
+}
+
 function new_data() {
 	document.getElementById('IdProduct').value = "";
 	document.getElementById('pName').value = "";
@@ -24,6 +32,8 @@ function new_data() {
 	document.getElementById('btn_save').style.display = '';
 	document.getElementById('btn_edit').style.display = 'none';
 	
+	pt1_check(1);
+	
     var myModal = new bootstrap.Modal(document.getElementById('modalManageData'));
     myModal.show();
 }
@@ -36,30 +46,16 @@ function edit_data(id) {
 			document.getElementById('pName').value = data.name
 			document.getElementById('IdType').value = data.type;
 			document.getElementById('IdArtist').value = data.artist;
-			if (data.end_date) {
-				document.getElementById('end_date').value = data.end_date.split('T')[0];
-			} else {
-				document.getElementById('end_date').value = "";
-			}
-			if (data.send_date) {
-				document.getElementById('send_date').value = data.send_date.split('T')[0];
-			} else {
-				document.getElementById('send_date').value = ""
-			}
-			if (data.second_pay_date) {
-				document.getElementById('second_pay_date').value = data.second_pay_date.split('T')[0];
-			} else {
-				document.getElementById('second_pay_date').value = ""
-			}
+			document.getElementById('end_date').value = check_date_null(data.end_date);
+			document.getElementById('send_date').value = check_date_null(data.send_date);
+			document.getElementById('second_pay_date').value = check_date_null(data.second_pay_date);
 			document.getElementById('IdPaymentType').value = data.payment_type;
-			if (data.last_pay_date) {
-			document.getElementById('last_pay_date').value = data.last_pay_date.split('T')[0];
-			} else {
-				document.getElementById('last_pay_date').value = ""
-			}
+			document.getElementById('last_pay_date').value = check_date_null(data.last_pay_date);
 			document.getElementById('IdProductStatus').value = data.product_status;
 			document.getElementById('pPic').value = data.pic;
-			document.getElementById('showImage').src = data.pic;
+			document.getElementById('showImage').src = check_pic_null(data.pic);
+			
+			pt1_check(data.product_status);
 			
 			document.getElementById('btn_edit').style.display = '';
 			document.getElementById('btn_save').style.display = 'none';
@@ -68,6 +64,22 @@ function edit_data(id) {
             myModal.show();
         })
         .catch(err => console.error("Error fetching data:", err));
+}
+
+function check_date_null(data) {
+	var res = "";
+	if (data) {
+		res = data.split('T')[0];
+	}
+	return res;
+}
+
+function check_pic_null(data) {
+	var res = "/mazer/dist/assets/images/samples/no-photo.png";
+	if (data) {
+		res = data;
+	}
+	return res;
 }
 
 function delete_data(id) {
@@ -120,13 +132,53 @@ function save_new_data() {
 
     if (!pName) {
 		Swal.fire({
-		  title: "กรุณากรอกชื่อเว็บไศต์",
+		  title: "กรุณากรอกชื่อสินค้า",
 		  text: "",
 		  icon: "error",
 		  confirmButtonText: "ตกลง"
 		});
         return;
     }
+
+	if (!end_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ปิดรับ",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!send_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่หำหนดส่ง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!second_pay_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!last_pay_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
 
     const payload = {
         name: pName,
@@ -169,34 +221,82 @@ function save_new_data() {
 }
 
 function save_edit_data() {
-	const IdWebsite = document.getElementById('IdWebsite').value;
-	const wName = document.getElementById('wName').value;
+	const IdProduct = document.getElementById('IdProduct').value;
+	const pName = document.getElementById('pName').value;
+	const IdType = document.getElementById('IdType').value;
+	const IdArtist = document.getElementById('IdArtist').value;
+	const end_date = document.getElementById('end_date').value;
+	const send_date = document.getElementById('send_date').value;
+	const second_pay_date = document.getElementById('second_pay_date').value;
+	const IdPaymentType = document.getElementById('IdPaymentType').value;
+	const last_pay_date = document.getElementById('last_pay_date').value;
+	const IdProductStatus = document.getElementById('IdProductStatus').value;
+	const pPic = document.getElementById('pPic').value;
 
-	if (!IdWebsite) {
+	if (!pName) {
 		Swal.fire({
-		  title: "ไม่มี IdWebsite",
+		  title: "กรุณากรอกชื่อสินค้า",
 		  text: "",
 		  icon: "error",
 		  confirmButtonText: "ตกลง"
 		});
 	    return;
 	}
-	
-    if (!wName) {
+
+	if (!end_date) {
 		Swal.fire({
-		  title: "กรุณากรอกชื่อเว็บไซต์",
+		  title: "กรุณากรอกวันที่ปิดรับ",
 		  text: "",
 		  icon: "error",
 		  confirmButtonText: "ตกลง"
 		});
-        return;
-    }
+	    return;
+	}
+
+	if (!send_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่หำหนดส่ง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!second_pay_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!last_pay_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
 
     const payload = {
-        websiteName: wName
+		name: pName,
+		type: IdType,
+		artist: IdArtist,
+		end_date: end_date,
+		send_date: send_date,
+		second_pay_date: second_pay_date,
+		payment_type: IdPaymentType,
+		last_pay_date: last_pay_date,
+		product_status: IdProductStatus,
+		pic: pPic
     };
 	
-	fetch('/manage/website/update/' + IdWebsite , {
+	fetch('/product/update/' + IdProduct , {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -221,4 +321,11 @@ function save_edit_data() {
         }
     })
     .catch(err => console.error("Error:", err));
+}
+
+function modal_cover(id) {
+	document.getElementById('cover_IdProduct').value = "";
+
+    var myModal = new bootstrap.Modal(document.getElementById('modalCover'));
+    myModal.show();
 }

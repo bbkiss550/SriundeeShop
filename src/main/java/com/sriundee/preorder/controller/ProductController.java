@@ -62,11 +62,11 @@ public class ProductController {
 			strProduct.append("<td>" + p.getT_name() + "</td>");
 			strProduct.append("<td>" + p.getA_name() + "</td>");
 			strProduct.append("<td>" + p.getP_end_date() + "</td>");
-			strProduct.append("<td>" + p.getP_send_date() + "</td>");
+			/*strProduct.append("<td>" + p.getP_send_date() + "</td>");
 			strProduct.append("<td>" + p.getP_second_pay_date() + "</td>");
-			strProduct.append("<td>" + p.getP_last_pay_date() + "</td>");
+			strProduct.append("<td>" + p.getP_last_pay_date() + "</td>");*/
 			strProduct.append("<td>" + p.getPs_name() + "</td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strProduct.append("</tr>");
@@ -119,5 +119,47 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<Product> getDataById(@PathVariable Integer id) {
         return productRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PostMapping("/product/update/{id}")
+    @ResponseBody
+    public ResponseEntity<String> updateData(@PathVariable Integer id, @RequestBody ProductDto productDto) {
+        try {
+        	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+        	Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("ไม่พบข้อมูลสินค้า"));
+        	product.setName(productDto.getName());
+            product.setType(productDto.getType());
+            product.setArtist(productDto.getArtist());
+            product.setEnd_date(formatter.parse(productDto.getEnd_date()));
+            product.setSend_date(formatter.parse(productDto.getSend_date()));
+            product.setSecond_pay_date(formatter.parse(productDto.getSecond_pay_date()));
+            product.setPayment_type(productDto.getPayment_type());
+            product.setLast_pay_date(formatter.parse(productDto.getLast_pay_date()));
+            product.setProduct_status(productDto.getProduct_status());
+            product.setDelete("A");
+            product.setPic(productDto.getPic());
+            
+            productRepository.save(product);
+            
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/product/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<String> deleteData(@PathVariable Integer id) {
+        try {
+        	Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("ไม่พบข้อมูลสินค้า"));
+        	product.setDelete("D");
+            
+        	productRepository.save(product);
+            
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 }
