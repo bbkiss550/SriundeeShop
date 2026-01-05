@@ -37,10 +37,10 @@ public class WebsiteController {
 		for (Website w : websiteList) {
 			row_id +=1;
 			strWebsite.append("<tr>");
-			strWebsite.append("<td>" + row_id + "</td>");
-			strWebsite.append("<td>" + w.getName() + "</td>");
 			strWebsite.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + w.getId() + ")'><i data-feather='edit'></i></a></div></td>");
 			strWebsite.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + w.getId() + ")'><i data-feather='trash-2'></i></a></div></td>");
+			strWebsite.append("<td>" + row_id + "</td>");
+			strWebsite.append("<td>" + w.getName() + "</td>");
 			strWebsite.append("</tr>");
 		}
 	    model.addAttribute("mainWebsite", strWebsite);

@@ -44,11 +44,11 @@ public class ArtistController {
 		for (ArtistBean a : artistList) {
 			row_id +=1;
 			strArtist.append("<tr>");
+			strArtist.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + a.getID_art() + ")'><i data-feather='edit'></i></a></div></td>");
+			strArtist.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + a.getID_art() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strArtist.append("<td>" + row_id + "</td>");
 			strArtist.append("<td>" + a.getA_name() + "</td>");
 			strArtist.append("<td>" + a.getG_name() + "</td>");
-			strArtist.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + a.getID_art() + ")'><i data-feather='edit'></i></a></div></td>");
-			strArtist.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + a.getID_art() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strArtist.append("</tr>");
 		}
 	    model.addAttribute("mainArtist", strArtist);

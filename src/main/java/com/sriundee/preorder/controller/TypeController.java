@@ -43,10 +43,10 @@ public class TypeController {
 		for (Type t : typeList) {
 			row_id +=1;
 			strType.append("<tr>");
-			strType.append("<td>" + row_id + "</td>");
-			strType.append("<td>" + t.getName() + "</td>");
 			strType.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + t.getId() + ")'><i data-feather='edit'></i></a></div></td>");
 			strType.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + t.getId() + ")'><i data-feather='trash-2'></i></a></div></td>");
+			strType.append("<td>" + row_id + "</td>");
+			strType.append("<td>" + t.getName() + "</td>");
 			strType.append("</tr>");
 		}
 	    model.addAttribute("mainType", strType);

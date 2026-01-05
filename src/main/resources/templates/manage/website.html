@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/header :: header_head"></head>
 
-<script th:src="@{/script/website.js}"></script>
+<script th:src="@{/script/manage/website.js}"></script>
 
 <body>
     <div id="app">
@@ -30,10 +30,10 @@
 			                            <table class="table table-striped" id="table1">
 			                                <thead>
 			                                    <tr>
+													<th class="fix_width">แก้ไข</th>
+													<th class="fix_width">ลบ</th>
 													<th class="fix_width">#</th>
 			                                        <th class="auto_width">ชื่อ</th>
-			                                        <th class="fix_width"></th>
-			                                        <th class="fix_width"></th>
 			                                    </tr>
 			                                </thead>
 			                                <tbody th:utext="${mainWebsite}"></tbody>

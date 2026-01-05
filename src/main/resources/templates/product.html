@@ -2,7 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/header :: header_head"></head>
 
-<script th:src="@{/script/product.js}"></script>
+<script th:src="@{/script/product/product.js}"></script>
+<script th:src="@{/script/product/version.js}"></script>
+<script th:src="@{/script/product/cover.js}"></script>
 
 <body>
     <div id="app">
@@ -30,19 +32,20 @@
 			                            <table class="table table-striped" id="table1">
 			                                <thead>
 			                                    <tr>
-													<th class="fix_width"></th>
+													<th class="fix_width">แก้ไข</th>
+													<th class="fix_width">ลบ</th>
+													<th class="fix_width">ปก</th>
+													<th class="fix_width">เวอร์ชั่น</th>
+													<th class="fix_width">#</th>
 													<th class="auto_width">ภาพ</th>
 			                                        <th class="auto_width">ชื่อ</th>
 													<th class="auto_width">ประเภท</th>
 													<th class="auto_width">ศิลปิน</th>
-													<th class="auto_width">ปิดรับ</th>
-													<th class="auto_width">กำหนดส่ง</th>
+													<th class="status_width">ปิดรับ</th>
+													<!--th class="auto_width">กำหนดส่ง<th>
 													<th class="auto_width">ชำระงวดที่สอง</th>
-													<th class="auto_width">เก็บยอดที่เหลือ</th>
-													<th class="auto_width">สถานะ</th>
-													<th class="fix_width"></th>
-			                                        <th class="fix_width"></th>
-			                                        <th class="fix_width"></th>
+													<th class="auto_width">เก็บยอดที่เหลือ</th-->
+													<th class="status_width">สถานะ</th>
 			                                    </tr>
 			                                </thead>
 			                                <tbody th:utext="${mainProduct}"></tbody>
@@ -106,13 +109,17 @@
 																<label>เก็บยอดที่เหลือ</label>
 															</div>
 															<div class="col-md-4 form-group">
-															    <select class="choices form-select" th:utext="${ListPaymentType}" id="IdPaymentType"></select>
+															    <select class="choices form-select" th:utext="${ListPaymentType}" id="IdPaymentType" onchange="pt1_check(this.value)"></select>
 															</div>
-															<div class="col-sm-2">
-																<label>วันที่เก็บยอดที่เหลือ</label>
-															</div>
-															<div class="col-md-4 form-group">
-															    <input type="date"class="form-control" id="last_pay_date">
+															<div id="pt1" class="col-sm-6">
+																<div class="row">
+																	<div class="col-sm-4">
+																		<label>วันที่เก็บยอดที่เหลือ</label>
+																	</div>
+																	<div class="col-md-8 form-group">
+																	    <input type="date"class="form-control" id="last_pay_date">
+																	</div>
+																</div>
 															</div>
 														</div>
 														<div class="row">
@@ -150,6 +157,67 @@
 														    <i class="bx bx-check d-block d-sm-none"></i>
 														    <span class="d-none d-sm-block">บันทึก</span>
 														</button>
+                                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                                            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+										<div class="modal fade text-left" id="modalVersion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"
+                                                role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="myModalLabel18">ข้อมูลเวอร์ชั่น</h4>
+                                                    </div>
+													<div class="modal-body">
+														<input type="hidden" id="cover_IdProduct">
+														<div class="card">
+															<div class="card-header">
+																<div class="row">
+																	<div class="col-md-2">
+																		<input type="hidden" id="ver_IdProduct">
+																		<input type="hidden" id="IdVersion">
+																		<label>ชื่อเวอร์ชั่น</label>
+																	</div>
+																	<div class="col-md-4 form-group">
+																	    <input type="text" placeholder="ชื่อเวอร์ชั่น . . ." class="form-control" id="vName">
+																	</div>
+																	<div class="col-md-6">
+																		<div class="col-md-10 form-group">
+																			<button type="button" class="btn btn-success ml-1" onclick="ver_save_new_data()" id="ver_btn_save">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">บันทึก</span>
+																			</button>
+																			<button type="button" class="btn btn-warning ml-1" onclick="ver_save_edit_data()" id="ver_btn_edit" style="display: none;">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">แก้ไข</span>
+																			</button>
+																			<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
+																			    <i class="bx bx-check d-block d-sm-none"></i>
+																			    <span class="d-none d-sm-block">ยกเลิก</span>
+																			</button>
+																		</div>
+																	</div>
+																</div>
+															</div>
+															<div class="card-body">
+									                            <table class="table table-striped" id="table2">
+									                                <thead>
+									                                    <tr>
+																			<th class="fix_width">แก้ไข</th>
+																			<th class="fix_width">ลบ</th>
+																			<th class="fix_width">#</th>
+																			<th class="auto_width">ชื่อเวอร์ชั่น</th>
+									                                    </tr>
+									                                </thead>
+									                                <tbody id="mainVersion"></tbody>
+									                            </table>
+															</div>
+														</div>
+													</div>
+                                                    <div class="modal-footer">
                                                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                                             <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
                                                         </button>
