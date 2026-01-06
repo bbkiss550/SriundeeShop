@@ -1,0 +1,68 @@
+<div class="modal fade text-left" id="modalVersion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	        <div class="modal-header">
+	            <h4 class="modal-title" id="myModalLabel18">ข้อมูลเวอร์ชั่น</h4>
+	        </div>
+			<div class="modal-body">
+				<input type="hidden" id="cover_IdProduct">
+				<div class="card">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-md-4">
+								<input type="hidden" id="ver_IdProduct">
+								<input type="hidden" id="IdVersion">
+								<label>ชื่อเวอร์ชั่น</label>
+							</div>
+							<div class="col-md-8 form-group">
+							    <input type="text" placeholder="ชื่อเวอร์ชั่น . . ." class="form-control" id="vName">
+							</div>
+							<hr>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="col-md-12 form-group d-flex justify-content-end">
+									<button type="button" class="btn btn-success ml-1" onclick="ver_save_new_data()" id="ver_btn_save">
+									    <i class="bx bx-check d-block d-sm-none"></i>
+									    <span class="d-none d-sm-block">บันทึก</span>
+									</button>
+									<button type="button" class="btn btn-warning ml-1" onclick="ver_save_edit_data()" id="ver_btn_edit" style="display: none;">
+									    <i class="bx bx-check d-block d-sm-none"></i>
+									    <span class="d-none d-sm-block">แก้ไข</span>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="col-md-12 form-group">
+									<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
+									    <i class="bx bx-check d-block d-sm-none"></i>
+									    <span class="d-none d-sm-block">ยกเลิก</span>
+									</button>
+								</div>
+							</div>
+							<hr>
+						</div>
+					</div>
+					<div class="card-body">
+                         <table class="table table-striped" id="table2">
+                             <thead>
+                                 <tr>
+									<th class="fix_width">แก้ไข</th>
+									<th class="fix_width">ลบ</th>
+									<th class="fix_width">#</th>
+									<th class="auto_width">ชื่อเวอร์ชั่น</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="mainVersion"></tbody>
+                         </table>
+					</div>
+				</div>
+			</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

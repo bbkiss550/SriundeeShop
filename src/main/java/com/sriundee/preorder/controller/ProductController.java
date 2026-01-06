@@ -90,7 +90,7 @@ public class ProductController {
 	    String ListProductstatus = productstatusController.getDataList();
 	    model.addAttribute("ListProductstatus", ListProductstatus);
 
-	    return "product";
+	    return "product/product";
 	}
     
     @PostMapping("/product/save")

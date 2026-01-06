@@ -1,0 +1,101 @@
+<div class="modal fade text-left" id="modalManageData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel18">จัดการข้อมูล</h4>
+            </div>
+			<div class="modal-body">
+			    <div class="row">
+			        <div class="col-md-6">
+			            <div class="row">
+			                <div class="col-md-4">
+			                    <input type="hidden" id="IdProduct">
+			                    <label>ชื่อสินค้า</label>
+			                </div>
+			                <div class="col-md-8 form-group">
+			                    <input type="text" placeholder="ชื่อสินค้า . . ." class="form-control" id="pName">
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>ประเภท</label></div>
+			                <div class="col-md-8 form-group">
+			                    <select class="choices form-select" th:utext="${ListType}" id="IdType"></select>
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>ศิลปิน</label></div>
+			                <div class="col-md-8 form-group">
+			                    <select class="choices form-select" th:utext="${ListArtist}" id="IdArtist"></select>
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>วันที่ปิดรับ</label></div>
+			                <div class="col-md-8 form-group">
+			                    <input type="date" class="form-control" id="end_date">
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>วันที่กำหนดส่ง</label></div>
+			                <div class="col-md-8 form-group">
+			                    <input type="date" class="form-control" id="send_date">
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>งวดที่สอง</label></div>
+			                <div class="col-md-8 form-group">
+			                    <input type="date" class="form-control" id="second_pay_date">
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>เก็บยอดที่เหลือ</label></div>
+			                <div class="col-md-8 form-group">
+			                    <select class="choices form-select" th:utext="${ListPaymentType}" id="IdPaymentType" onchange="pt1_check(this.value)"></select>
+			                </div>
+			            </div>
+			            <div class="row" id="pt1">
+			                <div class="col-md-4"><label>วันที่เก็บยอดเหลือ</label></div>
+			                <div class="col-md-8 form-group">
+			                    <input type="date" class="form-control" id="last_pay_date">
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-4"><label>สถานะ</label></div>
+			                <div class="col-md-8 form-group">
+			                    <select class="choices form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
+			                </div>
+			            </div>
+			        </div>
+			        <div class="col-md-6">
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+			                    <div class="input-group">
+			                        <input type="text" class="form-control" placeholder="ลิ้งภาพ . . ." id="pPic">
+			                        <button class="btn btn-dark" type="button" onclick="updateImage()">โหลดภาพ</button>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="row">
+				            <label class="mb-2  text-center">ตัวอย่างรูปภาพ</label>
+				            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 500px; display: flex; align-items: center; justify-content: center;">
+				                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="showImage" style="height: 490px; width: auto; object-fit: contain;">
+				            </div>
+			            </div>
+			        </div>
+			
+			    </div> </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-warning ml-1" onclick="save_edit_data()" id="btn_edit" style="display: none;">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">แก้ไข</span>
+				</button>
+				<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">บันทึก</span>
+				</button>
+		        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+		            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+		        </button>
+            </div>
+        </div>
+    </div>
+</div>

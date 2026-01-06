@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<script th:src="@{/script/product/product.js}"></script>
+<script th:src="@{/script/product/version.js}"></script>
+<script th:src="@{/script/product/cover.js}"></script>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+		
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+            <div class="page-heading">
+                <h3>ข้อมูลสินค้า</h3>
+            </div>
+			<div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-12">
+								<div class="card">
+									<div class="card-header">
+										<div class="buttons">
+									        <a class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มข้อมูลใหม่</a>
+									    </div>
+										<hr>
+									</div>
+			                        <div class="card-body">
+			                            <table class="table table-striped" id="table1">
+			                                <thead>
+			                                    <tr>
+													<th class="fix_width">แก้ไข</th>
+													<th class="fix_width">ลบ</th>
+													<th class="fix_width">ปก</th>
+													<th class="fix_width">เวอร์ชั่น</th>
+													<th class="fix_width">#</th>
+													<th class="auto_width">ภาพ</th>
+			                                        <th class="auto_width">ชื่อ</th>
+													<th class="auto_width">ประเภท</th>
+													<th class="auto_width">ศิลปิน</th>
+													<th class="status_width">ปิดรับ</th>
+													<!--th class="auto_width">กำหนดส่ง<th>
+													<th class="auto_width">ชำระงวดที่สอง</th>
+													<th class="auto_width">เก็บยอดที่เหลือ</th-->
+													<th class="status_width">สถานะ</th>
+			                                    </tr>
+			                                </thead>
+			                                <tbody th:utext="${mainProduct}"></tbody>
+			                            </table>
+			                            <div th:include="./product/modal-product"></div>
+			                            <div th:include="./product/modal-cover"></div>
+			                            <div th:include="./product/modal-version"></div>
+			                        </div>
+			                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+</body>
+</html>
