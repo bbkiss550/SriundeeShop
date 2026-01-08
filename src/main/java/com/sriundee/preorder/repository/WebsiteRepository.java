@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.sriundee.preorder.model.Website;
+import com.sriundee.preorder.entity.Website;
 
 @Repository
 public interface WebsiteRepository extends JpaRepository<Website, Integer> {

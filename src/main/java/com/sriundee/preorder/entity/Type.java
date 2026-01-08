@@ -1,27 +1,22 @@
-package com.sriundee.preorder.model;
+package com.sriundee.preorder.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "t_website")
+@Table(name = "t_type")
 @Data
-public class Website {
+public class Type {
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_web")
+    @Column(name = "ID_type")
     private Integer id;
 
-    @Column(name = "w_name")
+    @Column(name = "t_name")
     private String name;
 
-    @Column(name = "w_delete")
+    @Column(name = "t_delete")
     private String delete;
 
 	public Integer getId() {

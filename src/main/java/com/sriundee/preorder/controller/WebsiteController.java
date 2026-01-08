@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.dto.WebsiteDto;
-import com.sriundee.preorder.model.Website;
+import com.sriundee.preorder.entity.Website;
 import com.sriundee.preorder.repository.WebsiteRepository;
 
 import org.springframework.ui.Model;

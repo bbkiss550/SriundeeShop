@@ -1,28 +1,41 @@
-package com.sriundee.preorder.model;
+package com.sriundee.preorder.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "t_group")
+@Table(name = "t_version")
 @Data
-public class Group {
+public class Version {
+	
     @Id
-    @Column(name = "ID_group")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_ver")
     private Integer id;
 
-    @Column(name = "g_name")
+    @Column(name = "ID_pro")
+    private Integer product;
+    
+    @Column(name = "v_name")
     private String name;
 
-    @Column(name = "g_delete")
+    @Column(name = "v_delete")
     private String delete;
-
+    
 	public Integer getId() {
 		return id;
 	}
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Integer getProduct() {
+		return product;
+	}
+
+	public void setProduct(Integer product) {
+		this.product = product;
 	}
 
 	public String getName() {

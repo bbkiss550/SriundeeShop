@@ -1,4 +1,4 @@
-package com.sriundee.preorder.model;
+package com.sriundee.preorder.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,15 +7,15 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "t_payment_type")
+@Table(name = "t_product_status")
 @Data
-public class PaymentType {
+public class ProductStatus {
 	
     @Id
-    @Column(name = "ID_pay_type")
+    @Column(name = "ID_pro_status")
     private Integer id;
 
-    @Column(name = "pt_name")
+    @Column(name = "ps_name")
     private String name;
 
 	public Integer getId() {

@@ -4,14 +4,18 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sriundee.preorder.bean.ProductBean;
-import com.sriundee.preorder.model.Product;
+import com.sriundee.preorder.entity.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 	
 	@Query(value = "SELECT * FROM q_product WHERE p_delete = 'A'", nativeQuery = true)
-		List<ProductBean> getDataAll();
+	List<ProductBean> getDataAll();
+
+	@Query(value = "SELECT * FROM q_product WHERE p_delete = 'A' AND ID_pro = :ID_pro", nativeQuery = true)
+	List<ProductBean> getDataAllByID(@Param("ID_pro") Integer ID_pro);
 }

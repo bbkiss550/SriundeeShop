@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.dto.VersionDto;
-import com.sriundee.preorder.model.Version;
+import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.repository.VersionRepository;
 
 @Controller

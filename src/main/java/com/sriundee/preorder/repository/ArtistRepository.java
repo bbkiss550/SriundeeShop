@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sriundee.preorder.bean.ArtistBean;
-import com.sriundee.preorder.model.Artist;
+import com.sriundee.preorder.entity.Artist;
 
 @Repository
 public interface ArtistRepository extends JpaRepository<Artist, Integer> {

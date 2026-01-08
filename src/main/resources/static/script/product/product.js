@@ -44,14 +44,14 @@ function edit_data(id) {
         .then(response => response.json())
         .then(data => {
 			document.getElementById('pName').value = data.name
-			setChoicesValue('IdType', data.type); 
-			setChoicesValue('IdArtist', data.artist);
+			document.getElementById('IdType').value = data.type; 
+			document.getElementById('IdArtist').value = data.artist;
 			document.getElementById('end_date').value = check_date_null(data.end_date);
 			document.getElementById('send_date').value = check_date_null(data.send_date);
 			document.getElementById('second_pay_date').value = check_date_null(data.second_pay_date);
 			document.getElementById('IdPaymentType').value = data.payment_type;
 			document.getElementById('last_pay_date').value = check_date_null(data.last_pay_date);
-			setChoicesValue('IdProductStatus', data.product_status);
+			document.getElementById('IdProductStatus').value = data.product_status;
 			document.getElementById('pPic').value = data.pic;
 			document.getElementById('showImage').src = check_pic_null(data.pic);
 			
@@ -64,22 +64,6 @@ function edit_data(id) {
             myModal.show();
         })
         .catch(err => console.error("Error fetching data:", err));
-}
-
-function setChoicesValue(elementId, value) {
-    const el = document.getElementById(elementId);
-    if (!el) return;
-
-    if (el.choicesInstance) {
-        el.choicesInstance.setChoiceByValue(value.toString());
-    } 
-    else if (el.choices) {
-        el.choices.setChoiceByValue(value.toString());
-    } 
-    else {
-        el.value = value;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-    }
 }
 
 function check_date_null(data) {

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.dto.ArtistDto;
-import com.sriundee.preorder.model.Artist;
-import com.sriundee.preorder.model.Group;
+import com.sriundee.preorder.entity.Artist;
+import com.sriundee.preorder.entity.Group;
 import com.sriundee.preorder.repository.ArtistRepository;
 import com.sriundee.preorder.repository.GroupRepository;
 

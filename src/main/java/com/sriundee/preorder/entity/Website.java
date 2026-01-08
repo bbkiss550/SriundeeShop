@@ -1,41 +1,35 @@
-package com.sriundee.preorder.model;
+package com.sriundee.preorder.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "t_version")
+@Table(name = "t_website")
 @Data
-public class Version {
+public class Website {
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_ver")
+    @Column(name = "ID_web")
     private Integer id;
 
-    @Column(name = "ID_pro")
-    private Integer product;
-    
-    @Column(name = "v_name")
+    @Column(name = "w_name")
     private String name;
 
-    @Column(name = "v_delete")
+    @Column(name = "w_delete")
     private String delete;
-    
+
 	public Integer getId() {
 		return id;
 	}
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public Integer getProduct() {
-		return product;
-	}
-
-	public void setProduct(Integer product) {
-		this.product = product;
 	}
 
 	public String getName() {

@@ -1,4 +1,4 @@
-package com.sriundee.preorder.model;
+package com.sriundee.preorder.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

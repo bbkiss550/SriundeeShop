@@ -21,10 +21,7 @@ import com.sriundee.preorder.repository.ProductRepository;
 import org.springframework.ui.Model;
 
 @Controller
-public class ProductController {
-	
-	@Autowired
-    private MenuController menuService;
+public class CoverController {
 	
 	@Autowired
 	private ProductRepository productRepository;
@@ -43,9 +40,6 @@ public class ProductController {
 	
 	@GetMapping("/product")
 	public String index(Model model) {
-		String menuList = menuService.getMenuList(6,null);
-	    model.addAttribute("mainMenus", menuList);
-	    
 		List<ProductBean> productList = productRepository.getDataAll();
 		StringBuilder strProduct = new StringBuilder();
 		Integer row_id = 0;
