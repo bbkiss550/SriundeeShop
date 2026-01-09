@@ -8,52 +8,117 @@
 				<div class="card">
 					<div class="card-header">
 						<div class="row">
-							<div class="col-md-1">
-								<input type="hidden" id="cov_IdProduct">
-								<label>ชื่อสินค้า</label>
-							</div>
-							<div class="col-md-3 form-group">
-							    <input type="text" class="form-control" id="cov_pName" readonly="readonly">
-							</div>
-							<div class="col-md-1">
-								<input type="hidden" id="cov_IdType">
-								<label>ชื่อประเภท</label>
-							</div>
-							<div class="col-md-3 form-group">
-							    <input type="text" class="form-control" id="cov_tName" readonly="readonly">
-							</div>
-							<div class="col-md-1">
-								<input type="hidden" id="cov_IdProduct">
-								<label>ชื่อศิลปิน</label>
-							</div>
-							<div class="col-md-3 form-group">
-							    <input type="text" class="form-control" id="cov_aName" readonly="readonly">
-							</div>
-							<hr>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="col-md-12 form-group d-flex justify-content-end">
-									<button type="button" class="btn btn-success ml-1" onclick="ver_save_new_data()" id="ver_btn_save">
-									    <i class="bx bx-check d-block d-sm-none"></i>
-									    <span class="d-none d-sm-block">บันทึก</span>
-									</button>
-									<button type="button" class="btn btn-warning ml-1" onclick="ver_save_edit_data()" id="ver_btn_edit" style="display: none;">
-									    <i class="bx bx-check d-block d-sm-none"></i>
-									    <span class="d-none d-sm-block">แก้ไข</span>
-									</button>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-1">
+										<input type="hidden" id="cov_IdProduct">
+										<label>สินค้า</label>
+									</div>
+									<div class="col-md-11 form-group">
+									    <input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-1">
+										<input type="hidden" id="cov_IdType">
+										<label>ประเภท</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" class="form-control" id="cov_tName" readonly="readonly">
+									</div>
+									<div class="col-md-1">
+										<input type="hidden" id="cov_IdProduct">
+										<label>ศิลปิน</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									</div>
+									<hr>
+								</div>
+								<div class="row">
+									<div class="col-md-1">
+										<input type="hidden" id="cov_IdProduct">
+										<label>ชื่อปก</label>
+									</div>
+									<div class="col-md-7 form-group">
+									    <input type="text" placeholder="ชื่อปก . . ." class="form-control" id="cName">
+									</div>
+									<div class="col-md-1">
+										<label>ราคาเต็ม</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									</div>
+								</div>
+								<div class="divider"><div class="divider-text"> มัดจำ </div></div>
+								<div class="row">
+									<div class="col-md-1">
+										<label>ราคามัดจำ</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									</div>
+									<div class="col-md-1">
+										<label>ยอดที่เหลือ</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									</div>
+								</div>
+								<div class="divider"><div class="divider-text"> แบ่งชำระ </div></div>
+								<div class="row">
+									<div class="col-md-1">
+										<label>งวดแรก</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_1st" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									</div>
+									<div class="col-md-1">
+										<label>งวดสอง</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_2nd" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									</div>
+									<div class="col-md-1">
+										<label>งวดสุดท้าย</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_last" style="text-align: right;" readonly="readonly">
+									</div>
 								</div>
 							</div>
-							<div class="col-md-6">
-								<div class="col-md-12 form-group">
-									<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
-									    <i class="bx bx-check d-block d-sm-none"></i>
-									    <span class="d-none d-sm-block">ยกเลิก</span>
-									</button>
-								</div>
-							</div>
-							<hr>
+							<div class="col-md-3">
+					            <div class="row">
+						            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 500px; display: flex; align-items: center; justify-content: center;">
+						                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="cov_showImage" style="height: 490px; width: auto; object-fit: contain;">
+						            </div>
+					            </div>
+					        </div>
 						</div>
+					</div>
+					<div class="row">
+						<hr>
+						<div class="col-md-6">
+							<div class="col-md-12 form-group d-flex justify-content-end">
+								<button type="button" class="btn btn-success ml-1" onclick="cov_save_new_data()" id="cov_btn_save">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">บันทึก</span>
+								</button>
+								<button type="button" class="btn btn-warning ml-1" onclick="cov_save_edit_data()" id="cov_btn_edit" style="display: none;">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">แก้ไข</span>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="col-md-12 form-group">
+								<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">ยกเลิก</span>
+								</button>
+							</div>
+						</div>
+						<hr>
 					</div>
 					<div class="card-body">
 						<table class="table table-striped" id="table2">

@@ -16,6 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	@Query(value = "SELECT * FROM q_product WHERE p_delete = 'A'", nativeQuery = true)
 	List<ProductBean> getDataAll();
 
-	@Query(value = "SELECT * FROM q_product WHERE p_delete = 'A' AND ID_pro = :ID_pro", nativeQuery = true)
-	List<ProductBean> getDataAllByID(@Param("ID_pro") Integer ID_pro);
+	@Query(value = "SELECT * FROM q_product WHERE p_delete = 'A' AND ID_product = :ID_product", nativeQuery = true)
+	List<ProductBean> getDataAllByID(@Param("ID_product") Integer ID_pro);
 }
