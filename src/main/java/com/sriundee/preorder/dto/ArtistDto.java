@@ -3,6 +3,7 @@ package com.sriundee.preorder.dto;
 public class ArtistDto {
     private String artistName;
     private String groupId;
+    private String logo;
 
     public ArtistDto() {
     }
@@ -23,11 +24,17 @@ public class ArtistDto {
         this.groupId = groupId;
     }
 
-    @Override
-    public String toString() {
-        return "ArtistDto{" +
-                "artistName='" + artistName + '\'' +
-                ", groupId='" + groupId + '\'' +
-                '}';
-    }
+    
+    public String getLogo() {
+		return logo;
+	}
+
+	public void setLogo(String logo) {
+		this.logo = logo;
+	}
+
+	@Override
+	public String toString() {
+		return "ArtistDto [artistName=" + artistName + ", groupId=" + groupId + ", logo=" + logo + "]";
+	}
 }

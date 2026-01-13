@@ -47,8 +47,9 @@ public class ArtistController {
 			strArtist.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + a.getID_art() + ")'><i data-feather='edit'></i></a></div></td>");
 			strArtist.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + a.getID_art() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strArtist.append("<td>" + row_id + "</td>");
-			strArtist.append("<td>" + a.getA_name() + "</td>");
-			strArtist.append("<td>" + a.getG_name() + "</td>");
+			strArtist.append("<td><img src='" + a.geta_logo() + "' class='table-img'></td>");
+			strArtist.append("<td>" + a.geta_name() + "</td>");
+			strArtist.append("<td>" + a.getg_name() + "</td>");
 			strArtist.append("</tr>");
 		}
 	    model.addAttribute("mainArtist", strArtist);
@@ -66,6 +67,7 @@ public class ArtistController {
             Artist artist = new Artist();
             artist.setName(artistDto.getArtistName());
             artist.setGroup(Integer.parseInt(artistDto.getGroupId()));
+            artist.setLogo(artistDto.getLogo());
             artist.setDelete("A");
 
             artistRepository.save(artist);
@@ -89,6 +91,7 @@ public class ArtistController {
             Artist artist = artistRepository.findById(id).orElseThrow(() -> new RuntimeException("ไม่พบข้อมูลศิลปิน"));
             artist.setName(artistDto.getArtistName());
             artist.setGroup(Integer.parseInt(artistDto.getGroupId()));
+            artist.setLogo(artistDto.getLogo());
             
             artistRepository.save(artist);
             
@@ -117,7 +120,7 @@ public class ArtistController {
 	    List<ArtistBean> mainArtist = artistRepository.getDataAll();
 	    StringBuilder strArtist = new StringBuilder();
 	    for (ArtistBean a : mainArtist) {
-	    	strArtist.append("<option value='" + a.getID_art() + "'>" + a.getA_name() + "</option>");
+	    	strArtist.append("<option value='" + a.getID_art() + "'>" + a.geta_name() + "</option>");
 	    }
 	    
 	    return strArtist.toString();

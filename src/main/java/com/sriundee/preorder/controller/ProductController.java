@@ -57,18 +57,15 @@ public class ProductController {
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-dark' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='image'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
-			strProduct.append("<td><img src='" + p.getP_pic() + "' class='table-img'></td>");
-			strProduct.append("<td>" + p.getP_name() + "</td>");
-			strProduct.append("<td>" + p.getT_name() + "</td>");
-			strProduct.append("<td>" + p.getA_name() + "</td>");
-			strProduct.append("<td>" + p.getP_end_date() + "</td>");
-			/*strProduct.append("<td>" + p.getP_send_date() + "</td>");
-			strProduct.append("<td>" + p.getP_second_pay_date() + "</td>");
-			strProduct.append("<td>" + p.getP_last_pay_date() + "</td>");*/
+			strProduct.append("<td><img src='" + p.getp_pic() + "' class='table-img'></td>");
+			strProduct.append("<td>" + p.getp_name() + "</td>");
+			strProduct.append("<td>" + p.gett_name() + "</td>");
+			strProduct.append("<td>" + p.geta_name() + "</td>");
+			strProduct.append("<td>" + p.getp_end_date() + "</td>");
 			if (p.getID_pro_status() == 1) {
-				strProduct.append("<td><span class='badge bg-success' style='padding: 15px;'>" + p.getPs_name() + "</span></td>");
+				strProduct.append("<td><span class='badge bg-success' style='padding: 15px;'>" + p.getps_name() + "</span></td>");
 			} else {
-				strProduct.append("<td><span class='badge bg-danger' style='padding: 15px;'>" + p.getPs_name() + "</span></td>");
+				strProduct.append("<td><span class='badge bg-danger' style='padding: 15px;'>" + p.getps_name() + "</span></td>");
 			}
 			strProduct.append("</tr>");
 		}

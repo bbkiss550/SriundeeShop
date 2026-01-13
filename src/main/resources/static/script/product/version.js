@@ -1,21 +1,29 @@
-function modal_version(id) {
-	document.getElementById('ver_IdProduct').value = id;
-    fetch('/product/version/' + id)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('mainVersion').innerHTML = html;
-            
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
+function ver_search(id,type) {
+	fetch('/product/version/search/' + id)
+	    .then(response => response.text())
+	    .then(html => {
+	        document.getElementById('mainVersion').innerHTML = html;
+	        
+	        if (typeof feather !== 'undefined') {
+	            feather.replace();
+	        }
 			
-			var myModal = new bootstrap.Modal(document.getElementById('modalVersion'));
-			myModal.show();
-        })
-        .catch(error => console.error('Error:', error));
+			if (type == "modal") {
+				var myModal = new bootstrap.Modal(document.getElementById('modalVersion'));
+				myModal.show();
+			} else {
+				ver_clr();
+			}
+	    })
+	    .catch(error => console.error('Error:', error));
 }
 
-function clr() {
+function modal_version(id) {
+	document.getElementById('ver_IdProduct').value = id;
+	ver_search(id,"modal");
+}
+
+function ver_clr() {
 	document.getElementById('vName').value = "";
 
 	document.getElementById('ver_btn_save').style.display = '';
@@ -43,18 +51,7 @@ function ver_delete_data(id) {
 			            confirmButtonText: "ตกลง"
 			        }).then((result) => {
 			            if (result.isConfirmed) {
-						fetch('/product/version/' + ver_IdProduct)
-						    .then(response => response.text())
-						    .then(html => {
-						        document.getElementById('mainVersion').innerHTML = html;
-						        
-						        if (typeof feather !== 'undefined') {
-						            feather.replace();
-						        }
-								
-								clr();
-						    })
-						    .catch(error => console.error('Error:', error));
+							ver_search(ver_IdProduct,"load");
 			            }
 			        });
 			    } else {
@@ -102,18 +99,7 @@ function ver_save_new_data() {
                 confirmButtonText: "ตกลง"
             }).then((result) => {
                 if (result.isConfirmed) {
-					fetch('/product/version/' + ver_IdProduct)
-					    .then(response => response.text())
-					    .then(html => {
-					        document.getElementById('mainVersion').innerHTML = html;
-					        
-					        if (typeof feather !== 'undefined') {
-					            feather.replace();
-					        }
-							
-							clr();
-					    })
-					    .catch(error => console.error('Error:', error));
+					ver_search(ver_IdProduct,"load");
                 }
             });
         } else {
@@ -172,18 +158,7 @@ function ver_save_edit_data() {
                 confirmButtonText: "ตกลง"
             }).then((result) => {
                 if (result.isConfirmed) {
-					fetch('/product/version/' + ver_IdProduct)
-					    .then(response => response.text())
-					    .then(html => {
-					        document.getElementById('mainVersion').innerHTML = html;
-					        
-					        if (typeof feather !== 'undefined') {
-					            feather.replace();
-					        }
-							
-							clr();
-					    })
-					    .catch(error => console.error('Error:', error));
+					ver_search(ver_IdProduct,"load");
                 }
             });
         } else {

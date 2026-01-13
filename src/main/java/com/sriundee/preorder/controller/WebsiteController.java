@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.dto.WebsiteDto;
+import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.entity.Website;
 import com.sriundee.preorder.repository.WebsiteRepository;
 
@@ -98,5 +99,16 @@ public class WebsiteController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
+    }
+
+    @ResponseBody
+    public String getDataList() {
+    	List<Website> websiteList = websiteRepository.getDataAll();
+	    StringBuilder strWebsite = new StringBuilder();
+	    for (Website w : websiteList) {
+	    	strWebsite.append("<option value='" + w.getId() + "'>" + w.getName() + "</option>");
+	    }
+
+	    return strWebsite.toString();
     }
 }

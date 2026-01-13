@@ -38,6 +38,21 @@
 								<div class="row">
 									<div class="col-md-1">
 										<input type="hidden" id="cov_IdProduct">
+										<label>เวอร์ชั่น</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <select class="form-select" id="cov_IdVersion"></select>
+									</div>
+									<div class="col-md-1">
+										<label>เว็บ</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <select class="form-select" id="cov_IdWebsite"></select>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-1">
+										<input type="hidden" id="IdCover">
 										<label>ชื่อปก</label>
 									</div>
 									<div class="col-md-7 form-group">
@@ -89,11 +104,22 @@
 							</div>
 							<div class="col-md-3">
 					            <div class="row">
-						            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 500px; display: flex; align-items: center; justify-content: center;">
-						                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="cov_showImage" style="height: 490px; width: auto; object-fit: contain;">
+						            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 100%; display: flex; align-items: center; justify-content: center;">
+						                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="cov_showImage" style="height: 90%; width: auto; object-fit: contain;">
 						            </div>
 					            </div>
 					        </div>
+						</div>
+						<div class="row">
+							<div class="col-md-6"></div>
+							<div class="col-md-6">
+								<div class="form-check">
+								    <div class="custom-control custom-checkbox">
+								        <input type="checkbox" class="form-check-input form-check-danger form-check-glow" name="copydata" id="copydata">
+								        <label class="form-check-label" for="customColorCheck4">จดจำค่าก่อนบันทึกเอาไว้</label>
+								    </div>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="row">
@@ -112,7 +138,7 @@
 						</div>
 						<div class="col-md-6">
 							<div class="col-md-12 form-group">
-								<button type="button" class="btn btn-danger ml-1" onclick="clr()" id="ver_btn_cancel">
+								<button type="button" class="btn btn-danger ml-1" onclick="cov_clr()" id="ver_btn_cancel">
 								    <i class="bx bx-check d-block d-sm-none"></i>
 								    <span class="d-none d-sm-block">ยกเลิก</span>
 								</button>
@@ -126,16 +152,17 @@
 								<tr>
 									<th class="fix_width">แก้ไข</th>
 									<th class="fix_width">ลบ</th>
+									<th class="fix_width">คัดลอก</th>
 									<th class="fix_width">#</th>
 									<th class="auto_width">ปก</th>
 									<th class="auto_width">เว็บ</th>
 									<th class="auto_width">เวอร์ชั่น</th>
-									<th class="auto_width">ราคา</th>
-									<th class="auto_width">มัดจำ</th>
-									<th class="auto_width">เหลือจ่าย</th>
-									<th class="auto_width">งวดแรก</th>
-									<th class="auto_width">งวดสอง</th>
-									<th class="auto_width">งวดสุดท้าย</th>
+									<th class="status_width">ราคา</th>
+									<th class="status_width">มัดจำ</th>
+									<th class="status_width">เหลือจ่าย</th>
+									<th class="status_width">งวดแรก</th>
+									<th class="status_width">งวดสอง</th>
+									<th class="status_width">งวดสุดท้าย</th>
 	                          </tr>
 	                      </thead>
 	                      <tbody id="mainCover"></tbody>

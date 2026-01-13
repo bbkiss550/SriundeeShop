@@ -1,31 +1,31 @@
 package com.sriundee.preorder.bean;
 
 import java.beans.JavaBean;
-import java.sql.Date;
 
 @JavaBean
 public interface ProductBean {
 	
     Integer getID_product();
-    String getP_name();
+    String getp_name();
     
     Integer getID_type();
-    String getT_name();
+    String gett_name();
     
     Integer getID_art();
-    String getA_name();
+    String geta_name();
+    String geta_logo();
     
-    String getP_end_date();
-    String getP_send_date();
-    String getP_second_pay_date();
-    String getP_last_pay_date();
+    String getp_end_date();
+    String getp_send_date();
+    String getp_second_pay_date();
+    String getp_last_pay_date();
     
     Integer getID_pay_type();
-    String getPt_name();
+    String getpt_name();
     
     Integer getID_pro_status();
-    String getPs_name();
+    String getps_name();
     
-    String getP_delete();
-    String getP_pic();
+    String getp_delete();
+    String getp_pic();
 }

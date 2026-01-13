@@ -21,7 +21,7 @@ public class VersionController {
 	@Autowired
 	private VersionRepository versionRepository;
 
-	@GetMapping("/product/version/{id}")
+	@GetMapping("/product/version/search/{id}")
 	@ResponseBody
 	public ResponseEntity<String> getListVersion(@PathVariable Integer id) {
 	    List<Version> versionList = versionRepository.getDataAll(id);
@@ -91,5 +91,16 @@ public class VersionController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
+    }
+    
+    @ResponseBody
+    public String getDataList(@PathVariable Integer id) {
+	    List<Version> versionList = versionRepository.getDataAll(id);
+	    StringBuilder strVersion = new StringBuilder();
+	    for (Version v : versionList) {
+	    	strVersion.append("<option value='" + v.getId() + "'>" + v.getName() + "</option>");
+	    }
+
+	    return strVersion.toString();
     }
 }

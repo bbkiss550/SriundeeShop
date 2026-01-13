@@ -19,6 +19,9 @@ public class Artist {
     @Column(name = "ID_group")
     private Integer group;
 
+    @Column(name = "a_logo")
+    private String logo;
+    
     @Column(name = "a_delete")
     private String delete;
 
@@ -44,6 +47,14 @@ public class Artist {
 
 	public void setGroup(Integer group) {
 		this.group = group;
+	}
+
+	public String getLogo() {
+		return logo;
+	}
+
+	public void setLogo(String logo) {
+		this.logo = logo;
 	}
 
 	public String getDelete() {

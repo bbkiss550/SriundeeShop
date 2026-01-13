@@ -1,3 +1,12 @@
+function updateImage() {
+    const url = document.getElementById('aPic').value;
+    if (url.trim() !== "") {
+        document.getElementById('showImage').src = url;
+    } else {
+        alert("กรุณาวางลิงก์รูปภาพก่อนครับ");
+    }
+}
+
 function new_data() {
 	document.getElementById('IdArt').value = "";
 	document.getElementById('aName').value = "";
@@ -18,7 +27,9 @@ function edit_data(id) {
             // นำข้อมูลที่ได้ไปใส่ใน Input ของ Modal
             document.getElementById('aName').value = data.name;
             document.getElementById('IdGroup').value = data.group;
-			
+			document.getElementById('aPic').value = data.logo;
+			document.getElementById('showImage').src = check_pic_null(data.logo);
+						
 			document.getElementById('btn_edit').style.display = '';
 			document.getElementById('btn_save').style.display = 'none';
 			
@@ -26,6 +37,14 @@ function edit_data(id) {
             myModal.show();
         })
         .catch(err => console.error("Error fetching data:", err));
+}
+
+function check_pic_null(data) {
+	var res = "/mazer/dist/assets/images/samples/no-photo.png";
+	if (data) {
+		res = data;
+	}
+	return res;
 }
 
 function delete_data(id) {
@@ -67,6 +86,7 @@ function delete_data(id) {
 function save_new_data() {
 	const aName = document.getElementById('aName').value;
     const idGroup = document.getElementById('IdGroup').value;
+	const aPic = document.getElementById('aPic').value;
 
     if (!aName) {
 		Swal.fire({
@@ -90,7 +110,8 @@ function save_new_data() {
 	
     const payload = {
         artistName: aName,
-        groupId: idGroup
+        groupId: idGroup,
+		logo: aPic
     };
 
     fetch('/manage/artist/save', {
@@ -124,6 +145,7 @@ function save_edit_data() {
 	const IdArt = document.getElementById('IdArt').value;
 	const aName = document.getElementById('aName').value;
     const idGroup = document.getElementById('IdGroup').value;
+	const aPic = document.getElementById('aPic').value;
 
 	if (!IdArt) {
 		Swal.fire({
@@ -157,7 +179,8 @@ function save_edit_data() {
 	
     const payload = {
         artistName: aName,
-        groupId: idGroup
+        groupId: idGroup,
+		logo: aPic
     };
 	
 	fetch('/manage/artist/update/' + IdArt , {
