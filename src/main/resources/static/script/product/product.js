@@ -9,9 +9,9 @@ function updateImage() {
 
 function pt1_check(id) {
 	if (id == 1 ) {
-		document.getElementById('pt1').style.display = '';
-	} else if (id == 2 ) {
 		document.getElementById('pt1').style.display = 'none';
+	} else if (id == 2 ) {
+		document.getElementById('pt1').style.display = '';
 	}
 }
 
@@ -36,6 +36,112 @@ function new_data() {
 	
     var myModal = new bootstrap.Modal(document.getElementById('modalManageData'));
     myModal.show();
+}
+
+function save_new_data() {
+	const pName = document.getElementById('pName').value;
+	const IdType = document.getElementById('IdType').value;
+	const IdArtist = document.getElementById('IdArtist').value;
+	const end_date = document.getElementById('end_date').value;
+	const send_date = document.getElementById('send_date').value;
+	const second_pay_date = document.getElementById('second_pay_date').value;
+	const IdPaymentType = document.getElementById('IdPaymentType').value;
+	var last_pay_date = document.getElementById('last_pay_date').value;
+	const IdProductStatus = document.getElementById('IdProductStatus').value;
+	const pPic = document.getElementById('pPic').value;
+
+    if (!pName) {
+		Swal.fire({
+		  title: "กรุณากรอกชื่อสินค้า",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+        return;
+    }
+
+	if (!end_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ปิดรับ",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!send_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่หำหนดส่ง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+	
+		if (!second_pay_date) {
+			Swal.fire({
+			  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
+			  text: "",
+			  icon: "error",
+			  confirmButtonText: "ตกลง"
+			});
+		    return;
+		}
+
+	if (!IdPaymentType == 1) {
+		if (!last_pay_date) {
+			Swal.fire({
+			  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
+			  text: "",
+			  icon: "error",
+			  confirmButtonText: "ตกลง"
+			});
+		    return;
+		}
+	} else {
+		last_pay_date = null;
+	}
+
+    const payload = {
+        name: pName,
+		type: IdType,
+		artist: IdArtist,
+		end_date: end_date,
+		send_date: send_date,
+		second_pay_date: second_pay_date,
+		payment_type: IdPaymentType,
+		last_pay_date: last_pay_date,
+		product_status: IdProductStatus,
+		pic: pPic
+    };
+
+    fetch('/product/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+		if (response.ok) {
+            Swal.fire({
+                title: "บันทึกสำเร็จ",
+                icon: "success",
+                confirmButtonText: "ตกลง"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload();
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "บันทึกไม่สำเร็จ",
+                text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
+                icon: "error"
+            });
+        }
+    })
+    .catch(err => console.error("Error:", err));
 }
 
 function edit_data(id) {
@@ -64,6 +170,113 @@ function edit_data(id) {
             myModal.show();
         })
         .catch(err => console.error("Error fetching data:", err));
+}
+
+function save_edit_data() {
+	const IdProduct = document.getElementById('IdProduct').value;
+	const pName = document.getElementById('pName').value;
+	const IdType = document.getElementById('IdType').value;
+	const IdArtist = document.getElementById('IdArtist').value;
+	const end_date = document.getElementById('end_date').value;
+	const send_date = document.getElementById('send_date').value;
+	const second_pay_date = document.getElementById('second_pay_date').value;
+	const IdPaymentType = document.getElementById('IdPaymentType').value;
+	var last_pay_date = document.getElementById('last_pay_date').value;
+	const IdProductStatus = document.getElementById('IdProductStatus').value;
+	const pPic = document.getElementById('pPic').value;
+
+	if (!pName) {
+		Swal.fire({
+		  title: "กรุณากรอกชื่อสินค้า",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!end_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ปิดรับ",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!send_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่หำหนดส่ง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!second_pay_date) {
+		Swal.fire({
+		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+
+	if (!IdPaymentType == 1) {
+		if (!last_pay_date) {
+			Swal.fire({
+			  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
+			  text: "",
+			  icon: "error",
+			  confirmButtonText: "ตกลง"
+			});
+		    return;
+		}
+	} else {
+		last_pay_date = null;
+	}
+
+    const payload = {
+		name: pName,
+		type: IdType,
+		artist: IdArtist,
+		end_date: end_date,
+		send_date: send_date,
+		second_pay_date: second_pay_date,
+		payment_type: IdPaymentType,
+		last_pay_date: last_pay_date,
+		product_status: IdProductStatus,
+		pic: pPic
+    };
+	
+	fetch('/product/update/' + IdProduct , {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+		if (response.ok) {
+            Swal.fire({
+                title: "บันทึกสำเร็จ",
+                icon: "success",
+                confirmButtonText: "ตกลง"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.reload();
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "บันทึกไม่สำเร็จ",
+                text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
+                icon: "error"
+            });
+        }
+    })
+    .catch(err => console.error("Error:", err));
 }
 
 function check_date_null(data) {
@@ -116,209 +329,4 @@ function delete_data(id) {
 			.catch(err => console.error("Error:", err));
 		}
 	});
-}
-
-function save_new_data() {
-	const pName = document.getElementById('pName').value;
-	const IdType = document.getElementById('IdType').value;
-	const IdArtist = document.getElementById('IdArtist').value;
-	const end_date = document.getElementById('end_date').value;
-	const send_date = document.getElementById('send_date').value;
-	const second_pay_date = document.getElementById('second_pay_date').value;
-	const IdPaymentType = document.getElementById('IdPaymentType').value;
-	const last_pay_date = document.getElementById('last_pay_date').value;
-	const IdProductStatus = document.getElementById('IdProductStatus').value;
-	const pPic = document.getElementById('pPic').value;
-
-    if (!pName) {
-		Swal.fire({
-		  title: "กรุณากรอกชื่อสินค้า",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-        return;
-    }
-
-	if (!end_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่ปิดรับ",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!send_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่หำหนดส่ง",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!second_pay_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!last_pay_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-    const payload = {
-        name: pName,
-		type: IdType,
-		artist: IdArtist,
-		end_date: end_date,
-		send_date: send_date,
-		second_pay_date: second_pay_date,
-		payment_type: IdPaymentType,
-		last_pay_date: last_pay_date,
-		product_status: IdProductStatus,
-		pic: pPic
-    };
-
-    fetch('/product/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-		if (response.ok) {
-            Swal.fire({
-                title: "บันทึกสำเร็จ",
-                icon: "success",
-                confirmButtonText: "ตกลง"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    location.reload();
-                }
-            });
-        } else {
-            Swal.fire({
-                title: "บันทึกไม่สำเร็จ",
-                text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
-                icon: "error"
-            });
-        }
-    })
-    .catch(err => console.error("Error:", err));
-}
-
-function save_edit_data() {
-	const IdProduct = document.getElementById('IdProduct').value;
-	const pName = document.getElementById('pName').value;
-	const IdType = document.getElementById('IdType').value;
-	const IdArtist = document.getElementById('IdArtist').value;
-	const end_date = document.getElementById('end_date').value;
-	const send_date = document.getElementById('send_date').value;
-	const second_pay_date = document.getElementById('second_pay_date').value;
-	const IdPaymentType = document.getElementById('IdPaymentType').value;
-	const last_pay_date = document.getElementById('last_pay_date').value;
-	const IdProductStatus = document.getElementById('IdProductStatus').value;
-	const pPic = document.getElementById('pPic').value;
-
-	if (!pName) {
-		Swal.fire({
-		  title: "กรุณากรอกชื่อสินค้า",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!end_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่ปิดรับ",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!send_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่หำหนดส่ง",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!second_pay_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-	if (!last_pay_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
-    const payload = {
-		name: pName,
-		type: IdType,
-		artist: IdArtist,
-		end_date: end_date,
-		send_date: send_date,
-		second_pay_date: second_pay_date,
-		payment_type: IdPaymentType,
-		last_pay_date: last_pay_date,
-		product_status: IdProductStatus,
-		pic: pPic
-    };
-	
-	fetch('/product/update/' + IdProduct , {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-		if (response.ok) {
-            Swal.fire({
-                title: "บันทึกสำเร็จ",
-                icon: "success",
-                confirmButtonText: "ตกลง"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    location.reload();
-                }
-            });
-        } else {
-            Swal.fire({
-                title: "บันทึกไม่สำเร็จ",
-                text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
-                icon: "error"
-            });
-        }
-    })
-    .catch(err => console.error("Error:", err));
 }

@@ -1,3 +1,20 @@
+function samecover() {
+    var checkbox = document.getElementById("samecover");
+    var select = document.getElementById("cov_IdVersion");
+    var cNameInput = document.getElementById("cName");
+
+    if (checkbox.checked) {
+        if (select && select.selectedIndex !== -1) {
+            var selectedText = select.options[select.selectedIndex].text;
+            cNameInput.value = selectedText;
+            cNameInput.readOnly = true;
+        }
+    } else {
+        cNameInput.value = "";
+        cNameInput.readOnly = false;
+    }
+}
+
 function cov_search(id,type) {
 	fetch('/product/cover/search/' + id)
 	    .then(response => response.text())
@@ -44,6 +61,7 @@ function modal_cover(id) {
 
 function cov_clr() {
 	document.getElementById('cName').value = "";
+	document.getElementById("cName").readOnly = false;
 	document.getElementById('price_total').value = "";
 	document.getElementById('price_pledge').value = "";
 	document.getElementById('price_balance').value = "";
@@ -51,6 +69,7 @@ function cov_clr() {
 	document.getElementById('price_2nd').value = "";
 	document.getElementById('price_last').value = "";
 
+	document.getElementById("samecover").checked = false;
 	document.getElementById('cov_btn_save').style.display = '';
 	document.getElementById('cov_btn_edit').style.display = 'none';
 }
@@ -148,7 +167,8 @@ function cov_edit_data(id) {
     fetch('/product/cover/get/' + id)
         .then(response => response.json())
         .then(data => {
-
+			document.getElementById('cov_IdWebsite').value = data.website;
+			document.getElementById('cov_IdVersion').value = data.version;
 			document.getElementById('cName').value = data.name;
 			document.getElementById('price_total').value = data.price_total;
 			document.getElementById('price_pledge').value = data.price_pledge;
@@ -168,7 +188,8 @@ function cov_copy_data(id) {
     fetch('/product/cover/get/' + id)
         .then(response => response.json())
         .then(data => {
-
+			document.getElementById('cov_IdWebsite').value = data.website;
+			document.getElementById('cov_IdVersion').value = data.version;
 			document.getElementById('cName').value = data.name;
 			document.getElementById('price_total').value = data.price_total;
 			document.getElementById('price_pledge').value = data.price_pledge;
