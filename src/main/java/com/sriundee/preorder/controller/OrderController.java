@@ -31,7 +31,7 @@ public class OrderController {
 		for (ProductBean p : productList) {
 			row_id +=1;
 			strProduct.append("<tr>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='add_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
+			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='add_data(" + p.getID_product() + ")'><i data-feather='shopping-cart'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
 			strProduct.append("<td><img src='" + p.geta_logo() + "' class='table-img'></td>");
 			strProduct.append("<td>" + p.getp_name() + "</td>");
