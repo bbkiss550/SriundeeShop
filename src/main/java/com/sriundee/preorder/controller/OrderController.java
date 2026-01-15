@@ -3,11 +3,30 @@ package com.sriundee.preorder.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.sriundee.preorder.bean.CoverBean;
+import com.sriundee.preorder.bean.GroupWebsiteBean;
 import com.sriundee.preorder.bean.ProductBean;
+import com.sriundee.preorder.dto.CoverDto;
+import com.sriundee.preorder.dto.OrderDetailDto;
+import com.sriundee.preorder.entity.Cover;
+import com.sriundee.preorder.entity.OrderDetail;
+import com.sriundee.preorder.entity.Product;
+import com.sriundee.preorder.entity.Version;
+import com.sriundee.preorder.repository.CoverRepository;
+import com.sriundee.preorder.repository.OrderDetailRepository;
+import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.ProductRepository;
+import com.sriundee.preorder.repository.VersionRepository;
+import com.sriundee.preorder.response.CoverResponse;
+import com.sriundee.preorder.response.OrderResponse;
 
 import org.springframework.ui.Model;
 
@@ -20,6 +39,18 @@ public class OrderController {
 	@Autowired
 	private ProductRepository productRepository;
 
+	@Autowired
+	private CoverRepository coverRepository;
+
+	@Autowired
+	private VersionRepository versionRepository;
+	
+	@Autowired
+	private OrderRepository orderRepository;
+
+	@Autowired
+	private OrderDetailRepository orderDetailRepository;
+	
     @GetMapping("/order")
     public String index(Model model) {
 		String menuList = menuService.getMenuList(7,null);
@@ -81,5 +112,85 @@ public class OrderController {
 	    model.addAttribute("mainProduct_card", strProduct_card);
 
         return "order/order";
+    }
+    
+    @GetMapping("/order/load/{id}")
+	@ResponseBody
+	public Object getData(@PathVariable Integer id) {
+    	List<ProductBean> productList = productRepository.getDataAllByID(id);
+
+    	StringBuilder Listqty = new StringBuilder();
+    	String strChecked = "";
+    	for (int i=1; i<21; i++) {
+    		if (i == 1) { strChecked = "checked"; } else { strChecked = ""; }
+    		Listqty.append("<input type='radio' class='btn-check' name='group-qty' id='qty" + i + "' value='" + i + "' onchange='cal()' " + strChecked + ">");
+    		Listqty.append("<label class='btn btn-outline-danger' for='qty" + i + "'>" + i + "</label>");
+		}
+    	
+    	StringBuilder ListCheckWebsite = new StringBuilder();
+		List<GroupWebsiteBean> websietList = orderRepository.getDataByID_pro(id);
+		for (GroupWebsiteBean w : websietList) {
+			ListCheckWebsite.append("<input type='radio' class='btn-check' name='group-website' id='website" + w.getID_web() + "' value='" + w.getID_web() + "' onchange='select_cover()'>");
+			ListCheckWebsite.append("<label class='btn btn-outline-primary' for='website" + w.getID_web() + "'>" + w.getw_name() + "</label>");
+		}
+		
+    	StringBuilder ListCheckVersion = new StringBuilder();
+		List<Version> versionList = versionRepository.getDataByID_pro(id);
+		for (Version v : versionList) {
+			ListCheckVersion.append("<input type='radio' class='btn-check' name='group-version' id='version" + v.getId() + "' value='" + v.getId() + "' onchange='select_cover()'>");
+			ListCheckVersion.append("<label class='btn btn-outline-primary' for='version" + v.getId() + "'>" + v.getName() + "</label>");
+		}
+		
+    	StringBuilder ListCheckCover = new StringBuilder();
+
+		if (!websietList.isEmpty()) {
+	        return new OrderResponse(productList.get(0),Listqty.toString(),ListCheckWebsite.toString(),ListCheckVersion.toString(),ListCheckCover.toString());
+	    }
+	    return null;
+	}
+    
+    @GetMapping("/order/loadcover/{idProduct}/{idWebsite}/{idVersion}")
+	@ResponseBody
+	public Object getDataCover(@PathVariable("idProduct") Integer idProduct,@PathVariable("idWebsite") Integer idWebsite,@PathVariable("idVersion") Integer idVersion) {
+    	StringBuilder ListCheckCover = new StringBuilder();
+		List<CoverBean> coverList = coverRepository.SearchData(idProduct,idWebsite,idVersion);
+		for (CoverBean c : coverList) {
+			ListCheckCover.append("<input type='radio' class='btn-check' name='group-cover' id='cover" + c.getID_cover() + "' value='" + c.getID_cover() + "' onchange='select_price()'>");
+			ListCheckCover.append("<label class='btn btn-outline-primary' for='cover" + c.getID_cover() + "'>" + c.getc_name() + "</label>");
+		}
+		
+		if (!coverList.isEmpty()) {
+	        return new OrderResponse(null,null,null,null,ListCheckCover.toString());
+	    }
+	    return null;
+	}
+    
+    @GetMapping("/order/getprice/{id}")
+    @ResponseBody
+    public ResponseEntity<Cover> getDataById(@PathVariable Integer id) {
+        return coverRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PostMapping("/order/detail/save")
+    @ResponseBody
+    public ResponseEntity<String> saveData(@RequestBody OrderDetailDto orderDetailDto) {
+        try {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(null);
+            orderDetail.setCover(orderDetailDto.getCover());
+            orderDetail.setQty(orderDetailDto.getQty());
+            orderDetail.setPrice_total(orderDetailDto.getPrice_total());
+            orderDetail.setPrice_pledge(orderDetailDto.getPrice_pledge());
+            orderDetail.setPrice_balance(orderDetailDto.getPrice_balance());
+            orderDetail.setPrice_1st(orderDetailDto.getPrice_1st());
+            orderDetail.setPrice_2nd(orderDetailDto.getPrice_2nd());
+            orderDetail.setOrder_status(orderDetailDto.getOrder_status());
+
+            orderDetailRepository.save(orderDetail);
+
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error");
+        }
     }
 }

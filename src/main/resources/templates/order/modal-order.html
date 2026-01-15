@@ -1,17 +1,20 @@
-<div class="modal fade text-left" id="modalOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
-	    <div class="modal-content">
-	        <div class="modal-header">
-	            <h4 class="modal-title" id="myModalLabel18">บันทึกออร์เดอร์</h4>
-	        </div>
-			<div class="modal-body">
-				<div class="card">
+<div class="modal fade text-left w-100" id="modalOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel16">บันทึกออร์เดอร์</h4>
+                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                     <i data-feather="x"></i>
+                 </button>
+             </div>
+             <div class="modal-body">
+             	<div class="card">
 					<div class="card-header">
 						<div class="row">
-							<div class="col-md-6">
+							<div class="col-md-4">
 								<div class="row">
 									<div class="col-md-2">
-										<input type="hidden" id="cov_IdProduct">
+										<input type="hidden" id="IdProduct">
 										<label>สินค้า</label>
 									</div>
 									<div class="col-md-10 form-group">
@@ -52,38 +55,126 @@
 									</div>
 								</div>
 							</div>
+							<div class="col-md-8">
+                                <div class="row">
+								    <div class="col-12">
+								        <label class="form-label d-block">เว็บไซต์</label>
+								        <div id="data_website"></div>
+								    </div>
+								</div>
+								<hr>
+                                <div class="row">
+								    <div class="col-12">
+								        <label class="form-label d-block">เวอชั่น</label>
+								        <div id="data_version"></div>
+								    </div>
+								</div>
+								<hr>
+								<div class="row">
+								    <div class="col-12">
+								        <label class="form-label d-block">ปก</label>
+								        <div id="data_cover"></div>
+								    </div>
+								</div>
+								<hr>
+								<div class="row">
+								    <div class="col-12">
+										<label class="form-label d-block">จำนวน</label>
+								        <div id="data_qty"></div>
+	                                </div>
+								</div>
+								<div class="divider"><div class="divider-text"> ราคาต่อชิ้น </div></div>
+								<div class="row">
+									<div class="col-md-1">
+										<label>ราคาเต็ม</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" readonly="readonly">
+									</div>
+									<div class="col-md-1">
+										<label>ราคามัดจำ</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" readonly="readonly">
+									</div>
+									<div class="col-md-1">
+										<label>ยอดที่เหลือ</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									</div>
+								</div>
+								<div class="row" style="display: none;">
+									<div class="col-md-1">
+										<label>งวดแรก</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_1st" style="text-align: right;" readonly="readonly">
+									</div>
+									<div class="col-md-1">
+										<label>งวดสอง</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_2nd" style="text-align: right;" readonly="readonly">
+									</div>
+									<div class="col-md-1">
+										<label>งวดสุดท้าย</label>
+									</div>
+									<div class="col-md-3 form-group">
+									    <input type="text" placeholder="0" class="form-control" id="price_last" style="text-align: right;" readonly="readonly">
+									</div>
+								</div>
+								<div class="divider"><div class="divider-text"> ราคารวม </div></div>
+								<div class="row">
+									<div class="col-md-1">
+										<label>ราคาเต็ม</label>
+									</div>
+									<div class="col-md-3 form-group">
+										<div class="input-group input-group-lg mb-3">
+	                                        <span class="input-group-text">$</span>
+	                                        <input type="text" placeholder="0" class="form-control" id="sum_price_total" style="text-align: right;" readonly="readonly">
+	                                        <span class="input-group-text">บาท</span>
+	                                    </div>
+									</div>
+									<div class="col-md-1">
+										<label>ราคามัดจำ</label>
+									</div>
+									<div class="col-md-3 form-group">
+										<div class="input-group input-group-lg mb-3">
+	                                        <span class="input-group-text">$</span>
+									    	<input type="text" placeholder="0" class="form-control" id="sum_price_pledge" style="text-align: right;" readonly="readonly">
+									    	<span class="input-group-text">บาท</span>
+									    </div>
+									</div>
+									<div class="col-md-1">
+										<label>ยอดที่เหลือ</label>
+									</div>
+									<div class="col-md-3 form-group">
+										<div class="input-group input-group-lg mb-3">
+	                                        <span class="input-group-text">$</span>
+									    	<input type="text" placeholder="0" class="form-control" id="sum_price_balance" style="text-align: right;" readonly="readonly">
+									    	<span class="input-group-text">บาท</span>
+									    </div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<div class="col-md-12 form-group d-flex justify-content-end">
-							<button type="button" class="btn btn-success ml-1" onclick="cov_save_new_data()" id="cov_btn_save">
-							    <i class="bx bx-check d-block d-sm-none"></i>
-							    <span class="d-none d-sm-block">บันทึก</span>
-							</button>
-							<button type="button" class="btn btn-warning ml-1" onclick="cov_save_edit_data()" id="cov_btn_edit" style="display: none;">
-							    <i class="bx bx-check d-block d-sm-none"></i>
-							    <span class="d-none d-sm-block">แก้ไข</span>
-							</button>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="col-md-12 form-group">
-							<button type="button" class="btn btn-danger ml-1" onclick="cov_clr()" id="ver_btn_cancel">
-							    <i class="bx bx-check d-block d-sm-none"></i>
-							    <span class="d-none d-sm-block">ยกเลิก</span>
-							</button>
-						</div>
-					</div>
-					<hr>
-				</div>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-				<i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
-			</button>
-		</div>
-    </div>
-</div>
+             </div>
+             <div class="modal-footer">
+				<button type="button" class="btn btn-warning ml-1" onclick="alertSelectedRadio()" id="btn_edit" style="display: none;">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">แก้ไข</span>
+				</button>
+				<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">บันทึก</span>
+				</button>
+		        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+		            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+		        </button>
+             </div>
+         </div>
+     </div>
+ </div>

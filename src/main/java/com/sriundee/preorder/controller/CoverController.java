@@ -45,7 +45,7 @@ public class CoverController {
 	@GetMapping("/product/cover/search/{id}")
 	@ResponseBody
 	public ResponseEntity<String> getListData(@PathVariable Integer id) {
-		List<CoverBean> coverList = coverRepository.getDataAll(id);
+		List<CoverBean> coverList = coverRepository.getDataByID_pro(id);
 		StringBuilder strCover = new StringBuilder();
 		Integer row_id = 0;
 		for (CoverBean c : coverList) {
@@ -61,9 +61,9 @@ public class CoverController {
 			strCover.append("<td>" + c.getc_price_total() + "</td>");
 			strCover.append("<td>" + c.getc_price_pledge() + "</td>");
 			strCover.append("<td>" + c.getc_price_balance() + "</td>");
-			strCover.append("<td>" + c.getc_price_1st() + "</td>");
+			/*strCover.append("<td>" + c.getc_price_1st() + "</td>");
 			strCover.append("<td>" + c.getc_price_2nd() + "</td>");
-			strCover.append("<td>" + c.getc_price_last() + "</td>");
+			strCover.append("<td>" + c.getc_price_last() + "</td>");*/
 			strCover.append("</tr>");
 		}
 

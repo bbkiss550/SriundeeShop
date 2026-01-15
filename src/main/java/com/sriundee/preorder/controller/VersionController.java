@@ -24,7 +24,7 @@ public class VersionController {
 	@GetMapping("/product/version/search/{id}")
 	@ResponseBody
 	public ResponseEntity<String> getListVersion(@PathVariable Integer id) {
-	    List<Version> versionList = versionRepository.getDataAll(id);
+	    List<Version> versionList = versionRepository.getDataByID_pro(id);
 	    StringBuilder strVersion = new StringBuilder();
 	    Integer row_id = 0;
 	    for (Version a : versionList) {
@@ -95,7 +95,7 @@ public class VersionController {
     
     @ResponseBody
     public String getDataList(@PathVariable Integer id) {
-	    List<Version> versionList = versionRepository.getDataAll(id);
+	    List<Version> versionList = versionRepository.getDataByID_pro(id);
 	    StringBuilder strVersion = new StringBuilder();
 	    for (Version v : versionList) {
 	    	strVersion.append("<option value='" + v.getId() + "'>" + v.getName() + "</option>");

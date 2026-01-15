@@ -13,5 +13,5 @@ import com.sriundee.preorder.entity.Version;
 public interface VersionRepository extends JpaRepository<Version, Integer> {
 	
     @Query(value = "SELECT * FROM t_version WHERE v_delete = 'A' AND ID_pro = :ID_pro", nativeQuery = true)
-    List<Version> getDataAll(@Param("ID_pro") Integer IDproduct);
+    List<Version> getDataByID_pro(@Param("ID_pro") Integer IDproduct);
 }
