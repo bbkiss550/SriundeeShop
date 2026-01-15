@@ -2,15 +2,88 @@
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
 	    <div class="modal-content">
 	        <div class="modal-header">
-	            <h4 class="modal-title" id="myModalLabel18">ข้อมูลปก</h4>
+	            <h4 class="modal-title" id="myModalLabel18">บันทึกออร์เดอร์</h4>
 	        </div>
 			<div class="modal-body">
+				<div class="card">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="row">
+									<div class="col-md-2">
+										<input type="hidden" id="cov_IdProduct">
+										<label>สินค้า</label>
+									</div>
+									<div class="col-md-10 form-group">
+									    <input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-2">
+										<input type="hidden" id="cov_IdType">
+										<label>ประเภท</label>
+									</div>
+									<div class="col-md-4 form-group">
+									    <input type="text" class="form-control" id="cov_tName" readonly="readonly">
+									</div>
+									<div class="col-md-2">
+										<input type="hidden" id="cov_IdProduct">
+										<label>ศิลปิน</label>
+									</div>
+									<div class="col-md-4 form-group">
+									    <input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-2">
+										<input type="hidden" id="cov_IdProduct">
+										<label>วันที่ปิดรับ</label>
+									</div>
+									<div class="col-md-4 form-group">
+									    <input type="text" class="form-control" id="end_date" readonly="readonly">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-2"></div>
+									<div class="col-md-6">
+										<div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 100%; display: flex; align-items: center; justify-content: center;">
+										    <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="cov_showImage" style="height: 90%; width: auto; object-fit: contain;">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="col-md-12 form-group d-flex justify-content-end">
+							<button type="button" class="btn btn-success ml-1" onclick="cov_save_new_data()" id="cov_btn_save">
+							    <i class="bx bx-check d-block d-sm-none"></i>
+							    <span class="d-none d-sm-block">บันทึก</span>
+							</button>
+							<button type="button" class="btn btn-warning ml-1" onclick="cov_save_edit_data()" id="cov_btn_edit" style="display: none;">
+							    <i class="bx bx-check d-block d-sm-none"></i>
+							    <span class="d-none d-sm-block">แก้ไข</span>
+							</button>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-12 form-group">
+							<button type="button" class="btn btn-danger ml-1" onclick="cov_clr()" id="ver_btn_cancel">
+							    <i class="bx bx-check d-block d-sm-none"></i>
+							    <span class="d-none d-sm-block">ยกเลิก</span>
+							</button>
+						</div>
+					</div>
+					<hr>
+				</div>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-					<i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
-				</button>
-			</div>
-        </div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+				<i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+			</button>
+		</div>
     </div>
 </div>
