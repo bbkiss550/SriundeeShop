@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.bean.CoverBean;
 import com.sriundee.preorder.bean.GroupWebsiteBean;
+import com.sriundee.preorder.bean.OrderDetailBean;
 import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.dto.CoverDto;
 import com.sriundee.preorder.dto.OrderDetailDto;
@@ -26,6 +27,7 @@ import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.ProductRepository;
 import com.sriundee.preorder.repository.VersionRepository;
 import com.sriundee.preorder.response.CoverResponse;
+import com.sriundee.preorder.response.OrderDetailResponse;
 import com.sriundee.preorder.response.OrderResponse;
 
 import org.springframework.ui.Model;
@@ -111,7 +113,7 @@ public class OrderController {
 	    
 	    model.addAttribute("mainProduct_card", strProduct_card);
 
-	    List<OrderDetail> orderList = orderDetailRepository.getCartIsNull();
+	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
 	    model.addAttribute("CartCount", orderList.size());
 	    
         return "order/order";
@@ -199,8 +201,53 @@ public class OrderController {
 	@GetMapping("/order/getcartcount")
 	@ResponseBody
 	public ResponseEntity<Integer> getCartCount() {
-	    List<OrderDetail> orderList = orderDetailRepository.getCartIsNull();
+	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
 
 	    return ResponseEntity.ok(orderList.size());
+	}
+	
+    @GetMapping("/order/loadcart")
+	@ResponseBody
+	public Object getDataCover() {
+    	StringBuilder ListDetail = new StringBuilder();
+		List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartIsNull();
+		for (OrderDetailBean o : orderdetailList) {
+			ListDetail.append("<div class='row'>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='buttons'><a class='btn icon btn-danger' onclick='delete_detail(" + o.getID_order_detail() + ")'><i data-feather='trash-2'></i></a></div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-6'>");
+			ListDetail.append("<div class='fw-bold text-dark'>" + o.getp_name() + "</div>");
+			ListDetail.append("<div class='text-muted small mt-1'>เว็บ : " + o.getw_name() + "</div>");
+			ListDetail.append("<div class='text-muted small mt-1'>เวอร์ชั่น : " + o.getv_name() + "</div>");
+			ListDetail.append("<div class='text-muted small mt-1'>ปก : " + o.getc_name() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='fw-bold' style='text-align: right !important;'>" + o.getc_price_total() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='fw-bold' style='text-align: right !important;'>" + o.getc_price_pledge() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='input-group input-group-sm mb-1' style='width: 90px;'>");
+			ListDetail.append("<button class='btn btn-outline-secondary' type='button' onclick='qty_down(" + o.getID_order_detail() + ")'>-</button>");
+			ListDetail.append("<input type='text' id='qty_" + o.getID_order_detail() + "' class='form-control text-center bg-white' value='" + o.getod_qty() + "' readonly>");
+			ListDetail.append("<button class='btn btn-outline-secondary' type='button' onclick='qty_up(" + o.getID_order_detail() + ")'>+</button>");
+			ListDetail.append("</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='text-danger fw-bold' style='font-size: 1.1rem; text-align: right !important;'>" + o.getod_price_total() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<div class='col-md-1'>");
+			ListDetail.append("<div class='text-danger fw-bold' style='font-size: 1.1rem; text-align: right !important;'>" + o.getod_price_pledge() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("<hr>");
+		}
+		
+		if (!ListDetail.isEmpty()) {
+	        return new OrderDetailResponse(ListDetail.toString(),null,null,null);
+	    }
+	    return null;
 	}
 }

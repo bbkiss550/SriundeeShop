@@ -3,6 +3,7 @@
 	<head th:replace="common/header :: header_head"></head>
 	
 	<script th:src="@{/script/order/order.js}"></script>
+	<script th:src="@{/script/order/checkout.js}"></script>
 	
 	<style>
 		.card-move {
@@ -120,5 +121,6 @@
 		    <i class="fas fa-shopping-cart"></i>
 		    <span id="cart-count" class="cart-badge" th:utext="${CartCount}">0</span>
 		</button>
+		<div th:include="./order/modal-checkout"></div>
 	</body>
 </html>
