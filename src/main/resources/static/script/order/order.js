@@ -45,6 +45,7 @@ function select_cover() {
 				document.getElementById('price_1st').value = "";
 				document.getElementById('price_2nd').value = "";
 				document.getElementById('price_last').value = "";
+				cal();
 		    })
 		    .catch(error => console.error('Error:', error));
 	}
@@ -95,11 +96,11 @@ function save_new_data() {
 	const price_balance = document.getElementById('sum_price_balance').value;
 
     const payload = {
-        cover: cover,
-		qty: qty,
-		price_total: price_total,
-		price_pledge: price_pledge,
-		price_balance: price_balance
+        cover: cover.value,
+		qty: qty.value,
+		price_total: parseFloat(price_total.replace(/,/g, '')),
+		price_pledge: parseFloat(price_pledge.replace(/,/g, '')),
+		price_balance: parseFloat(price_balance.replace(/,/g, ''))
     };
 
     fetch('/order/detail/save', {
@@ -115,7 +116,7 @@ function save_new_data() {
                 confirmButtonText: "ตกลง"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    //cov_search(product,"load");
+                    getCartCount();
                 }
             });
         } else {
@@ -127,4 +128,14 @@ function save_new_data() {
         }
     })
     .catch(err => console.error("Error:", err));
+}
+
+function getCartCount() {
+	fetch('/order/getcartcount')
+	    .then(response => response.json())
+		.then(data => {
+			console.log(data);
+			document.getElementById('cart-count').innerHTML = data;
+	    })
+	    .catch(error => console.error('Error:', error));
 }

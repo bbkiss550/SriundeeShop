@@ -16,7 +16,7 @@ public class OrderDetail {
     @Column(name = "ID_order")
     private Integer order;
 
-    @Column(name = "ID_cov")
+    @Column(name = "ID_cover")
     private Integer cover;
 
     @Column(name = "od_qty")

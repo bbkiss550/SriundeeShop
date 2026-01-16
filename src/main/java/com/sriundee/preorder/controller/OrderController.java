@@ -111,6 +111,9 @@ public class OrderController {
 	    
 	    model.addAttribute("mainProduct_card", strProduct_card);
 
+	    List<OrderDetail> orderList = orderDetailRepository.getCartIsNull();
+	    model.addAttribute("CartCount", orderList.size());
+	    
         return "order/order";
     }
     
@@ -182,15 +185,22 @@ public class OrderController {
             orderDetail.setPrice_total(orderDetailDto.getPrice_total());
             orderDetail.setPrice_pledge(orderDetailDto.getPrice_pledge());
             orderDetail.setPrice_balance(orderDetailDto.getPrice_balance());
-            orderDetail.setPrice_1st(orderDetailDto.getPrice_1st());
-            orderDetail.setPrice_2nd(orderDetailDto.getPrice_2nd());
-            orderDetail.setOrder_status(orderDetailDto.getOrder_status());
+            orderDetail.setOrder_status(1);
 
             orderDetailRepository.save(orderDetail);
 
             return ResponseEntity.ok("Success");
+            
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error");
         }
     }
+    
+	@GetMapping("/order/getcartcount")
+	@ResponseBody
+	public ResponseEntity<Integer> getCartCount() {
+	    List<OrderDetail> orderList = orderDetailRepository.getCartIsNull();
+
+	    return ResponseEntity.ok(orderList.size());
+	}
 }

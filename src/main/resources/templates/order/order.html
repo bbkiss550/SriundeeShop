@@ -118,7 +118,7 @@
 	    </div>
 		<button type="button" class="btn-cart-floating" onclick="checkout()">
 		    <i class="fas fa-shopping-cart"></i>
-		    <span id="cart-count" class="cart-badge">0</span>
+		    <span id="cart-count" class="cart-badge" th:utext="${CartCount}">0</span>
 		</button>
 	</body>
 </html>
