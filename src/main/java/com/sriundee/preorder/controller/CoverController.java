@@ -1,8 +1,10 @@
 package com.sriundee.preorder.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.sriundee.preorder.bean.CoverBean;
 import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.dto.CoverDto;
-import com.sriundee.preorder.dto.ProductDto;
-import com.sriundee.preorder.dto.VersionDto;
 import com.sriundee.preorder.entity.Cover;
-import com.sriundee.preorder.entity.Product;
-import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.repository.CoverRepository;
 import com.sriundee.preorder.repository.ProductRepository;
-import com.sriundee.preorder.response.CoverResponse;
-
-import org.springframework.ui.Model;
 
 @Controller
 public class CoverController {
@@ -61,9 +56,6 @@ public class CoverController {
 			strCover.append("<td>" + c.getc_price_total() + "</td>");
 			strCover.append("<td>" + c.getc_price_pledge() + "</td>");
 			strCover.append("<td>" + c.getc_price_balance() + "</td>");
-			/*strCover.append("<td>" + c.getc_price_1st() + "</td>");
-			strCover.append("<td>" + c.getc_price_2nd() + "</td>");
-			strCover.append("<td>" + c.getc_price_last() + "</td>");*/
 			strCover.append("</tr>");
 		}
 
@@ -77,14 +69,11 @@ public class CoverController {
 		String ListVersion = versionController.getDataList(id);
 		String ListWebsite = websiteController.getDataList();
 		
-		if (!productList.isEmpty()) {
-	        return new CoverResponse(
-	        		productList.get(0),
-	        		ListVersion.toString(),
-	        		ListWebsite.toString()
-	        );
-	    }
-	    return null;
+        Map<String, Object> response = new HashMap<>();
+        response.put("product", productList.get(0));
+        response.put("listVersion", ListVersion.toString());
+        response.put("listWebsite", ListWebsite.toString());
+        return response;
 	}
 
     @PostMapping("/product/cover/save")
@@ -99,9 +88,6 @@ public class CoverController {
             cover.setPrice_total(coverDto.getPrice_total());
             cover.setPrice_pledge(coverDto.getPrice_pledge());
             cover.setPrice_balance(coverDto.getPrice_balance());
-            cover.setPrice_1st(coverDto.getPrice_1st());
-            cover.setPrice_2nd(coverDto.getPrice_2nd());
-            cover.setPrice_last(coverDto.getPrice_last());
             cover.setDelete("A");
 
             coverRepository.save(cover);
@@ -130,9 +116,6 @@ public class CoverController {
             cover.setPrice_total(coverDto.getPrice_total());
             cover.setPrice_pledge(coverDto.getPrice_pledge());
             cover.setPrice_balance(coverDto.getPrice_balance());
-            cover.setPrice_1st(coverDto.getPrice_1st());
-            cover.setPrice_2nd(coverDto.getPrice_2nd());
-            cover.setPrice_last(coverDto.getPrice_last());
             
         	coverRepository.save(cover);
             

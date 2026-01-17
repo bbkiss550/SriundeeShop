@@ -17,7 +17,6 @@ public interface ProductBean {
     
     String getp_end_date();
     String getp_send_date();
-    String getp_second_pay_date();
     String getp_last_pay_date();
     
     Integer getID_pay_type();

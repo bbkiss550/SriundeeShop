@@ -23,7 +23,4 @@ public interface CoverBean {
 	Double getc_price_total();
 	Double getc_price_pledge();
 	Double getc_price_balance();
-	Double getc_price_1st();
-	Double getc_price_2nd();
-	Double getc_price_last();
 }

@@ -1,6 +1,8 @@
 package com.sriundee.preorder.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,23 +14,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.bean.CoverBean;
+import com.sriundee.preorder.bean.CustomerNameBean;
 import com.sriundee.preorder.bean.GroupWebsiteBean;
 import com.sriundee.preorder.bean.OrderDetailBean;
 import com.sriundee.preorder.bean.ProductBean;
-import com.sriundee.preorder.dto.CoverDto;
+import com.sriundee.preorder.bean.OrderSummaryBean;
 import com.sriundee.preorder.dto.OrderDetailDto;
 import com.sriundee.preorder.entity.Cover;
 import com.sriundee.preorder.entity.OrderDetail;
-import com.sriundee.preorder.entity.Product;
 import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.repository.CoverRepository;
 import com.sriundee.preorder.repository.OrderDetailRepository;
 import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.ProductRepository;
 import com.sriundee.preorder.repository.VersionRepository;
-import com.sriundee.preorder.response.CoverResponse;
-import com.sriundee.preorder.response.OrderDetailResponse;
-import com.sriundee.preorder.response.OrderResponse;
 
 import org.springframework.ui.Model;
 
@@ -53,6 +52,9 @@ public class OrderController {
 	@Autowired
 	private OrderDetailRepository orderDetailRepository;
 	
+	@Autowired
+	private PaymentMethodController paymentMethodController;
+	
     @GetMapping("/order")
     public String index(Model model) {
 		String menuList = menuService.getMenuList(7,null);
@@ -72,7 +74,6 @@ public class OrderController {
 			strProduct.append("<td>" + p.geta_name() + "</td>");
 			strProduct.append("<td>" + p.getp_end_date() + "</td>");
 			strProduct.append("<td>" + p.getp_send_date() + "</td>");
-			strProduct.append("<td>" + p.getp_second_pay_date() + "</td>");
 			strProduct.append("<td>" + p.getp_last_pay_date() + "</td>");
 			strProduct.append("</tr>");
 		}
@@ -115,7 +116,7 @@ public class OrderController {
 
 	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
 	    model.addAttribute("CartCount", orderList.size());
-	    
+
         return "order/order";
     }
     
@@ -145,13 +146,13 @@ public class OrderController {
 			ListCheckVersion.append("<input type='radio' class='btn-check' name='group-version' id='version" + v.getId() + "' value='" + v.getId() + "' onchange='select_cover()'>");
 			ListCheckVersion.append("<label class='btn btn-outline-primary' for='version" + v.getId() + "'>" + v.getName() + "</label>");
 		}
-		
-    	StringBuilder ListCheckCover = new StringBuilder();
 
-		if (!websietList.isEmpty()) {
-	        return new OrderResponse(productList.get(0),Listqty.toString(),ListCheckWebsite.toString(),ListCheckVersion.toString(),ListCheckCover.toString());
-	    }
-	    return null;
+        Map<String, Object> response = new HashMap<>();
+        response.put("product", productList.get(0));
+        response.put("listQty", Listqty.toString());
+        response.put("listWebsite", ListCheckWebsite.toString());
+        response.put("listVersion", ListCheckVersion.toString());
+        return response;
 	}
     
     @GetMapping("/order/loadcover/{idProduct}/{idWebsite}/{idVersion}")
@@ -163,11 +164,10 @@ public class OrderController {
 			ListCheckCover.append("<input type='radio' class='btn-check' name='group-cover' id='cover" + c.getID_cover() + "' value='" + c.getID_cover() + "' onchange='select_price()'>");
 			ListCheckCover.append("<label class='btn btn-outline-primary' for='cover" + c.getID_cover() + "'>" + c.getc_name() + "</label>");
 		}
-		
-		if (!coverList.isEmpty()) {
-	        return new OrderResponse(null,null,null,null,ListCheckCover.toString());
-	    }
-	    return null;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("listCover", ListCheckCover.toString());
+        return response;
 	}
     
     @GetMapping("/order/getprice/{id}")
@@ -244,10 +244,78 @@ public class OrderController {
 			ListDetail.append("</div>");
 			ListDetail.append("<hr>");
 		}
+
+    	Double sum_price_total = 0.0;
+    	Double sum_price_pledge = 0.0;
+    	Double sum_price_balance = 0.0;
+		List<OrderSummaryBean> summayList = orderDetailRepository.getCartSummary();
+		for (OrderSummaryBean s : summayList) {
+			sum_price_total = s.getsum_price_total();
+	    	sum_price_pledge = s.getsum_price_pledge();
+	    	sum_price_balance = s.getsum_price_balance();
+		}
 		
-		if (!ListDetail.isEmpty()) {
-	        return new OrderDetailResponse(ListDetail.toString(),null,null,null);
+		String ListPaymentMethod = paymentMethodController.getDataList();
+		
+
+	    List<CustomerNameBean> mainCustomerName = orderRepository.getCsutomerList();
+	    StringBuilder strCustomerName = new StringBuilder();
+	    for (CustomerNameBean c : mainCustomerName) {
+	    	strCustomerName.append("<option value='" + c.geto_customer_name() + "'>" + c.geto_customer_name() + "</option>");
 	    }
-	    return null;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("listDetail", ListDetail.toString());
+        response.put("total_price", sum_price_total);
+        response.put("pledge_price", sum_price_pledge);
+        response.put("balance_price", sum_price_balance);
+        response.put("listPaymentMethod", ListPaymentMethod);
+        response.put("listCustomerName", strCustomerName.toString());
+        return response;
 	}
+
+    @PostMapping("/order/detail/update/{id}")
+    @ResponseBody
+    public ResponseEntity<String> updateDataDetail(@PathVariable Integer id, @RequestBody OrderDetailDto orderDetailDto) {
+        try {
+        	Double price_total = 0.0;
+        	Double price_pledge = 0.0;
+        	Double price_balance = 0.0;
+        	List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartByID(id);
+        	for (OrderDetailBean o : orderdetailList) {
+        		price_total = (o.getc_price_total() != null) ? Double.parseDouble(o.getc_price_total().replace(",", "")) : 0.0;
+        		price_pledge = (o.getc_price_pledge() != null) ? Double.parseDouble(o.getc_price_pledge().replace(",", "")) : 0.0;
+        		price_balance = (o.getc_price_balance() != null) ? Double.parseDouble(o.getc_price_balance().replace(",", "")) : 0.0;
+        	}
+        	
+        	OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("ไม่พบข้อมูลเวอร์ชั่น"));
+        	Integer od_qty = orderDetailDto.getQty();
+            orderDetail.setQty(od_qty);
+            orderDetail.setPrice_total(price_total * od_qty);
+            orderDetail.setPrice_pledge(price_pledge * od_qty);
+            orderDetail.setPrice_balance(price_balance * od_qty);
+
+            orderDetailRepository.save(orderDetail);
+
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error");
+        }
+    }
+    
+    @PostMapping("/order/detail/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<String> deleteData(@PathVariable("id") Integer id) {
+        try {
+            if (orderDetailRepository.existsById(id)) {
+                orderDetailRepository.deleteById(id);
+                
+                return ResponseEntity.ok("Success");
+            } else {
+                return ResponseEntity.status(404).body("Data not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error");
+        }
+    }
 }

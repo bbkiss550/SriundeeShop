@@ -99,7 +99,6 @@
 														<th class="auto_width">ศิลปิน</th>
 														<th class="status_width">ปิดรับ</th>
 														<th class="status_width">กำหนดส่ง</th>
-														<th class="status_width">ชำระงวดที่สอง</th>
 														<th class="status_width">เก็บยอดที่เหลือ</th>
 				                                    </tr>
 				                                </thead>
@@ -114,6 +113,7 @@
 	                    </div>
 	                </section>
 	            </div>
+				<div th:include="./order/modal-checkout"></div>
 	            <footer th:replace="common/footer :: footer"></footer>
 	        </div>
 	    </div>
@@ -121,6 +121,5 @@
 		    <i class="fas fa-shopping-cart"></i>
 		    <span id="cart-count" class="cart-badge" th:utext="${CartCount}">0</span>
 		</button>
-		<div th:include="./order/modal-checkout"></div>
 	</body>
 </html>

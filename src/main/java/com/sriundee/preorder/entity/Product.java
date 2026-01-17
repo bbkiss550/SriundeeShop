@@ -35,9 +35,6 @@ public class Product {
     @Column(name = "p_send_date")
     private Date send_date;
     
-    @Column(name = "p_second_pay_date")
-    private Date second_pay_date;
-    
     @Column(name = "ID_pay_type")
     private Integer payment_type;
     
@@ -99,14 +96,6 @@ public class Product {
 
 	public void setSend_date(Date send_date) {
 		this.send_date = send_date;
-	}
-
-	public Date getSecond_pay_date() {
-		return second_pay_date;
-	}
-
-	public void setSecond_pay_date(Date second_pay_date) {
-		this.second_pay_date = second_pay_date;
 	}
 
 	public Integer getPayment_type() {

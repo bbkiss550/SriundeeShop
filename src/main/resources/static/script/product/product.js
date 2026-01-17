@@ -22,7 +22,6 @@ function new_data() {
 	document.getElementById('IdArtist').selectedIndex = 0;
 	document.getElementById('end_date').value = "";
 	document.getElementById('send_date').value = "";
-	document.getElementById('second_pay_date').value = "";
 	document.getElementById('IdPaymentType').selectedIndex = 0;
 	document.getElementById('last_pay_date').value = "";
 	document.getElementById('IdProductStatus').selectedIndex = 0;
@@ -44,7 +43,6 @@ function save_new_data() {
 	const IdArtist = document.getElementById('IdArtist').value;
 	const end_date = document.getElementById('end_date').value;
 	const send_date = document.getElementById('send_date').value;
-	const second_pay_date = document.getElementById('second_pay_date').value;
 	const IdPaymentType = document.getElementById('IdPaymentType').value;
 	var last_pay_date = document.getElementById('last_pay_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
@@ -80,16 +78,6 @@ function save_new_data() {
 	    return;
 	}
 	
-		if (!second_pay_date) {
-			Swal.fire({
-			  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
-			  text: "",
-			  icon: "error",
-			  confirmButtonText: "ตกลง"
-			});
-		    return;
-		}
-
 	if (!IdPaymentType == 1) {
 		if (!last_pay_date) {
 			Swal.fire({
@@ -110,7 +98,6 @@ function save_new_data() {
 		artist: IdArtist,
 		end_date: end_date,
 		send_date: send_date,
-		second_pay_date: second_pay_date,
 		payment_type: IdPaymentType,
 		last_pay_date: last_pay_date,
 		product_status: IdProductStatus,
@@ -154,7 +141,6 @@ function edit_data(id) {
 			document.getElementById('IdArtist').value = data.artist;
 			document.getElementById('end_date').value = check_date_null(data.end_date);
 			document.getElementById('send_date').value = check_date_null(data.send_date);
-			document.getElementById('second_pay_date').value = check_date_null(data.second_pay_date);
 			document.getElementById('IdPaymentType').value = data.payment_type;
 			document.getElementById('last_pay_date').value = check_date_null(data.last_pay_date);
 			document.getElementById('IdProductStatus').value = data.product_status;
@@ -179,7 +165,6 @@ function save_edit_data() {
 	const IdArtist = document.getElementById('IdArtist').value;
 	const end_date = document.getElementById('end_date').value;
 	const send_date = document.getElementById('send_date').value;
-	const second_pay_date = document.getElementById('second_pay_date').value;
 	const IdPaymentType = document.getElementById('IdPaymentType').value;
 	var last_pay_date = document.getElementById('last_pay_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
@@ -215,16 +200,6 @@ function save_edit_data() {
 	    return;
 	}
 
-	if (!second_pay_date) {
-		Swal.fire({
-		  title: "กรุณากรอกวันที่ชำระงวดที่สอง",
-		  text: "",
-		  icon: "error",
-		  confirmButtonText: "ตกลง"
-		});
-	    return;
-	}
-
 	if (!IdPaymentType == 1) {
 		if (!last_pay_date) {
 			Swal.fire({
@@ -245,7 +220,6 @@ function save_edit_data() {
 		artist: IdArtist,
 		end_date: end_date,
 		send_date: send_date,
-		second_pay_date: second_pay_date,
 		payment_type: IdPaymentType,
 		last_pay_date: last_pay_date,
 		product_status: IdProductStatus,

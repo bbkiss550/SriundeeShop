@@ -16,8 +16,6 @@ public class ProductDto {
 
     private String send_date;
     
-    private String second_pay_date;
-    
     private Integer payment_type;
     
     private String last_pay_date;
@@ -77,14 +75,6 @@ public class ProductDto {
 		this.send_date = send_date;
 	}
 
-	public String getSecond_pay_date() {
-		return second_pay_date;
-	}
-
-	public void setSecond_pay_date(String second_pay_date) {
-		this.second_pay_date = second_pay_date;
-	}
-
 	public Integer getPayment_type() {
 		return payment_type;
 	}
@@ -120,7 +110,7 @@ public class ProductDto {
 	@Override
 	public String toString() {
 		return "ProductDto [name=" + name + ", type=" + type + ", artist=" + artist + ", end_date="
-				+ end_date + ", send_date=" + send_date + ", second_pay_date=" + second_pay_date + ", payment_type="
+				+ end_date + ", send_date=" + send_date + ", payment_type="
 				+ payment_type + ", last_pay_date=" + last_pay_date + ", product_status=" + product_status + ", pic=" + pic + "]";
 	}
 

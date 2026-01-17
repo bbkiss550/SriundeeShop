@@ -65,9 +65,6 @@ function cov_clr() {
 	document.getElementById('price_total').value = "";
 	document.getElementById('price_pledge').value = "";
 	document.getElementById('price_balance').value = "";
-	document.getElementById('price_1st').value = "";
-	document.getElementById('price_2nd').value = "";
-	document.getElementById('price_last').value = "";
 
 	document.getElementById("samecover").checked = false;
 	document.getElementById('cov_btn_save').style.display = '';
@@ -85,14 +82,9 @@ function check_pic_null(data) {
 function calculateProductPrices() {
     const total = parseFloat(document.getElementById('price_total').value) || 0;
     const pledge = parseFloat(document.getElementById('price_pledge').value) || 0;
-    const first = parseFloat(document.getElementById('price_1st').value) || 0;
-    const second = parseFloat(document.getElementById('price_2nd').value) || 0;
 
     const balance = total - pledge;
     document.getElementById('price_balance').value = balance > 0 ? balance : 0;
-
-    const last = total - (first + second);
-    document.getElementById('price_last').value = last > 0 ? last : 0;
 }
 
 function allowOnlyNumber(event) {
@@ -108,9 +100,6 @@ function cov_save_new_data() {
 	const price_total = document.getElementById('price_total').value;
 	const price_pledge = document.getElementById('price_pledge').value;
 	const price_balance = document.getElementById('price_balance').value;
-	const price_1st = document.getElementById('price_1st').value;
-	const price_2nd = document.getElementById('price_2nd').value;
-	const price_last = document.getElementById('price_last').value;
 
 	if (!name) {
 		Swal.fire({
@@ -129,10 +118,7 @@ function cov_save_new_data() {
 		name: name,
 		price_total: price_total,
 		price_pledge: price_pledge,
-		price_balance: price_balance,
-		price_1st: price_1st,
-		price_2nd: price_2nd,
-		price_last: price_last
+		price_balance: price_balance
     };
 
     fetch('/product/cover/save', {
@@ -173,9 +159,6 @@ function cov_edit_data(id) {
 			document.getElementById('price_total').value = data.price_total;
 			document.getElementById('price_pledge').value = data.price_pledge;
 			document.getElementById('price_balance').value = data.price_balance;
-			document.getElementById('price_1st').value = data.price_1st;
-			document.getElementById('price_2nd').value = data.price_2nd;
-			document.getElementById('price_last').value = data.price_last;
 			
 			document.getElementById('cov_btn_edit').style.display = '';
 			document.getElementById('cov_btn_save').style.display = 'none';
@@ -194,9 +177,6 @@ function cov_copy_data(id) {
 			document.getElementById('price_total').value = data.price_total;
 			document.getElementById('price_pledge').value = data.price_pledge;
 			document.getElementById('price_balance').value = data.price_balance;
-			document.getElementById('price_1st').value = data.price_1st;
-			document.getElementById('price_2nd').value = data.price_2nd;
-			document.getElementById('price_last').value = data.price_last;
         })
         .catch(err => console.error("Error fetching data:", err));
 }
@@ -210,9 +190,6 @@ function cov_save_edit_data() {
 	const price_total = document.getElementById('price_total').value;
 	const price_pledge = document.getElementById('price_pledge').value;
 	const price_balance = document.getElementById('price_balance').value;
-	const price_1st = document.getElementById('price_1st').value;
-	const price_2nd = document.getElementById('price_2nd').value;
-	const price_last = document.getElementById('price_last').value;
 
 	if (!name) {
 		Swal.fire({
@@ -231,10 +208,7 @@ function cov_save_edit_data() {
 		name: name,
 		price_total: price_total,
 		price_pledge: price_pledge,
-		price_balance: price_balance,
-		price_1st: price_1st,
-		price_2nd: price_2nd,
-		price_last: price_last
+		price_balance: price_balance
 	};
 
     fetch('/product/cover/update/' + IdCover, {

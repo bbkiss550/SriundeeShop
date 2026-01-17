@@ -98,7 +98,6 @@ public class ProductController {
             product.setArtist(productDto.getArtist());
             product.setEnd_date(formatter.parse(productDto.getEnd_date()));
             product.setSend_date(formatter.parse(productDto.getSend_date()));
-            product.setSecond_pay_date(formatter.parse(productDto.getSecond_pay_date()));
             product.setPayment_type(productDto.getPayment_type());
             if (productDto.getLast_pay_date() != null) {
                 product.setLast_pay_date(formatter.parse(productDto.getLast_pay_date()));
@@ -133,7 +132,6 @@ public class ProductController {
             product.setArtist(productDto.getArtist());
             product.setEnd_date(formatter.parse(productDto.getEnd_date()));
             product.setSend_date(formatter.parse(productDto.getSend_date()));
-            product.setSecond_pay_date(formatter.parse(productDto.getSecond_pay_date()));
             product.setPayment_type(productDto.getPayment_type());
             if (productDto.getLast_pay_date() != null) {
                 product.setLast_pay_date(formatter.parse(productDto.getLast_pay_date()));

@@ -17,8 +17,8 @@
 										<input type="hidden" id="IdProduct">
 										<label>ชื่อลูกค้า</label>
 									</div>
-									<div class="col-md-6 form-group">
-									    <input type="text" class="form-control" id="customer_Name">
+									<div class="col-md-5 form-group">
+										<select class="form-select" id="customer_Name"></select>
 									</div>
 								</div>
 							</div>
@@ -55,11 +55,19 @@
 							<div class="col-md-3">
 								<div class="row">
 									<div class="col-md-3">
+										<label>ชำระเงิน</label>
+									</div>
+									<div class="col-md-9 form-group">
+										<select class="form-select" id="IdPayMethod"></select>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-3">
 										<label>ราคาเต็ม</label>
 									</div>
 									<div class="col-md-9 form-group">
 										<div class="input-group input-group-lg mb-3">
-	                                        <input type="text" placeholder="0" class="form-control" id="sum_price_total" style="text-align: right;" readonly="readonly">
+	                                        <input type="text" placeholder="0" class="form-control" id="co_sum_price_total" style="text-align: right;" readonly="readonly">
 	                                        <span class="input-group-text">บาท</span>
 	                                    </div>
 									</div>
@@ -70,7 +78,7 @@
 									</div>
 									<div class="col-md-9 form-group">
 										<div class="input-group input-group-lg mb-3">
-									    	<input type="text" placeholder="0" class="form-control" id="sum_price_pledge" style="text-align: right;" readonly="readonly">
+									    	<input type="text" placeholder="0" class="form-control" id="co_sum_price_pledge" style="text-align: right;" readonly="readonly">
 									    	<span class="input-group-text">บาท</span>
 									    </div>
 									</div>
@@ -81,7 +89,7 @@
 									</div>
 									<div class="col-md-9 form-group">
 										<div class="input-group input-group-lg mb-3">
-									    	<input type="text" placeholder="0" class="form-control" id="sum_price_balance" style="text-align: right;" readonly="readonly">
+									    	<input type="text" placeholder="0" class="form-control" id="co_sum_price_balance" style="text-align: right;" readonly="readonly">
 									    	<span class="input-group-text">บาท</span>
 									    </div>
 									</div>
