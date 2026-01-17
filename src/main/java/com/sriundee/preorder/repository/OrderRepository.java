@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.sriundee.preorder.bean.CoverBean;
 import com.sriundee.preorder.bean.CustomerNameBean;
 import com.sriundee.preorder.bean.GroupWebsiteBean;
 import com.sriundee.preorder.entity.Cover;

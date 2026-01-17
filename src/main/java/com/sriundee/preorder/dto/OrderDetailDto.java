@@ -1,7 +1,5 @@
 package com.sriundee.preorder.dto;
 
-import jakarta.persistence.Column;
-
 public class OrderDetailDto {
 	
 	private Integer id;

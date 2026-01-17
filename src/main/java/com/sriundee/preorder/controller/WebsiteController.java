@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,11 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.dto.WebsiteDto;
-import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.entity.Website;
 import com.sriundee.preorder.repository.WebsiteRepository;
-
-import org.springframework.ui.Model;
 
 @Controller
 public class WebsiteController {

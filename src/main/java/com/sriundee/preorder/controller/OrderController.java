@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,8 @@ import com.sriundee.preorder.bean.CoverBean;
 import com.sriundee.preorder.bean.CustomerNameBean;
 import com.sriundee.preorder.bean.GroupWebsiteBean;
 import com.sriundee.preorder.bean.OrderDetailBean;
-import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.bean.OrderSummaryBean;
+import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.dto.OrderDetailDto;
 import com.sriundee.preorder.entity.Cover;
 import com.sriundee.preorder.entity.OrderDetail;
@@ -28,8 +29,6 @@ import com.sriundee.preorder.repository.OrderDetailRepository;
 import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.ProductRepository;
 import com.sriundee.preorder.repository.VersionRepository;
-
-import org.springframework.ui.Model;
 
 @Controller
 public class OrderController {

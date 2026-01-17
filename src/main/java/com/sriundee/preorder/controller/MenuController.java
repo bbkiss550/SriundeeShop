@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
 
 import com.sriundee.preorder.entity.Menu;
 import com.sriundee.preorder.repository.MenuRepository;

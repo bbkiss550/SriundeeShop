@@ -1,7 +1,5 @@
 package com.sriundee.preorder.dto;
 
-import java.sql.Date;
-
 public class ProductDto {
 
 	private Integer id;
