@@ -11,7 +11,7 @@
  Target Server Version : 80042
  File Encoding         : 65001
 
- Date: 18/01/2026 00:43:18
+ Date: 20/01/2026 08:03:47
 */
 
 SET NAMES utf8mb4;
@@ -179,7 +179,7 @@ CREATE TABLE `t_order`  (
   `ID_pay_type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_price_pledge` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_price_balance` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `o_balance_pay_date` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `o_last_pay_date` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_net` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_remark` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_order`) USING BTREE
@@ -207,13 +207,14 @@ CREATE TABLE `t_order_detail`  (
   `od_price_last` double(255, 0) DEFAULT NULL,
   `ID_order_status` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_order_detail`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_order_detail
 -- ----------------------------
 INSERT INTO `t_order_detail` VALUES (1, NULL, 12, 1, 2190, 1000, 1190, 0, 0, 0, 1);
 INSERT INTO `t_order_detail` VALUES (2, NULL, 16, 1, 1090, 500, 590, 0, 0, 0, 1);
+INSERT INTO `t_order_detail` VALUES (9, NULL, 9, 2, 1300, 700, 600, 0, 0, 0, 1);
 
 -- ----------------------------
 -- Table structure for t_order_status
@@ -281,8 +282,6 @@ CREATE TABLE `t_product`  (
   `ID_art` int(0) DEFAULT NULL,
   `p_end_date` date DEFAULT NULL,
   `p_send_date` date DEFAULT NULL,
-  `ID_pay_type` int(0) DEFAULT NULL,
-  `p_last_pay_date` date DEFAULT NULL,
   `ID_pro_status` int(0) DEFAULT NULL,
   `p_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `p_pic` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
@@ -292,11 +291,11 @@ CREATE TABLE `t_product`  (
 -- ----------------------------
 -- Records of t_product
 -- ----------------------------
-INSERT INTO `t_product` VALUES (1, '[Pre] #ONEUS SINGLE ALBUM \'原\'', 1, 7, '2026-01-19', '2026-01-26', 1, NULL, 1, 'A', 'https://pbs.twimg.com/media/G-dvdb5aoAAJ_lP?format=jpg&name=medium');
-INSERT INTO `t_product` VALUES (2, '[Pre] CLOSE YOUR EYES OFFICIAL LIGHT STICK', 5, 8, '2026-01-19', '2026-01-26', 1, NULL, 1, 'A', 'https://pbs.twimg.com/media/G-NF_LHaMAAWDWl?format=jpg&name=medium');
-INSERT INTO `t_product` VALUES (3, '[Pre] DICON VOLUME Nº32 LE SSERAFIM', 1, 9, '2026-01-19', '2026-01-26', 1, NULL, 1, 'A', 'https://pbs.twimg.com/media/G-JkdYpa0AAu7Ur?format=jpg&name=medium');
-INSERT INTO `t_product` VALUES (4, '[Pre] CHUU Album [XO, My Cyberlove] LUCKY DRAW', 6, 10, '2026-01-19', '2026-01-26', 1, NULL, 1, 'A', 'https://pbs.twimg.com/media/G-D4ZiMaAAEUiGk?format=jpg&name=medium');
-INSERT INTO `t_product` VALUES (5, '[Pre] #XG 1st Full Album THE CORE 核', 1, 11, '2026-01-19', '2026-01-26', 1, NULL, 1, 'A', 'https://pbs.twimg.com/media/G9gN6CBbsAAUpfW?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (1, '[Pre] #ONEUS SINGLE ALBUM \'原\'', 1, 7, '2026-01-19', '2026-01-26', 1, 'A', 'https://pbs.twimg.com/media/G-dvdb5aoAAJ_lP?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (2, '[Pre] CLOSE YOUR EYES OFFICIAL LIGHT STICK', 5, 8, '2026-01-19', '2026-01-26', 1, 'A', 'https://pbs.twimg.com/media/G-NF_LHaMAAWDWl?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (3, '[Pre] DICON VOLUME Nº32 LE SSERAFIM', 1, 9, '2026-01-19', '2026-01-26', 1, 'A', 'https://pbs.twimg.com/media/G-JkdYpa0AAu7Ur?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (4, '[Pre] CHUU Album [XO, My Cyberlove] LUCKY DRAW', 6, 10, '2026-01-19', '2026-01-26', 1, 'A', 'https://pbs.twimg.com/media/G-D4ZiMaAAEUiGk?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (5, '[Pre] #XG 1st Full Album THE CORE 核', 1, 11, '2026-01-19', '2026-01-26', 1, 'A', 'https://pbs.twimg.com/media/G9gN6CBbsAAUpfW?format=jpg&name=medium');
 
 -- ----------------------------
 -- Table structure for t_product_status
@@ -518,19 +517,19 @@ CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER V
 -- View structure for q_order
 -- ----------------------------
 DROP VIEW IF EXISTS `q_order`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order` AS select `t_order`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_order`.`ID_pay_method` AS `ID_pay_method`,`t_payment_method`.`pm_name` AS `pm_name`,`t_order`.`o_send_cost` AS `o_send_cost`,`t_order`.`o_discount` AS `o_discount`,`t_order`.`o_price_total` AS `o_price_total`,`t_order`.`ID_pay_type` AS `ID_pay_type`,`t_payment_type`.`pt_name` AS `pt_name`,`t_order`.`o_price_pledge` AS `o_price_pledge`,`t_order`.`o_price_balance` AS `o_price_balance`,`t_order`.`o_balance_pay_date` AS `o_balance_pay_date`,`t_order`.`o_price_1st` AS `o_price_1st`,`t_order`.`o_price_2nd` AS `o_price_2nd`,`t_order`.`o_price_last` AS `o_price_last`,`t_order`.`o_second_pay_date` AS `o_second_pay_date`,`t_order`.`o_last_pay_date` AS `o_last_pay_date`,`t_order`.`o_net` AS `o_net`,`t_order`.`o_remark` AS `o_remark` from ((`t_order` join `t_payment_method` on((`t_payment_method`.`ID_pay_method` = `t_order`.`ID_pay_method`))) left join `t_payment_type` on((`t_payment_type`.`ID_pay_type` = `t_order`.`ID_pay_type`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order` AS select `t_order`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_order`.`ID_pay_method` AS `ID_pay_method`,`t_payment_method`.`pm_name` AS `pm_name`,`t_order`.`o_send_cost` AS `o_send_cost`,`t_order`.`o_discount` AS `o_discount`,`t_order`.`o_price_total` AS `o_price_total`,`t_order`.`ID_pay_type` AS `ID_pay_type`,`t_payment_type`.`pt_name` AS `pt_name`,`t_order`.`o_price_pledge` AS `o_price_pledge`,`t_order`.`o_price_balance` AS `o_price_balance`,`t_order`.`o_last_pay_date` AS `o_last_pay_date`,`t_order`.`o_net` AS `o_net`,`t_order`.`o_remark` AS `o_remark` from ((`t_order` join `t_payment_method` on((`t_payment_method`.`ID_pay_method` = `t_order`.`ID_pay_method`))) left join `t_payment_type` on((`t_payment_type`.`ID_pay_type` = `t_order`.`ID_pay_type`)));
 
 -- ----------------------------
 -- View structure for q_order_detail
 -- ----------------------------
 DROP VIEW IF EXISTS `q_order_detail`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_product`.`ID_pay_type` AS `ID_pay_type`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name` from (((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name` from (((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`)));
 
 -- ----------------------------
 -- View structure for q_product
 -- ----------------------------
 DROP VIEW IF EXISTS `q_product`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_product` AS select `t_product`.`ID_product` AS `ID_product`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_artist`.`a_logo` AS `a_logo`,date_format(`t_product`.`p_end_date`,'%d/%m/%Y') AS `p_end_date`,date_format(`t_product`.`p_send_date`,'%d/%m/%Y') AS `p_send_date`,`t_product`.`ID_pay_type` AS `ID_pay_type`,`t_payment_type`.`pt_name` AS `pt_name`,date_format(`t_product`.`p_last_pay_date`,'%d/%m/%Y') AS `p_second_pay_date`,`t_product`.`ID_pro_status` AS `ID_pro_status`,`t_product_status`.`ps_name` AS `ps_name`,`t_product`.`p_delete` AS `p_delete`,`t_product`.`p_pic` AS `p_pic` from ((((`t_product` join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_product_status` on((`t_product_status`.`ID_pro_status` = `t_product`.`ID_pro_status`))) join `t_payment_type` on((`t_payment_type`.`ID_pay_type` = `t_product`.`ID_pay_type`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_product` AS select `t_product`.`ID_product` AS `ID_product`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_artist`.`a_logo` AS `a_logo`,date_format(`t_product`.`p_end_date`,'%d/%m/%Y') AS `p_end_date`,date_format(`t_product`.`p_send_date`,'%d/%m/%Y') AS `p_send_date`,`t_product`.`ID_pro_status` AS `ID_pro_status`,`t_product_status`.`ps_name` AS `ps_name`,`t_product`.`p_delete` AS `p_delete`,`t_product`.`p_pic` AS `p_pic` from (((`t_product` join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_product_status` on((`t_product_status`.`ID_pro_status` = `t_product`.`ID_pro_status`)));
 
 -- ----------------------------
 -- View structure for q_product_web

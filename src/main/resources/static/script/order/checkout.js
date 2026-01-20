@@ -159,3 +159,35 @@ function delete_detail(id) {
 		}
 	});
 }
+
+// ประกาศฟังก์ชันไว้ด้านนอกสุด
+function calculateSummary() {
+    console.log("ฟังก์ชันเริ่มทำงาน..."); // ถ้าเห็นข้อความนี้ใน Console แสดงว่าเข้าฟังก์ชันแล้ว
+
+    // 1. ดึงค่า (ลบ comma ออกก่อนคำนวณ)
+    let full = parseFloat($('#co_sum_price_total').val()?.replace(/,/g, '')) || 0;
+    let pledge = parseFloat($('#co_sum_price_pledge').val()?.replace(/,/g, '')) || 0;
+    let send = parseFloat($('#send_cost').val()) || 0;
+    let discount = parseFloat($('#discount').val()) || 0;
+
+    console.log("ค่าที่ดึงได้:", {full, pledge, send, discount});
+
+    // 2. คำนวณตามสูตร
+    let net_total = (send + full) - discount; // สุทธิ
+    let balance = net_total - pledge;         // ยอดที่เหลือ
+
+    // 3. แสดงผล (ใช้ toFixed เพื่อป้องกันเลขทศนิยมยาวเกิน)
+    $('#net').val(net_total.toLocaleString('en-US', {minimumFractionDigits: 2}));
+    $('#co_sum_price_balance').val(balance.toLocaleString('en-US', {minimumFractionDigits: 2}));
+}
+
+// ผูก Event แบบ Global (ใช้กับ Modal ได้ดีกว่า)
+$(document).ready(function() {
+    console.log("หน้าเว็บโหลดพร้อมแล้ว");
+
+    // ใช้การดัก Event ที่ body เพื่อให้มั่นใจว่าหา Input เจอแม้จะอยู่ใน Modal
+    $('body').on('input', '#send_cost, #discount', function() {
+        console.log("มีการพิมพ์ค่าส่งหรือส่วนลด");
+        calculateSummary();
+    });
+});

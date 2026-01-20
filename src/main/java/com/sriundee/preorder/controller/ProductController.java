@@ -97,10 +97,6 @@ public class ProductController {
             product.setArtist(productDto.getArtist());
             product.setEnd_date(formatter.parse(productDto.getEnd_date()));
             product.setSend_date(formatter.parse(productDto.getSend_date()));
-            product.setPayment_type(productDto.getPayment_type());
-            if (productDto.getLast_pay_date() != null) {
-                product.setLast_pay_date(formatter.parse(productDto.getLast_pay_date()));
-            }
             product.setProduct_status(productDto.getProduct_status());
             product.setDelete("A");
             product.setPic(productDto.getPic());
@@ -131,10 +127,6 @@ public class ProductController {
             product.setArtist(productDto.getArtist());
             product.setEnd_date(formatter.parse(productDto.getEnd_date()));
             product.setSend_date(formatter.parse(productDto.getSend_date()));
-            product.setPayment_type(productDto.getPayment_type());
-            if (productDto.getLast_pay_date() != null) {
-                product.setLast_pay_date(formatter.parse(productDto.getLast_pay_date()));
-            }
             product.setProduct_status(productDto.getProduct_status());
             product.setDelete("A");
             product.setPic(productDto.getPic());

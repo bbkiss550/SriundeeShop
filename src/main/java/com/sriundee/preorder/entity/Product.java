@@ -34,12 +34,6 @@ public class Product {
 
     @Column(name = "p_send_date")
     private Date send_date;
-    
-    @Column(name = "ID_pay_type")
-    private Integer payment_type;
-    
-    @Column(name = "p_last_pay_date")
-    private Date last_pay_date;
 
     @Column(name = "ID_pro_status")
     private Integer product_status;
@@ -96,22 +90,6 @@ public class Product {
 
 	public void setSend_date(Date send_date) {
 		this.send_date = send_date;
-	}
-
-	public Integer getPayment_type() {
-		return payment_type;
-	}
-
-	public void setPayment_type(Integer payment_type) {
-		this.payment_type = payment_type;
-	}
-
-	public Date getLast_pay_date() {
-		return last_pay_date;
-	}
-
-	public void setLast_pay_date(Date last_pay_date) {
-		this.last_pay_date = last_pay_date;
 	}
 
 	public Integer getProduct_status() {

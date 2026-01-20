@@ -7,14 +7,6 @@ function updateImage() {
     }
 }
 
-function pt1_check(id) {
-	if (id == 1 ) {
-		document.getElementById('pt1').style.display = 'none';
-	} else if (id == 2 ) {
-		document.getElementById('pt1').style.display = '';
-	}
-}
-
 function new_data() {
 	document.getElementById('IdProduct').value = "";
 	document.getElementById('pName').value = "";
@@ -22,16 +14,12 @@ function new_data() {
 	document.getElementById('IdArtist').selectedIndex = 0;
 	document.getElementById('end_date').value = "";
 	document.getElementById('send_date').value = "";
-	document.getElementById('IdPaymentType').selectedIndex = 0;
-	document.getElementById('last_pay_date').value = "";
 	document.getElementById('IdProductStatus').selectedIndex = 0;
 	document.getElementById('pPic').value = "";
 	document.getElementById('showImage').src = "/mazer/dist/assets/images/samples/no-photo.png";
 
 	document.getElementById('btn_save').style.display = '';
 	document.getElementById('btn_edit').style.display = 'none';
-	
-	pt1_check(1);
 	
     var myModal = new bootstrap.Modal(document.getElementById('modalManageData'));
     myModal.show();
@@ -43,8 +31,6 @@ function save_new_data() {
 	const IdArtist = document.getElementById('IdArtist').value;
 	const end_date = document.getElementById('end_date').value;
 	const send_date = document.getElementById('send_date').value;
-	const IdPaymentType = document.getElementById('IdPaymentType').value;
-	var last_pay_date = document.getElementById('last_pay_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
 	const pPic = document.getElementById('pPic').value;
 
@@ -77,20 +63,6 @@ function save_new_data() {
 		});
 	    return;
 	}
-	
-	if (!IdPaymentType == 1) {
-		if (!last_pay_date) {
-			Swal.fire({
-			  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
-			  text: "",
-			  icon: "error",
-			  confirmButtonText: "ตกลง"
-			});
-		    return;
-		}
-	} else {
-		last_pay_date = null;
-	}
 
     const payload = {
         name: pName,
@@ -98,8 +70,6 @@ function save_new_data() {
 		artist: IdArtist,
 		end_date: end_date,
 		send_date: send_date,
-		payment_type: IdPaymentType,
-		last_pay_date: last_pay_date,
 		product_status: IdProductStatus,
 		pic: pPic
     };
@@ -141,8 +111,6 @@ function edit_data(id) {
 			document.getElementById('IdArtist').value = data.artist;
 			document.getElementById('end_date').value = check_date_null(data.end_date);
 			document.getElementById('send_date').value = check_date_null(data.send_date);
-			document.getElementById('IdPaymentType').value = data.payment_type;
-			document.getElementById('last_pay_date').value = check_date_null(data.last_pay_date);
 			document.getElementById('IdProductStatus').value = data.product_status;
 			document.getElementById('pPic').value = data.pic;
 			document.getElementById('showImage').src = check_pic_null(data.pic);
@@ -165,8 +133,6 @@ function save_edit_data() {
 	const IdArtist = document.getElementById('IdArtist').value;
 	const end_date = document.getElementById('end_date').value;
 	const send_date = document.getElementById('send_date').value;
-	const IdPaymentType = document.getElementById('IdPaymentType').value;
-	var last_pay_date = document.getElementById('last_pay_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
 	const pPic = document.getElementById('pPic').value;
 
@@ -200,28 +166,12 @@ function save_edit_data() {
 	    return;
 	}
 
-	if (!IdPaymentType == 1) {
-		if (!last_pay_date) {
-			Swal.fire({
-			  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
-			  text: "",
-			  icon: "error",
-			  confirmButtonText: "ตกลง"
-			});
-		    return;
-		}
-	} else {
-		last_pay_date = null;
-	}
-
     const payload = {
 		name: pName,
 		type: IdType,
 		artist: IdArtist,
 		end_date: end_date,
 		send_date: send_date,
-		payment_type: IdPaymentType,
-		last_pay_date: last_pay_date,
 		product_status: IdProductStatus,
 		pic: pPic
     };

@@ -212,14 +212,18 @@ public class OrderController {
 		List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartIsNull();
 		for (OrderDetailBean o : orderdetailList) {
 			ListDetail.append("<div class='row'>");
+			ListDetail.append("<div class='col-md-7'>");
+			ListDetail.append("<div class='row'>");
 			ListDetail.append("<div class='col-md-1'>");
 			ListDetail.append("<div class='buttons'><a class='btn icon btn-danger' onclick='delete_detail(" + o.getID_order_detail() + ")'><i data-feather='trash-2'></i></a></div>");
 			ListDetail.append("</div>");
-			ListDetail.append("<div class='col-md-6'>");
+			ListDetail.append("<div class='col-md-11'>");
 			ListDetail.append("<div class='fw-bold text-dark'>" + o.getp_name() + "</div>");
 			ListDetail.append("<div class='text-muted small mt-1'>เว็บ : " + o.getw_name() + "</div>");
 			ListDetail.append("<div class='text-muted small mt-1'>เวอร์ชั่น : " + o.getv_name() + "</div>");
 			ListDetail.append("<div class='text-muted small mt-1'>ปก : " + o.getc_name() + "</div>");
+			ListDetail.append("</div>");
+			ListDetail.append("</div>");
 			ListDetail.append("</div>");
 			ListDetail.append("<div class='col-md-1'>");
 			ListDetail.append("<div class='fw-bold' style='text-align: right !important;'>" + o.getc_price_total() + "</div>");
