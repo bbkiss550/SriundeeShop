@@ -35,9 +35,6 @@ public class ProductController {
 	private TypeController typeController;
 
 	@Autowired
-	private PaymentTypeController paymenttypeController;
-
-	@Autowired
 	private ProductStatusController productstatusController;
 	
 	@GetMapping("/product")
@@ -75,9 +72,6 @@ public class ProductController {
 	    
 	    String ListArtist = artistController.getDataList();
 	    model.addAttribute("ListArtist", ListArtist);
-
-	    String ListPaymentType = paymenttypeController.getDataList();
-	    model.addAttribute("ListPaymentType", ListPaymentType);
 
 	    String ListProductstatus = productstatusController.getDataList();
 	    model.addAttribute("ListProductstatus", ListProductstatus);

@@ -30,12 +30,13 @@ function checkout() {
             document.getElementById('list_item').innerHTML = data.listDetail;
 		
             const formatter = new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
             });
 
 			refreshCustomerChoices(data.listCustomerName);
 			document.getElementById('IdPayMethod').innerHTML = data.listPaymentMethod;
+			document.getElementById('IdPayType').innerHTML = data.listPaymentType;
             document.getElementById('co_sum_price_total').value = formatter.format(data.total_price);
             document.getElementById('co_sum_price_pledge').value = formatter.format(data.pledge_price);
             document.getElementById('co_sum_price_balance').value = formatter.format(data.balance_price);
@@ -43,6 +44,11 @@ function checkout() {
             if (typeof feather !== 'undefined') {
                 feather.replace();
             }
+			
+			payMethod(1);
+			calculateSummary();
+			check_new_cus();
+			payType(1);
 			
             const modalElement = document.getElementById('modalCheckout');
             let myModal = bootstrap.Modal.getInstance(modalElement); 
@@ -61,8 +67,8 @@ function refreshList() {
 			document.getElementById('list_item').innerHTML = data.listDetail;
 
 			const formatter = new Intl.NumberFormat('en-US', {
-			    minimumFractionDigits: 2,
-			    maximumFractionDigits: 2
+			    minimumFractionDigits: 0,
+			    maximumFractionDigits: 0
 			});
 
 			document.getElementById('co_sum_price_total').value = formatter.format(data.total_price);
@@ -160,34 +166,98 @@ function delete_detail(id) {
 	});
 }
 
-// ประกาศฟังก์ชันไว้ด้านนอกสุด
 function calculateSummary() {
-    console.log("ฟังก์ชันเริ่มทำงาน..."); // ถ้าเห็นข้อความนี้ใน Console แสดงว่าเข้าฟังก์ชันแล้ว
+    const getNum = (id) => {
+        const val = document.getElementById(id).value || "0";
+        return parseFloat(val.replace(/,/g, '')) || 0;
+    };
 
-    // 1. ดึงค่า (ลบ comma ออกก่อนคำนวณ)
-    let full = parseFloat($('#co_sum_price_total').val()?.replace(/,/g, '')) || 0;
-    let pledge = parseFloat($('#co_sum_price_pledge').val()?.replace(/,/g, '')) || 0;
-    let send = parseFloat($('#send_cost').val()) || 0;
-    let discount = parseFloat($('#discount').val()) || 0;
+    const full = getNum('co_sum_price_total');
+    const pledge = getNum('co_sum_price_pledge');
+    const send = getNum('send_cost');
+    const discount = getNum('discount');
 
-    console.log("ค่าที่ดึงได้:", {full, pledge, send, discount});
+    let net_total = (send + full) - discount;
+    let balance = net_total - pledge;
 
-    // 2. คำนวณตามสูตร
-    let net_total = (send + full) - discount; // สุทธิ
-    let balance = net_total - pledge;         // ยอดที่เหลือ
+    const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
 
-    // 3. แสดงผล (ใช้ toFixed เพื่อป้องกันเลขทศนิยมยาวเกิน)
-    $('#net').val(net_total.toLocaleString('en-US', {minimumFractionDigits: 2}));
-    $('#co_sum_price_balance').val(balance.toLocaleString('en-US', {minimumFractionDigits: 2}));
+    document.getElementById('net').value = formatter.format(net_total);
+    document.getElementById('co_sum_price_balance').value = formatter.format(balance);
 }
 
-// ผูก Event แบบ Global (ใช้กับ Modal ได้ดีกว่า)
-$(document).ready(function() {
-    console.log("หน้าเว็บโหลดพร้อมแล้ว");
+function check_new_cus() {
+	const checkbox = document.getElementById("old_customer");
+	if (!checkbox.checked) {
+		document.getElementById('div_customer_Name_new').style.display = '';
+		document.getElementById('div_customer_Name').style.display = 'none';
+	} else {
+		document.getElementById('div_customer_Name_new').style.display = 'none';
+		document.getElementById('div_customer_Name').style.display = '';
+	}
+}
 
-    // ใช้การดัก Event ที่ body เพื่อให้มั่นใจว่าหา Input เจอแม้จะอยู่ใน Modal
-    $('body').on('input', '#send_cost, #discount', function() {
-        console.log("มีการพิมพ์ค่าส่งหรือส่วนลด");
-        calculateSummary();
-    });
-});
+function payMethod(val) {
+	if (val == 1) {
+		document.getElementById('full_price').style.display = '';
+		document.getElementById('pledge_price').style.display = 'none';
+		document.getElementById('balance_price').style.display = 'none';
+		document.getElementById('div_PayType').style.display = 'none';
+		payType(1);
+	} else {
+		document.getElementById('full_price').style.display = 'none';
+		document.getElementById('pledge_price').style.display = '';
+		document.getElementById('balance_price').style.display = '';
+		document.getElementById('div_PayType').style.display = '';
+		payType(document.getElementById('IdPayType').value);
+	}
+}
+
+function payType(val) {
+	if (val == 1) {
+		document.getElementById('div_last_pay_date').style.display = 'none';
+	} else {
+		document.getElementById('div_last_pay_date').style.display = '';
+	}
+}
+
+function save_new_data() {
+	const checkbox = document.getElementById("old_customer").checked;
+	var customer_Name = '';
+	if (!checkbox) {
+		customer_Name = document.getElementById('customer_Name_new').value;
+	} else {
+		customer_Name = document.getElementById('customer_Name').value;
+	}
+	const IdPayMethod = document.getElementById("IdPayMethod").value;
+	var IdPayType = "";
+	var last_pay_date = "";
+	if (IdPayMethod == 2) {
+		IdPayType = document.getElementById("IdPayType").value;
+		if (IdPayType == 2) {
+			last_pay_date = document.getElementById("last_pay_date").value;
+		}
+	}
+	const send_cost = document.getElementById("send_cost").value || "0";
+	const discount = document.getElementById("discount").value || "0";
+	const sum_price_total = document.getElementById("co_sum_price_total").value;
+	const sum_price_pledge = document.getElementById("co_sum_price_pledge").value;
+	const sum_price_balance = document.getElementById("co_sum_price_balance").value;
+	const net = document.getElementById("net").value;
+	
+	console.log(
+		" customer_Name : " + customer_Name + 
+		" IdPayMethod : " + IdPayMethod + 
+		" IdPayType : " + IdPayType +
+		" last_pay_date : " + last_pay_date + 
+		" send_cost : " + send_cost + 
+		" discount : " + discount +
+		" sum_price_total : " + sum_price_total + 
+		" sum_price_pledge : " + sum_price_pledge +
+		" sum_price_balance : " + sum_price_balance + 
+		" net : " + net
+	);
+}

@@ -1,6 +1,6 @@
 <style>
 	.choices {
-	    width: 50% !important;
+		width: 90% !important;
 	    margin-left: auto;
 	    margin-right: auto;
 	}
@@ -23,11 +23,60 @@
 	    padding-top: 15px;
 	    border-top: 1px solid #dee2e6;
 	}
+	
+	/* --- ราคามัดจำ (Label เข้ม / ตัวหนังสืออ่อน / Input ขาว) --- */
+	#pledge_price .input-group-text {
+	    background-color: #EF6C00 !important; /* สีส้มเข้ม */
+	    color: #FFFFFF !important;            /* ตัวหนังสือสีขาว */
+	    border-color: #E65100 !important;
+	    font-weight: bold;
+	}
+	#co_sum_price_pledge {
+	    background-color: #FFFFFF !important; /* พื้นหลังขาวสำหรับกรอกข้อมูล */
+	    color: #E65100 !important;            /* ตัวเลขสีส้มเข้ม */
+	    border: 2px solid #EF6C00 !important; /* เส้นขอบสีส้มชัดเจน */
+	}
+	
+	/* --- ยอดที่เหลือ (เขียวพาสเทล) --- */
+	#balance_price .input-group-text {
+	    background-color: #C8E6C9 !important; /* เขียวพาสเทลเข้มขึ้นนิดหน่อย */
+	    color: #1B5E20 !important;
+	    border-color: #A5D6A7 !important;
+	}
+	#co_sum_price_balance {
+	    background-color: #F1F8E9 !important;
+	    color: #2E7D32 !important;
+	    border-color: #A5D6A7 !important;
+	}
+	
+	/* --- ราคาเต็ม (น้ำเงินพาสเทล) --- */
+	#full_price .input-group-text {
+	    background-color: #BBDEFB !important;
+	    color: #0D47A1 !important;
+	    border-color: #90CAF9 !important;
+	}
+	#co_sum_price_total {
+	    background-color: #E3F2FD !important;
+	    color: #1565C0 !important;
+	    border-color: #90CAF9 !important;
+	}
+	
+	/* --- สุทธิ (แดงพาสเทล) --- */
+	#net_price .input-group-text {
+	    background-color: #FFCDD2 !important;
+	    color: #B71C1C !important;
+	    border-color: #EF9A9A !important;
+	}
+	#net {
+	    background-color: #FFEBEE !important;
+	    color: #C62828 !important;
+	    border-color: #EF9A9A !important;
+	}
 </style>
 
 <div class="modal fade text-left w-100" id="modalCheckout" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
     <div class="modal-dialog modal-full" role="document">
-        <div class="modal-content" style="height: 100vh; display: flex; flex-direction: column;">
+        <div class="modal-content" style="height: 90vh; display: flex; flex-direction: column;">
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel16">ชำระเงิน</h4>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -38,12 +87,28 @@
                 <div class="card mb-0">
                     <div class="card-header" style="padding: 0 1.5rem;">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
+                                <input type="hidden" id="IdProduct">
                                 <div class="row">
-                                    <input type="hidden" id="IdProduct">
+                                	<div class="input-group input-group mb-3">
+										<div class="form-check">
+										    <div class="custom-control custom-checkbox">
+										        <input type="checkbox" class="form-check-input form-check-danger form-check-glow" name="old_customer" id="old_customer" onchange="check_new_cus()">
+										        <label class="form-check-label" for="old_customer">ลูกค้าเก่า</label>
+										    </div>
+										</div>
+                                	</div>
+                                </div>
+                                <div class="row" id="div_customer_Name">
                                     <div class="input-group input-group mb-3">
-                                        <span class="input-group-text" id="inputGroup-sizing">ชื่อลูกค้า</span>
-                                        <select class="form-select" id="customer_Name" style="width:50%;"></select>
+                                        <span class="input-group-text" id="inputGroup-sizing" style="width: 130px; justify-content: right;">ชื่อลูกค้า</span>
+                                        <select class="form-select" id="customer_Name" style="width:100%;"></select>
+                                    </div>
+                                </div>
+                                <div class="row" id="div_customer_Name_new">
+                                    <div class="input-group input-group mb-3">
+                                        <span class="input-group-text" id="inputGroup-sizing" style="height:46px; width: 130px; justify-content: right;">ชื่อลูกค้า</span>
+                                		<input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing" id="customer_Name_new" style="height:46px;">
                                     </div>
                                 </div>
                             </div>
@@ -86,27 +151,27 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="input-group input-group mb-3">
-                                    <span class="input-group-text">ชำระแบบ</span>
-                                    <select class="form-select" id="IdPayMethod"></select>
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">ชำระแบบ</span>
+                                    <select class="form-select" id="IdPayMethod" onchange="payMethod(this.value)"></select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group input-group mb-3">
-                                    <span class="input-group-text">หมายเหตุ</span>
+                                    <span class="input-group-text" style="width: 160px; justify-content: right;">หมายเหตุ</span>
                                     <input type="text" placeholder="..." class="form-control" id="remark">
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <div class="input-group input-group mb-3">
-                                    <span class="input-group-text">ค่าส่ง</span>
-                                    <input type="text" placeholder="0" class="form-control text-end" id="send_cost">
+                                    <span class="input-group-text" style="width: 100px; justify-content: right;">ค่าส่ง</span>
+                                    <input type="text" placeholder="0" class="form-control text-end" id="send_cost" onkeyup="calculateSummary()">
                                     <span class="input-group-text">บาท</span>
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <div class="input-group input-group mb-3">
-                                    <span class="input-group-text">ส่วนลด</span>
-                                    <input type="text" placeholder="0" class="form-control text-end" id="discount">
+                                    <span class="input-group-text" style="width: 100px; justify-content: right;">ส่วนลด</span>
+                                    <input type="text" placeholder="0" class="form-control text-end" id="discount" onkeyup="calculateSummary()">
                                     <span class="input-group-text">บาท</span>
                                 </div>
                             </div>
@@ -114,36 +179,54 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-9"></div>
-                    <div class="col-md-3">
-                        <div class="row" id="full_price">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 120px; justify-content: right;">ราคาเต็ม</span>
-                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_total" style="background-color: #ededed;" readonly>
-                                <span class="input-group-text">บาท</span>
-                            </div>
-                        </div>
-                        <div class="row" id="pledge_price">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 120px; justify-content: right;">ราคามัดจำ</span>
-                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_pledge" style="background-color: #ededed" readonly>
-                                <span class="input-group-text">บาท</span>
-                            </div>
-                        </div>
-                        <div class="row" id="balance_price">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" style="width: 120px; justify-content: right;">ยอดที่เหลือ</span>
-                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_balance" style="background-color: #ededed" readonly>
-                                <span class="input-group-text">บาท</span>
-                            </div>
-                        </div>
-							<div class="row" id="net_price">
-							    <div class="input-group mb-3">
-							        <span class="input-group-text" style="width: 120px; justify-content: right;">สุทธิ</span>
-							        <input type="text" class="form-control fw-bold text-danger text-end" id="net" style="background-color: #ededed" readonly>
-							        <span class="input-group-text">บาท</span>
-							    </div>
-							</div>
+                    <div class="col-md-12">
+                    	<div class="row">
+	                    	<div class="col-md-2">
+                                <div class="input-group input-group mb-3" id="div_PayType">
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">เก็บยอดที่เหลือ</span>
+                                    <select class="form-select" id="IdPayType" onchange="payType(this.value)"></select>
+                                </div>
+	                    	</div>
+	                    	<div class="col-md-3">
+                                <div class="input-group input-group mb-3" id="div_last_pay_date">
+                                    <span class="input-group-text" style="width: 160px; justify-content: right;">วันที่เก็บยอดที่เหลือ</span>
+                                    <input type="date" class="form-control" id="last_pay_date">
+                                </div>
+	                    	</div>
+	                    	<div class="col-md-3"></div>
+	                    	<div class="col-md-2">
+		                        <div class="row" id="pledge_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ราคามัดจำ</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_pledge" onkeyup="calculateSummary()">
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+	                    	</div>
+		                    <div class="col-md-2">
+		                        <div class="row" id="full_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ราคาเต็ม</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_total" style="background-color: #ededed;" readonly>
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+		                        <div class="row" id="balance_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ยอดที่เหลือ</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_balance" style="background-color: #ededed" readonly>
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+								<div class="row" id="net_price">
+								    <div class="input-group mb-3">
+								        <span class="input-group-text" style="width: 100px; justify-content: right;">สุทธิ</span>
+								        <input type="text" class="form-control fw-bold text-danger text-end" id="net" style="background-color: #ededed" readonly>
+								        <span class="input-group-text">บาท</span>
+								    </div>
+								</div>
+		                    </div>
+                    	</div>
                     </div>
                 </div>
             </div>

@@ -50,7 +50,10 @@ public class OrderController {
 
 	@Autowired
 	private OrderDetailRepository orderDetailRepository;
-	
+
+	@Autowired
+	private PaymentTypeController paymenttypeController;
+
 	@Autowired
 	private PaymentMethodController paymentMethodController;
 	
@@ -219,9 +222,7 @@ public class OrderController {
 			ListDetail.append("</div>");
 			ListDetail.append("<div class='col-md-11'>");
 			ListDetail.append("<div class='fw-bold text-dark'>" + o.getp_name() + "</div>");
-			ListDetail.append("<div class='text-muted small mt-1'>เว็บ : " + o.getw_name() + "</div>");
-			ListDetail.append("<div class='text-muted small mt-1'>เวอร์ชั่น : " + o.getv_name() + "</div>");
-			ListDetail.append("<div class='text-muted small mt-1'>ปก : " + o.getc_name() + "</div>");
+			ListDetail.append("<div class='text-muted small mt-1'>เว็บ : " + o.getw_name() +  " เวอร์ชั่น : " + o.getv_name() + " ปก : " + o.getc_name() + "</div>");
 			ListDetail.append("</div>");
 			ListDetail.append("</div>");
 			ListDetail.append("</div>");
@@ -245,7 +246,7 @@ public class OrderController {
 			ListDetail.append("<div class='text-danger fw-bold' style='font-size: 1.1rem; text-align: right !important;'>" + o.getod_price_pledge() + "</div>");
 			ListDetail.append("</div>");
 			ListDetail.append("</div>");
-			ListDetail.append("<hr>");
+			ListDetail.append("<hr style='margin:10px;'>");
 		}
 
     	Double sum_price_total = 0.0;
@@ -267,6 +268,8 @@ public class OrderController {
 	    	strCustomerName.append("<option value='" + c.geto_customer_name() + "'>" + c.geto_customer_name() + "</option>");
 	    }
 
+	    String ListPaymentType = paymenttypeController.getDataList();
+
         Map<String, Object> response = new HashMap<>();
         response.put("listDetail", ListDetail.toString());
         response.put("total_price", sum_price_total);
@@ -274,6 +277,7 @@ public class OrderController {
         response.put("balance_price", sum_price_balance);
         response.put("listPaymentMethod", ListPaymentMethod);
         response.put("listCustomerName", strCustomerName.toString());
+	    response.put("listPaymentType", ListPaymentType);
         return response;
 	}
 
