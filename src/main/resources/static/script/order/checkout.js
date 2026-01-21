@@ -248,16 +248,73 @@ function save_new_data() {
 	const sum_price_balance = document.getElementById("co_sum_price_balance").value;
 	const net = document.getElementById("net").value;
 	
-	console.log(
-		" customer_Name : " + customer_Name + 
-		" IdPayMethod : " + IdPayMethod + 
-		" IdPayType : " + IdPayType +
-		" last_pay_date : " + last_pay_date + 
-		" send_cost : " + send_cost + 
-		" discount : " + discount +
-		" sum_price_total : " + sum_price_total + 
-		" sum_price_pledge : " + sum_price_pledge +
-		" sum_price_balance : " + sum_price_balance + 
-		" net : " + net
-	);
+	if (!customer_Name || customer_Name == '') {
+		Swal.fire({
+		  title: "กรุณากรอกชื่อลูกค้า",
+		  text: "",
+		  icon: "error",
+		  confirmButtonText: "ตกลง"
+		});
+	    return;
+	}
+	
+	if (IdPayMethod == 2) {
+		if (IdPayType == 2) {
+			if (!last_pay_date || last_pay_date == '') {
+				Swal.fire({
+				  title: "กรุณากรอกวันที่เก็บยอดที่เหลือ",
+				  text: "",
+				  icon: "error",
+				  confirmButtonText: "ตกลง"
+				});
+			    return;
+			}
+		}
+	}
+	
+	const payload = {
+	    customer_Name: customer_Name,
+		pay_method: IdPayMethod,
+		pay_type: IdPayType,
+		last_pay_date: last_pay_date,
+		send_cost: parseFloat(send_cost.replace(/,/g, '')),
+		discount: parseFloat(discount.replace(/,/g, '')),
+		price_total: parseFloat(sum_price_total.replace(/,/g, '')),
+		price_pledge: parseFloat(sum_price_pledge.replace(/,/g, '')),
+		price_balance: parseFloat(sum_price_balance.replace(/,/g, '')),
+		net: parseFloat(net.replace(/,/g, ''))
+	};
+	
+
+	fetch('/order/save', {
+	    method: 'POST',
+	    headers: { 'Content-Type': 'application/json' },
+	    body: JSON.stringify(payload)
+	})
+	.then(response => {
+		if (response.ok) {
+	        Swal.fire({
+	            title: "บันทึกสำเร็จ",
+	            icon: "success",
+	            confirmButtonText: "ตกลง"
+	        }).then((result) => {
+	            if (result.isConfirmed) {
+	                getCartCount();
+					const modalElement = document.getElementById('modalCheckout');
+		            let myModal = bootstrap.Modal.getInstance(modalElement); 
+		            if (!myModal) {
+		                myModal = new bootstrap.Modal(modalElement);
+		            }
+		            myModal.hide();
+	            }
+	        });
+	    } else {
+	        Swal.fire({
+	            title: "บันทึกไม่สำเร็จ",
+	            text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
+	            icon: "error"
+	        });
+	    }
+	})
+	.catch(err => console.error("Error:", err));
 }

@@ -22,4 +22,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 	
 	@Query(value = "SELECT sum(od_price_total) as sum_price_total,sum(od_price_pledge) as sum_price_pledge,sum(od_price_balance) as sum_price_balance FROM t_order_detail where ID_order is null", nativeQuery = true)
 	List<OrderSummaryBean> getCartSummary();
+	
+	@Query(value = "SELECT * FROM t_order_detail where ID_order is null", nativeQuery = true)
+    List<OrderDetail> getDataIsNull();
 }

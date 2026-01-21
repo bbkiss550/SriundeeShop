@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 
 import com.sriundee.preorder.bean.CustomerNameBean;
 import com.sriundee.preorder.bean.GroupWebsiteBean;
-import com.sriundee.preorder.entity.Cover;
+import com.sriundee.preorder.entity.Order;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Cover, Integer> {
+public interface OrderRepository extends JpaRepository<Order, Integer> {
 	
 	@Query(value = "SELECT * FROM q_group_website WHERE c_delete = 'A' AND ID_pro = :ID_pro", nativeQuery = true)
     List<GroupWebsiteBean> getDataByID_pro(@Param("ID_pro") Integer IDproduct);

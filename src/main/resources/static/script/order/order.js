@@ -42,9 +42,6 @@ function select_cover() {
 				document.getElementById('price_total').value = "";
 				document.getElementById('price_pledge').value = "";
 				document.getElementById('price_balance').value = "";
-				document.getElementById('price_1st').value = "";
-				document.getElementById('price_2nd').value = "";
-				document.getElementById('price_last').value = "";
 				cal();
 		    })
 		    .catch(error => console.error('Error:', error));
@@ -61,9 +58,6 @@ function select_price() {
 				document.getElementById('price_total').value = data.price_total;
 				document.getElementById('price_pledge').value = data.price_pledge;
 				document.getElementById('price_balance').value = data.price_balance;
-				document.getElementById('price_1st').value = data.price_1st;
-				document.getElementById('price_2nd').value = data.price_2nd;
-				document.getElementById('price_last').value = data.price_last;
 				cal();
 		    })
 		    .catch(error => console.error('Error:', error));
@@ -134,7 +128,6 @@ function getCartCount() {
 	fetch('/order/getcartcount')
 	    .then(response => response.json())
 		.then(data => {
-			console.log(data);
 			document.getElementById('cart-count').innerHTML = data;
 	    })
 	    .catch(error => console.error('Error:', error));

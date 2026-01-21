@@ -1,7 +1,9 @@
 package com.sriundee.preorder.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,9 @@ import com.sriundee.preorder.bean.OrderDetailBean;
 import com.sriundee.preorder.bean.OrderSummaryBean;
 import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.dto.OrderDetailDto;
+import com.sriundee.preorder.dto.OrderDto;
 import com.sriundee.preorder.entity.Cover;
+import com.sriundee.preorder.entity.Order;
 import com.sriundee.preorder.entity.OrderDetail;
 import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.repository.CoverRepository;
@@ -321,6 +325,45 @@ public class OrderController {
             } else {
                 return ResponseEntity.status(404).body("Data not found");
             }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error");
+        }
+    }
+    
+    @PostMapping("/order/save")
+    @ResponseBody
+    public ResponseEntity<String> saveOrderData(@RequestBody OrderDto orderDto) {
+        try {
+        	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        	
+            Order order = new Order();
+            order.setCustomer_name(orderDto.getCustomer_name());
+            order.setPay_method(orderDto.getPay_method());
+            order.setPay_type(orderDto.getPay_type());
+        	if (orderDto.getPay_method() == 2) {
+        		if (orderDto.getPay_type() == 2) {
+                    order.setLast_pay_date(formatter.parse(orderDto.getLast_pay_date()));
+        		}
+        	}
+            order.setSend_cost(orderDto.getSend_cost());
+            order.setDiscount(orderDto.getDiscount());
+            order.setPrice_total(orderDto.getPrice_total());
+            order.setPrice_pledge(orderDto.getPrice_pledge());
+            order.setPrice_balance(orderDto.getPrice_balance());
+            order.setNet(orderDto.getNet());
+            order.setRemark(orderDto.getRemark());
+
+            orderRepository.save(order);
+            
+            Integer newOrderId = order.getId();
+
+            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull();
+            for (OrderDetail o : orderDetail) {
+            	o.setOrder(newOrderId);
+            }
+            orderDetailRepository.saveAll(orderDetail);
+            
+            return ResponseEntity.ok("Success");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error");
         }
