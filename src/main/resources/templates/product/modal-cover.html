@@ -1,3 +1,22 @@
+<style>
+	.cov_showImage {
+	    width: 100%;
+	    height: 250px;
+	    overflow: hidden;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    background-color: #f8f9fa;
+	    border-radius: 0.5rem;
+	}
+	
+	.cov_showImage img {
+	    width: 100%;
+	    height: 100%;
+	    object-fit: cover;
+	    object-position: center;
+	}
+</style>
 <div class="modal fade text-left" id="modalCover" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
 	    <div class="modal-content">
@@ -10,82 +29,76 @@
 						<div class="row">
 							<div class="col-md-9">
 								<div class="row">
-									<div class="col-md-1">
+									<div class="col-md-12 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">สินค้า</span>
+									    	<input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									    </div>
 										<input type="hidden" id="cov_IdProduct">
-										<label>สินค้า</label>
-									</div>
-									<div class="col-md-11 form-group">
-									    <input type="text" class="form-control" id="cov_pName" readonly="readonly">
+										<input type="hidden" id="IdCover">
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-md-1">
-										<input type="hidden" id="cov_IdType">
-										<label>ประเภท</label>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ประเภท</span>
+									    	<input type="text" class="form-control" id="cov_tName" readonly="readonly">
+									    </div>
 									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" class="form-control" id="cov_tName" readonly="readonly">
-									</div>
-									<div class="col-md-1">
-										<input type="hidden" id="cov_IdProduct">
-										<label>ศิลปิน</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ศิลปิน</span>
+									    	<input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									    </div>
 									</div>
 									<hr>
 								</div>
 								<div class="row">
-									<div class="col-md-1">
-										<input type="hidden" id="cov_IdProduct">
-										<label>เวอร์ชั่น</label>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">เวอร์ชั่น</span>
+									    	<select class="form-select" id="cov_IdVersion"></select>
+									    </div>
 									</div>
-									<div class="col-md-3 form-group">
-									    <select class="form-select" id="cov_IdVersion"></select>
-									</div>
-									<div class="col-md-1">
-										<label>เว็บ</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <select class="form-select" id="cov_IdWebsite"></select>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">เว็บ</span>
+									    	<select class="form-select" id="cov_IdWebsite"></select>
+									    </div>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-md-1">
-										<input type="hidden" id="IdCover">
-										<label>ชื่อปก</label>
-									</div>
-									<div class="col-md-5 form-group">
-									    <input type="text" placeholder="ชื่อปก . . ." class="form-control" id="cName">
-									</div>
-									<div class="col-md-2">
-										<div class="form-check">
-										    <div class="custom-control custom-checkbox">
-										        <input type="checkbox" class="form-check-input form-check-danger form-check-glow" name="samecover" id="samecover" onchange="samecover()">
-										        <label class="form-check-label" for="customColorCheck4">ชื่อเดียวกับเวอร์ชั่น</label>
-										    </div>
-										</div>
-									</div>
-									<div class="col-md-1">
-										<label>ราคาเต็ม</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									<div class="col-md-8 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ชื่อปก</span>
+									    	<input type="text" placeholder="..." class="form-control" id="cName">
+									    	<div class="input-group-text">
+									            <input type="checkbox" class="form-check-input mt-0 me-2 form-check-danger form-check-glow" 
+									                   name="samecover" id="samecover" onchange="samecover()">
+									            <label class="form-check-label mb-0" for="samecover">ชื่อเดียวกับเวอร์ชั่น</label>
+									        </div>
+									    </div>
 									</div>
 								</div>
 								<div class="divider"><div class="divider-text"> มัดจำ </div></div>
 								<div class="row">
-									<div class="col-md-1">
-										<label>ราคามัดจำ</label>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ราคาเต็ม</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									    </div>
 									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ราคามัดจำ</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									    </div>
 									</div>
-									<div class="col-md-1">
-										<label>ยอดที่เหลือ</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ยอดที่เหลือ</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									    </div>
 									</div>
 								</div>
 							</div>

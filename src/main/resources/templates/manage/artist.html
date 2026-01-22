@@ -50,18 +50,18 @@
                                                     </div>
 													<div class="modal-body">
 														<div class="row">
-															<div class="col-md-3">
-																<input type="hidden" id="IdArt">
-																<label>ชื่อศิลปิน</label>
+															<input type="hidden" id="IdArt">
+															<div class="col-md-12 form-group">
+																<div class="input-group">
+														            <span class="input-group-text" style="width: 120px; justify-content: right;">ชื่อศิลปิน</span>
+																	<input type="text" placeholder="..." class="form-control" id="aName">
+																</div>
 															</div>
-															<div class="col-md-9 form-group">
-																<input type="text" placeholder="ชื่อศิลปิน . . ." class="form-control" id="aName">
-															</div>
-															<div class="col-md-3">
-																<label>ค่าย</label>
-															</div>
-															<div class="col-md-9 form-group">
-																<select class="form-select" th:utext="${ListGroup}" id="IdGroup"></select>
+															<div class="col-md-12 form-group">
+																<div class="input-group">
+														            <span class="input-group-text" style="width: 120px; justify-content: right;">ค่าย</span>
+																	<select class="form-select" th:utext="${ListGroup}" id="IdGroup"></select>
+																</div>
 															</div>
 															<div class="col-md-12">
 											                    <div class="input-group">

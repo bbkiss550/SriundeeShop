@@ -27,7 +27,7 @@ function checkout() {
     fetch('/order/loadcart')
         .then(response => response.json())
         .then(data => {
-            document.getElementById('list_item').innerHTML = data.listDetail;
+            document.getElementById('list_item').innerHTML = data.listDetail || '';
 		
             const formatter = new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 0,
@@ -64,7 +64,7 @@ function refreshList() {
 	fetch('/order/loadcart')
 	    .then(response => response.json())
 		.then(data => {
-			document.getElementById('list_item').innerHTML = data.listDetail;
+			document.getElementById('list_item').innerHTML = data.listDetail || '';
 
 			const formatter = new Intl.NumberFormat('en-US', {
 			    minimumFractionDigits: 0,
@@ -224,7 +224,7 @@ function payType(val) {
 	}
 }
 
-function save_new_data() {
+function save_new_order() {
 	const checkbox = document.getElementById("old_customer").checked;
 	var customer_Name = '';
 	if (!checkbox) {
@@ -273,7 +273,7 @@ function save_new_data() {
 	}
 	
 	const payload = {
-	    customer_Name: customer_Name,
+	    customer_name: customer_Name,
 		pay_method: IdPayMethod,
 		pay_type: IdPayType,
 		last_pay_date: last_pay_date,

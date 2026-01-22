@@ -1,49 +1,85 @@
+<style>
+	#sum_price_total_group .input-group-text {
+	    background-color: #E3F2FD !important;
+	    color: #0D47A1 !important;
+	    border-color: #BBDEFB !important;
+	}
+	
+	#sum_price_total {
+	    background-color: #F5F9FF !important;
+	    color: #0D47A1 !important;
+	    border-color: #BBDEFB !important;
+	}
+	
+	#sum_price_pledge_group .input-group-text {
+	    background-color: #FFF3E0 !important;
+	    color: #E65100 !important;
+	    border-color: #FFE0B2 !important;
+	}
+	
+	#sum_price_pledge {
+	    background-color: #FFF8F0 !important;
+	    color: #E65100 !important; /* ตัวเลขสีส้มเข้ม */
+	    border-color: #FFE0B2 !important;
+	}
+	
+	#sum_price_balance_group .input-group-text {
+	    background-color: #E8F5E9 !important;
+	    color: #1B5E20 !important;
+	    border-color: #C8E6C9 !important;
+	}
+	
+	#sum_price_balance {
+	    background-color: #F1F8F1 !important;
+	    color: #1B5E20 !important;
+	    border-color: #C8E6C9 !important;
+	}
+</style>
+
 <div class="modal fade text-left w-100" id="modalOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel16">บันทึกออร์เดอร์</h4>
-                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                     <i data-feather="x"></i>
-                 </button>
+            <div class="modal-header bg-danger">
+                <h4 class="modal-title text-white" id="myModalLabel16">บันทึกออร์เดอร์</h4>
+				<input type="hidden" id="IdProduct">
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+				    <i data-feather="x"></i>
+				</button>
              </div>
              <div class="modal-body">
              	<div class="card">
 					<div class="card-header">
 						<div class="row">
-							<div class="col-md-4">
+							<div class="col-md-6">
 								<div class="row">
-									<div class="col-md-2">
-										<input type="hidden" id="IdProduct">
-										<label>สินค้า</label>
-									</div>
-									<div class="col-md-10 form-group">
-									    <input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									<div class="col-md-12 form-group">
+								        <div class="input-group">
+								            <span class="input-group-text" style="width: 100px; justify-content: right;">สินค้า</span>
+									    	<input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									    </div>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-md-2">
-										<input type="hidden" id="cov_IdType">
-										<label>ประเภท</label>
+									<div class="col-md-6 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 100px; justify-content: right;">ประเภท</span>
+									    	<input type="text" class="form-control" id="cov_tName" readonly="readonly">
+									    </div>
 									</div>
-									<div class="col-md-4 form-group">
-									    <input type="text" class="form-control" id="cov_tName" readonly="readonly">
-									</div>
-									<div class="col-md-2">
-										<input type="hidden" id="cov_IdProduct">
-										<label>ศิลปิน</label>
-									</div>
-									<div class="col-md-4 form-group">
-									    <input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									<div class="col-md-6 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 100px; justify-content: right;">ศิลปิน</span>
+									    	<input type="text" class="form-control" id="cov_aName" readonly="readonly">
+											<input type="hidden" id="cov_IdProduct">
+									    </div>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col-md-2">
-										<input type="hidden" id="cov_IdProduct">
-										<label>วันที่ปิดรับ</label>
-									</div>
-									<div class="col-md-4 form-group">
-									    <input type="text" class="form-control" id="end_date" readonly="readonly">
+									<div class="col-md-6 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 100px; justify-content: right;">วันที่ปิดรับ</span>
+									    	<input type="text" class="form-control" id="end_date" readonly="readonly">
+									    </div>
 									</div>
 								</div>
 								<div class="row">
@@ -55,7 +91,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-md-8">
+							<div class="col-md-6">
                                 <div class="row">
 								    <div class="col-12">
 								        <label class="form-label d-block">เว็บไซต์</label>
@@ -85,57 +121,51 @@
 								</div>
 								<div class="divider"><div class="divider-text"> ราคาต่อชิ้น </div></div>
 								<div class="row">
-									<div class="col-md-1">
-										<label>ราคาเต็ม</label>
+									<div class="col-md-4 form-group">
+								        <div class="input-group">
+								            <span class="input-group-text">ราคาเต็ม</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" readonly="readonly">
+									    	<span class="input-group-text">บาท</span>
+								        </div>
 									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" readonly="readonly">
+									<div class="col-md-4 form-group">
+								        <div class="input-group">
+								            <span class="input-group-text">ราคามัดจำ</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" readonly="readonly">
+									    	<span class="input-group-text">บาท</span>
+								        </div>
 									</div>
-									<div class="col-md-1">
-										<label>ราคามัดจำ</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" readonly="readonly">
-									</div>
-									<div class="col-md-1">
-										<label>ยอดที่เหลือ</label>
-									</div>
-									<div class="col-md-3 form-group">
-									    <input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									<div class="col-md-4 form-group">
+								        <div class="input-group">
+								            <span class="input-group-text">ยอดที่เหลือ</span>
+										    <input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+										    <span class="input-group-text">บาท</span>
+								        </div>
 									</div>
 								</div>
 								<div class="divider"><div class="divider-text"> ราคารวม </div></div>
 								<div class="row">
-									<div class="col-md-1">
-										<label>ราคาเต็ม</label>
-									</div>
-									<div class="col-md-3 form-group">
-										<div class="input-group input-group-lg mb-3">
-	                                        <span class="input-group-text">$</span>
-	                                        <input type="text" placeholder="0" class="form-control" id="sum_price_total" style="text-align: right;" readonly="readonly">
-	                                        <span class="input-group-text">บาท</span>
-	                                    </div>
-									</div>
-									<div class="col-md-1">
-										<label>ราคามัดจำ</label>
-									</div>
-									<div class="col-md-3 form-group">
-										<div class="input-group input-group-lg mb-3">
-	                                        <span class="input-group-text">$</span>
-									    	<input type="text" placeholder="0" class="form-control" id="sum_price_pledge" style="text-align: right;" readonly="readonly">
-									    	<span class="input-group-text">บาท</span>
-									    </div>
-									</div>
-									<div class="col-md-1">
-										<label>ยอดที่เหลือ</label>
-									</div>
-									<div class="col-md-3 form-group">
-										<div class="input-group input-group-lg mb-3">
-	                                        <span class="input-group-text">$</span>
-									    	<input type="text" placeholder="0" class="form-control" id="sum_price_balance" style="text-align: right;" readonly="readonly">
-									    	<span class="input-group-text">บาท</span>
-									    </div>
-									</div>
+								    <div class="col-md-4 form-group">
+								        <div class="input-group" id="sum_price_total_group">
+								            <span class="input-group-text">ราคาเต็ม</span>
+								            <input type="text" placeholder="0" class="form-control fw-bold text-end" id="sum_price_total" readonly>
+								            <span class="input-group-text">บาท</span>
+								        </div>
+								    </div>
+								    <div class="col-md-4 form-group">
+								        <div class="input-group" id="sum_price_pledge_group">
+								            <span class="input-group-text">ราคามัดจำ</span>
+								            <input type="text" placeholder="0" class="form-control fw-bold text-end" id="sum_price_pledge" readonly>
+								            <span class="input-group-text">บาท</span>
+								        </div>
+								    </div>
+								    <div class="col-md-4 form-group">
+								        <div class="input-group" id="sum_price_balance_group">
+								            <span class="input-group-text">ยอดที่เหลือ</span>
+								            <input type="text" placeholder="0" class="form-control fw-bold text-end" id="sum_price_balance" readonly>
+								            <span class="input-group-text">บาท</span>
+								        </div>
+								    </div>
 								</div>
 							</div>
 						</div>
@@ -147,7 +177,7 @@
 				    <i class="bx bx-check d-block d-sm-none"></i>
 				    <span class="d-none d-sm-block">แก้ไข</span>
 				</button>
-				<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
+				<button type="button" class="btn btn-success ml-1" onclick="save_new_detail()" id="btn_save">
 				    <i class="bx bx-check d-block d-sm-none"></i>
 				    <span class="d-none d-sm-block">บันทึก</span>
 				</button>

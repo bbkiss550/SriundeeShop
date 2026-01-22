@@ -257,10 +257,12 @@ public class OrderController {
     	Double sum_price_pledge = 0.0;
     	Double sum_price_balance = 0.0;
 		List<OrderSummaryBean> summayList = orderDetailRepository.getCartSummary();
-		for (OrderSummaryBean s : summayList) {
-			sum_price_total = s.getsum_price_total();
-	    	sum_price_pledge = s.getsum_price_pledge();
-	    	sum_price_balance = s.getsum_price_balance();
+		if (orderdetailList.size() > 0 ) {
+			for (OrderSummaryBean s : summayList) {
+				sum_price_total = s.getsum_price_total();
+		    	sum_price_pledge = s.getsum_price_pledge();
+		    	sum_price_balance = s.getsum_price_balance();
+			}
 		}
 		
 		String ListPaymentMethod = paymentMethodController.getDataList();
@@ -347,9 +349,12 @@ public class OrderController {
         	}
             order.setSend_cost(orderDto.getSend_cost());
             order.setDiscount(orderDto.getDiscount());
-            order.setPrice_total(orderDto.getPrice_total());
-            order.setPrice_pledge(orderDto.getPrice_pledge());
-            order.setPrice_balance(orderDto.getPrice_balance());
+            if (orderDto.getPay_method() == 1) {
+                order.setPrice_total(orderDto.getPrice_total());
+            } else {
+                order.setPrice_pledge(orderDto.getPrice_pledge());
+                order.setPrice_balance(orderDto.getPrice_balance());
+            }
             order.setNet(orderDto.getNet());
             order.setRemark(orderDto.getRemark());
 

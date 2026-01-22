@@ -115,8 +115,6 @@ function edit_data(id) {
 			document.getElementById('pPic').value = data.pic;
 			document.getElementById('showImage').src = check_pic_null(data.pic);
 			
-			pt1_check(data.product_status);
-			
 			document.getElementById('btn_edit').style.display = '';
 			document.getElementById('btn_save').style.display = 'none';
 			

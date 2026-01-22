@@ -6,48 +6,58 @@
             </div>
 			<div class="modal-body">
 				<div class="row">
-	                <div class="col-md-2">
-	                    <input type="hidden" id="IdProduct">
-	                    <label>ชื่อสินค้า</label>
-	                </div>
-	                <div class="col-md-10 form-group">
-	                    <input type="text" placeholder="ชื่อสินค้า . . ." class="form-control" id="pName">
+	                <div class="col-md-12 form-group">
+						<div class="input-group">
+				            <span class="input-group-text" style="width: 120px; justify-content: right;">ชื่อสินค้า</span>
+	                    	<input type="text" placeholder="..." class="form-control" id="pName">
+	                    	<input type="hidden" id="IdProduct">
+	                    </div>
 	                </div>
 				</div>
 			    <div class="row">
-			        <div class="col-md-6">
+			        <div class="col-md-4">
 			            <div class="row">
-			                <div class="col-md-4"><label>ประเภท</label></div>
-			                <div class="col-md-8 form-group">
-			                    <select class="form-select" th:utext="${ListType}" id="IdType"></select>
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text" style="width: 120px; justify-content: right;">ประเภท</span>
+			                    	<select class="form-select" th:utext="${ListType}" id="IdType"></select>
+			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
-			                <div class="col-md-4"><label>ศิลปิน</label></div>
-			                <div class="col-md-8 form-group">
-			                    <select class="form-select" th:utext="${ListArtist}" id="IdArtist"></select>
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text" style="width: 120px; justify-content: right;">ศิลปิน</span>
+			                    	<select class="form-select" th:utext="${ListArtist}" id="IdArtist"></select>
+			                	</div>
 			                </div>
 			            </div>
 			            <div class="row">
-			                <div class="col-md-4"><label>วันที่ปิดรับ</label></div>
-			                <div class="col-md-8 form-group">
-			                    <input type="date" class="form-control" id="end_date">
+		                	<div class="col-md-12 form-group">
+		                		<div class="input-group">
+						            <span class="input-group-text" style="width: 120px; justify-content: right;">วันที่ปิดรับ</span>
+			                    	<input type="date" class="form-control" id="end_date">
+			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
-			                <div class="col-md-4"><label>วันที่กำหนดส่ง</label></div>
-			                <div class="col-md-8 form-group">
-			                    <input type="date" class="form-control" id="send_date">
+			                <div class="col-md-12 form-group">
+						        <div class="input-group">
+						        	<span class="input-group-text" style="width: 120px; justify-content: right;">วันที่กำหนดส่ง</span>
+			                    	<input type="date" class="form-control" id="send_date">
+			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
-			                <div class="col-md-4"><label>สถานะ</label></div>
-			                <div class="col-md-8 form-group">
-			                    <select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text" style="width: 120px; justify-content: right;">สถานะ</span>
+			                    	<select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
+			                    </div>
 			                </div>
 			            </div>
 			        </div>
-			        <div class="col-md-6">
+			        <div class="col-md-8">
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 			                    <div class="input-group">

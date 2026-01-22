@@ -10,9 +10,9 @@ function modal_order(id) {
 			document.getElementById('cov_showImage').src = check_pic_null(data.product.p_pic);
 
 			document.getElementById('data_qty').innerHTML = data.listQty;
-			document.getElementById('data_website').innerHTML = data.listWebsite;
-			document.getElementById('data_version').innerHTML = data.listVersion;
-			document.getElementById('data_cover').innerHTML = data.listCover;
+			document.getElementById('data_website').innerHTML = data.listWebsite || '';
+			document.getElementById('data_version').innerHTML = data.listVersion || '';
+			document.getElementById('data_cover').innerHTML = data.listCover || '';
 
 			var myModal = new bootstrap.Modal(document.getElementById('modalOrder'));
 			myModal.show();
@@ -37,7 +37,7 @@ function select_cover() {
 		fetch('/order/loadcover/' + select_product + '/' + select_website.value + '/' + select_version.value)
 		    .then(response => response.json())
 			.then(data => {
-				document.getElementById('data_cover').innerHTML = data.listCover;
+				document.getElementById('data_cover').innerHTML = data.listCover || '';
 				
 				document.getElementById('price_total').value = "";
 				document.getElementById('price_pledge').value = "";
@@ -73,8 +73,8 @@ function cal() {
     const balance = parseFloat(document.getElementById('price_balance').value) || 0;
 
     const formatter = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     });
 
     document.getElementById('sum_price_total').value = formatter.format(total * qtyValue);
@@ -82,7 +82,7 @@ function cal() {
     document.getElementById('sum_price_balance').value = formatter.format(balance * qtyValue);
 }
 
-function save_new_data() {
+function save_new_detail() {
 	const cover = document.querySelector('input[name="group-cover"]:checked');
 	const qty = document.querySelector('input[name="group-qty"]:checked');
 	const price_total = document.getElementById('sum_price_total').value;
