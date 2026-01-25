@@ -20,6 +20,12 @@ public class Order {
     @Column(name = "ID_order")
     private Integer id;
 
+    @Column(name = "o_order_date")
+    private Date order_date;
+    
+    @Column(name = "o_order_code")
+    private String order_code;
+    
     @Column(name = "o_customer_name")
     private String customer_name;
 
@@ -59,6 +65,22 @@ public class Order {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Date getOrder_date() {
+		return order_date;
+	}
+
+	public void setOrder_date(Date order_date) {
+		this.order_date = order_date;
+	}
+
+	public String getOrder_code() {
+		return order_code;
+	}
+
+	public void setOrder_code(String order_code) {
+		this.order_code = order_code;
 	}
 
 	public String getCustomer_name() {

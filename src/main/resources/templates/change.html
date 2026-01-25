@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head th:replace="common/header :: header_head"></head>
+	<style>
+	    .btn-outline-purple {
+	        color: #6f42c1 !important;
+	        border-color: #6f42c1 !important;
+	    }
+		
+	    .btn-outline-purple:hover {
+	        background-color: #6f42c1 !important;
+	        color: white !important;
+	    }
+
+	    .btn-status-grid {
+	        font-size: 1rem !important;
+	        padding: 8px 2px !important;
+	        height: 100%;
+	        display: flex;
+	        align-items: center;
+	        justify-content: center;
+	        line-height: 1.2;
+	        min-height: 52px;
+	        border-width: 1.5px;
+	    }
+	</style>
+	<body>
+		<div id="app">
+		    <div th:replace="common/menu :: menu"></div>
+		    <div id="main">
+		        <header th:replace="common/header :: header_nav"></header>
+		        <div class="page-heading">
+		            <h3>อัปเดทสถานะ</h3>
+		        </div>
+				<div class="page-content">
+		            <div class="row">
+						<div class="card">
+		                	<div class="card-body">
+								<div class="col-12">
+									<div class="row g-1" th:utext="${osCheckList}">
+									</div>
+		                       </div>
+		                    </div>
+		                </div>
+		            </div>
+					<div class="row">
+					    <div class="col-12">
+							<div class="card">
+					            <div class="card-body">
+					                <table class="table table-striped" id="table1">
+					                    <thead>
+					                        <tr>
+												<th class="fix_width"></th>
+												<th class="fix_width">#</th>
+												<th class="logo_width">ชื่อลูกค้า</th>
+					                            <th class="auto_width">ชื่อสินค้า</th>
+												<th class="status_width">ประเภท</th>
+												<th class="auto_width">ศิลปิน</th>
+												<th class="status_width">ปิดรับ</th>
+												<th class="status_width">กำหนดส่ง</th>
+												<th class="status_width">เก็บยอดที่เหลือ</th>
+					                        </tr>
+					                    </thead>
+					                    <tbody th:utext="${mainProduct}"></tbody>
+					                </table>
+					            </div>
+					        </div>
+					    </div>
+					</div>
+		        </div>
+				<div th:include="./order/modal-checkout"></div>
+		        <footer th:replace="common/footer :: footer"></footer>
+		    </div>
+		</div>
+	</body>
+</html>

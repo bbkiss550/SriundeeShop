@@ -18,6 +18,9 @@ public class OrderStatus {
     @Column(name = "os_name")
     private String name;
 
+    @Column(name = "os_color")
+    private String color;
+    
 	public Integer getId() {
 		return id;
 	}
@@ -33,4 +36,13 @@ public class OrderStatus {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
 }

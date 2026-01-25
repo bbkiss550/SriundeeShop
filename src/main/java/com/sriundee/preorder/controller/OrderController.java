@@ -214,7 +214,7 @@ public class OrderController {
 	
     @GetMapping("/order/loadcart")
 	@ResponseBody
-	public Object getDataCover() {
+	public Object getLoadcart() {
     	StringBuilder ListDetail = new StringBuilder();
 		List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartIsNull();
 		for (OrderDetailBean o : orderdetailList) {

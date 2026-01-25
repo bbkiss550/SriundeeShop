@@ -9,6 +9,7 @@ public interface OrderDetailBean {
     Integer getID_order();
     Integer getID_pro();
     String getp_name();
+    String geto_customer_name();
     Integer getID_type();
     String gett_name();
     Integer getID_art();
