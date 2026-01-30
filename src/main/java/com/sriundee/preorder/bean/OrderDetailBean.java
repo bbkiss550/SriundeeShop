@@ -35,4 +35,5 @@ public interface OrderDetailBean {
     String getp_last_pay_date();
     Integer getID_order_status();
     String getos_name();
+    String getos_color();
 }

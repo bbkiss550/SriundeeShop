@@ -32,7 +32,7 @@ public class OrderStatusController {
 	    for (OrderStatus os : mainOrderStatus) {
     		if (i == 1) { strChecked = "checked"; } else { strChecked = ""; }
 	    	strOrderStatus.append("<div class='col-2'>");
-	    	strOrderStatus.append("<input type='radio' class='btn-check' name='group-os' id='os" + os.getId() + "' value='" + os.getId() + "' onchange='select_os()' " + strChecked + ">");
+	    	strOrderStatus.append("<input type='radio' class='btn-check' name='group-os' id='os" + os.getId() + "' value='" + os.getName() + "' onchange='select_os()' " + strChecked + ">");
 	    	strOrderStatus.append("<label class='btn btn-outline-" + os.getColor() + " btn-status-grid w-100' for='os" + os.getId() + "'>" + os.getName() + "</label>");
 	    	strOrderStatus.append("</div>");
 	    	i ++;

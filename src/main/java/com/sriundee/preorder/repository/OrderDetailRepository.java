@@ -25,4 +25,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 	
 	@Query(value = "SELECT * FROM t_order_detail where ID_order is null", nativeQuery = true)
     List<OrderDetail> getDataIsNull();
+	
+	@Query(value = "SELECT * FROM q_order_detail where ID_Order IS NOT NULL", nativeQuery = true)
+    List<OrderDetailBean> getDataByIDOrderIsNull();
 }

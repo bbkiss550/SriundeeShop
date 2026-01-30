@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 	<head th:replace="common/header :: header_head"></head>
+	
 	<style>
 	    .btn-outline-purple {
 	        color: #6f42c1 !important;
@@ -47,22 +48,20 @@
 					    <div class="col-12">
 							<div class="card">
 					            <div class="card-body">
-					                <table class="table table-striped" id="table1">
-					                    <thead>
-					                        <tr>
-												<th class="fix_width"></th>
-												<th class="fix_width">#</th>
-												<th class="logo_width">ชื่อลูกค้า</th>
-					                            <th class="auto_width">ชื่อสินค้า</th>
-												<th class="status_width">ประเภท</th>
-												<th class="auto_width">ศิลปิน</th>
-												<th class="status_width">ปิดรับ</th>
-												<th class="status_width">กำหนดส่ง</th>
-												<th class="status_width">เก็บยอดที่เหลือ</th>
-					                        </tr>
-					                    </thead>
-					                    <tbody th:utext="${mainProduct}"></tbody>
-					                </table>
+									<table class="table table-striped" id="table2">
+									    <thead>
+									        <tr>
+									            <th class="auto_width">ชื่อลูกค้า</th>
+									            <th class="auto_width">ชื่อสินค้า</th>
+									            <th class="auto_width">เว็บ</th>
+									            <th class="auto_width">เวอชั่น</th>
+									            <th class="auto_width">ปก</th>
+									            <th class="status_width">จำนวน</th>
+									            <th class="status_width">สถานะ</th>
+									        </tr>
+									    </thead>
+										<tbody th:utext="${listOrderDeatil}"></tbody>
+									</table>
 					            </div>
 					        </div>
 					    </div>
@@ -72,5 +71,6 @@
 		        <footer th:replace="common/footer :: footer"></footer>
 		    </div>
 		</div>
+		<script th:src="@{/script/change.js}"></script>
 	</body>
 </html>
