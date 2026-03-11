@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+	.search-bar {
+		background-color: #f8f9fa;
+		border-radius: 8px;
+		padding: 16px;
+		margin-bottom: 16px;
+	}
+</style>
+
+<body>
+	<div id="app">
+		<div th:replace="common/menu :: menu"></div>
+		<div id="main">
+			<header th:replace="common/header :: header_nav"></header>
+			<div class="page-heading">
+				<h3>อัปเดทสถานะ</h3>
+			</div>
+			<div class="page-content">
+
+				<!-- Search Bar -->
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<div class="search-bar">
+									<div class="row g-2 align-items-end">
+										<div class="col-md-3">
+											<label for="inputCustomer" class="form-label fw-bold">ชื่อลูกค้า</label>
+											<input type="text" id="inputCustomer" class="form-control"
+												placeholder="ค้นหาชื่อลูกค้า...">
+										</div>
+										<div class="col-md-3">
+											<label for="selectArtist" class="form-label fw-bold">ศิลปิน</label>
+											<select id="selectArtist" class="form-select">
+												<option value="">-- ทั้งหมด --</option>
+												<th:block th:utext="${listArtist}"></th:block>
+											</select>
+										</div>
+										<div class="col-md-2">
+											<label for="selectWebsite" class="form-label fw-bold">เว็บ</label>
+											<select id="selectWebsite" class="form-select">
+												<option value="">-- ทั้งหมด --</option>
+												<th:block th:utext="${listWebsite}"></th:block>
+											</select>
+										</div>
+										<div class="col-md-2">
+											<label for="selectStatus" class="form-label fw-bold">สถานะ</label>
+											<select id="selectStatus" class="form-select">
+												<option value="">-- ทั้งหมด --</option>
+												<th:block th:utext="${listStatus}"></th:block>
+											</select>
+										</div>
+										<div class="col-md-1">
+											<button type="button" class="btn btn-primary w-100" onclick="search_data()">
+												<i class="bi bi-search"></i>
+											</button>
+										</div>
+										<div class="col-md-1">
+											<button type="button" class="btn btn-outline-secondary w-100"
+												onclick="reset_search()">
+												<i class="bi bi-arrow-counterclockwise"></i>
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Table -->
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<table class="table table-striped" id="table2">
+									<thead>
+										<tr>
+											<th class="auto_width">ชื่อลูกค้า</th>
+											<th class="auto_width">ชื่อสินค้า</th>
+											<th class="auto_width">เว็บ</th>
+											<th class="auto_width">เวอชั่น</th>
+											<th class="auto_width">ปก</th>
+											<th class="status_width">จำนวน</th>
+											<th class="status_width">สถานะ</th>
+										</tr>
+									</thead>
+									<tbody th:utext="${listOrderDeatil}"></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div th:include="./order/modal-checkout"></div>
+			<footer th:replace="common/footer :: footer"></footer>
+		</div>
+	</div>
+	<script th:src="@{/script/liststatus.js}"></script>
+</body>
+
+</html>
