@@ -3,15 +3,15 @@
 
  Source Server         : MySQL
  Source Server Type    : MySQL
- Source Server Version : 80042
+ Source Server Version : 80045
  Source Host           : localhost:3306
  Source Schema         : db_sriundee_shop
 
  Target Server Type    : MySQL
- Target Server Version : 80042
+ Target Server Version : 80045
  File Encoding         : 65001
 
- Date: 26/01/2026 01:42:55
+ Date: 11/03/2026 10:13:33
 */
 
 SET NAMES utf8mb4;
@@ -152,7 +152,7 @@ CREATE TABLE `t_menu`  (
   `m_url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `m_icon` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_menu`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_menu
@@ -164,7 +164,8 @@ INSERT INTO `t_menu` VALUES (4, 'ข้อมูลประเภทสิน�
 INSERT INTO `t_menu` VALUES (5, 'ข้อมูลเว็บไซต์', NULL, 2, '/website', NULL);
 INSERT INTO `t_menu` VALUES (6, 'ข้อมูลสินค้า', 'N', NULL, '/product', 'bi bi-book-half');
 INSERT INTO `t_menu` VALUES (7, 'บันทึกออร์เดอร์', 'N', NULL, '/order', 'bi bi-basket');
-INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/change', 'bi bi-check-circle-fill');
+INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/liststatus', 'bi bi-list-check');
+INSERT INTO `t_menu` VALUES (9, 'บันทึกกดของ', 'N', NULL, '/recordkod', 'bi bi-journal-bookmark-fill');
 
 -- ----------------------------
 -- Table structure for t_order
@@ -172,8 +173,6 @@ INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, 
 DROP TABLE IF EXISTS `t_order`;
 CREATE TABLE `t_order`  (
   `ID_order` int(0) NOT NULL AUTO_INCREMENT,
-  `o_order_date` date DEFAULT NULL,
-  `o_order_code` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_customer_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `ID_pay_method` int(0) DEFAULT NULL,
   `ID_pay_type` int(0) DEFAULT NULL,
@@ -191,8 +190,8 @@ CREATE TABLE `t_order`  (
 -- ----------------------------
 -- Records of t_order
 -- ----------------------------
-INSERT INTO `t_order` VALUES (1, NULL, NULL, 'bbkiss5501', 1, NULL, NULL, 50, 0, 4580, 0, 0, 4630, NULL);
-INSERT INTO `t_order` VALUES (5, NULL, NULL, 'nuchsaa', 1, NULL, NULL, 50, 0, 5250, 0, 0, 5300, NULL);
+INSERT INTO `t_order` VALUES (1, 'bbkiss5501', 1, NULL, NULL, 50, 0, 4580, 0, 0, 4630, NULL);
+INSERT INTO `t_order` VALUES (5, 'nuchsaa', 1, NULL, NULL, 50, 0, 5250, 0, 0, 5300, NULL);
 
 -- ----------------------------
 -- Table structure for t_order_detail
@@ -228,19 +227,18 @@ DROP TABLE IF EXISTS `t_order_status`;
 CREATE TABLE `t_order_status`  (
   `ID_order_status` int(0) NOT NULL,
   `os_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `os_color` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `os_color` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_order_status`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_order_status
 -- ----------------------------
-INSERT INTO `t_order_status` VALUES (1, 'รอกดของ', 'secondary');
-INSERT INTO `t_order_status` VALUES (2, 'กดของแล้ว', 'primary');
-INSERT INTO `t_order_status` VALUES (3, 'ถึงโกดังแล้ว รอส่งกลับไทย', 'purple');
-INSERT INTO `t_order_status` VALUES (4, 'ระหว่างส่งกลับไทย', 'dark');
-INSERT INTO `t_order_status` VALUES (5, 'ถึงไทยแล้ว รอจัดส่ง', 'danger');
-INSERT INTO `t_order_status` VALUES (6, 'ส่งของเสร็จแล้ว', 'success');
+INSERT INTO `t_order_status` VALUES (1, 'รอกดของ', 'warning');
+INSERT INTO `t_order_status` VALUES (2, 'กดของแล้ว', 'danger');
+INSERT INTO `t_order_status` VALUES (3, 'อยู่ระหว่างส่งกลับไทย', 'info');
+INSERT INTO `t_order_status` VALUES (4, 'เตรียมจัดส่ง', 'primary');
+INSERT INTO `t_order_status` VALUES (5, 'ส่งของเสร็จแล้ว', 'success');
 
 -- ----------------------------
 -- Table structure for t_payment_method
@@ -521,7 +519,7 @@ CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER V
 -- View structure for q_order_detail
 -- ----------------------------
 DROP VIEW IF EXISTS `q_order_detail`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name` from ((((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`))) left join `t_order` on((`t_order`.`ID_order` = `t_order_detail`.`ID_order`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name`,`t_order_status`.`os_color` AS `os_color` from ((((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`))) left join `t_order` on((`t_order`.`ID_order` = `t_order_detail`.`ID_order`)));
 
 -- ----------------------------
 -- View structure for q_product
