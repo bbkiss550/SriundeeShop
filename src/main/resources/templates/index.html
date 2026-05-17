@@ -2,282 +2,498 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/header :: header_head"></head>
 
+<style>
+    .dashboard-stat-card {
+        min-height: 150px;
+        height: calc(100% - 1.5rem);
+    }
+
+    .dashboard-stat-card,
+    .dashboard-stat-card.is-focus,
+    .dashboard-stat-card.is-balance,
+    .dashboard-stat-card.is-small {
+        border-left: 6px solid #334155;
+    }
+
+    .dashboard-stat-card.is-sales {
+        border-left-color: #198754;
+    }
+
+    .dashboard-stat-card.is-received {
+        border-left-color: #0dcaf0;
+    }
+
+    .dashboard-stat-card.is-balance {
+        border-left-color: #dc3545;
+    }
+
+    .dashboard-stat-card.is-cost {
+        border-left-color: #ffc107;
+    }
+
+    .dashboard-stat-card .card-body {
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .dashboard-stat-main {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+        column-gap: 1rem;
+        align-items: start;
+    }
+
+    .dashboard-stat-icon {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #ffffff;
+        font-size: 1.25rem;
+        flex: 0 0 auto;
+    }
+
+    .dashboard-stat-value {
+        font-size: 1.45rem;
+        line-height: 1.15;
+        word-break: break-word;
+    }
+
+    .dashboard-stat-card.is-focus .dashboard-stat-value,
+    .dashboard-stat-card.is-balance .dashboard-stat-value,
+    .dashboard-stat-value {
+        font-size: 1.75rem;
+    }
+
+    .dashboard-stat-grid > [class*="col-"] {
+        display: flex;
+    }
+
+    .dashboard-stat-grid .card {
+        width: 100%;
+    }
+
+    .dashboard-stat-sub {
+        font-size: .82rem;
+        margin-top: .45rem;
+        min-height: 0;
+    }
+
+    .dashboard-cost-breakdown {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+        margin-top: .65rem;
+        padding-top: .55rem;
+        border-top: 1px solid rgba(148, 163, 184, .28);
+    }
+
+    .dashboard-cost-item {
+        min-width: 0;
+    }
+
+    .dashboard-cost-label {
+        display: block;
+        color: #7c8db5;
+        font-size: .78rem;
+        line-height: 1.3;
+    }
+
+    .dashboard-cost-value {
+        display: block;
+        margin-top: .2rem;
+        color: #ffffff;
+        font-size: 1.05rem;
+        line-height: 1.2;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .dashboard-sales-breakdown {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+        margin-top: .85rem;
+        padding-top: .75rem;
+        border-top: 1px solid rgba(148, 163, 184, .28);
+    }
+
+    .dashboard-sales-label {
+        color: #7c8db5;
+        font-size: .78rem;
+        line-height: 1.3;
+    }
+
+    .dashboard-sales-value {
+        margin-top: .2rem;
+        color: #ffffff;
+        font-size: 1.05rem;
+        line-height: 1.2;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .dashboard-expense-card {
+        min-height: 92px;
+        height: calc(100% - 1.5rem);
+        border-left: 4px solid #64748b;
+    }
+
+    .dashboard-expense-grid > [class*="col-"] {
+        display: flex;
+    }
+
+    .dashboard-expense-grid .card {
+        width: 100%;
+    }
+
+    .dashboard-expense-card .card-body {
+        padding: 1rem 1.15rem;
+    }
+
+    .dashboard-expense-title {
+        font-size: .85rem;
+        line-height: 1.25;
+        min-height: 34px;
+    }
+
+    .dashboard-expense-value {
+        font-size: 1.1rem;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .dashboard-expense-card.cost-press {
+        border-left-color: #ffc107;
+    }
+
+    .dashboard-expense-card.cost-shipping {
+        border-left-color: #0dcaf0;
+    }
+
+    .dashboard-expense-card.cost-other {
+        border-left-color: #f97316;
+    }
+
+    .dashboard-expense-card.cost-danger {
+        border-left-color: #dc3545;
+    }
+
+    .dashboard-expense-card.cost-success {
+        border-left-color: #198754;
+    }
+
+    .dashboard-chart {
+        min-height: 380px;
+    }
+
+    .dashboard-chart-main {
+        min-height: 430px;
+    }
+
+    .dashboard-empty {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7c8db5;
+        font-weight: 700;
+    }
+
+    .dashboard-filter .input-group-text {
+        min-width: 88px;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    [data-theme="dark"] .apexcharts-tooltip,
+    [data-theme="dark"] .apexcharts-tooltip-title,
+    [data-theme="dark"] .apexcharts-xaxistooltip,
+    [data-theme="dark"] .apexcharts-yaxistooltip {
+        background: #111827 !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+
+    [data-theme="dark"] .apexcharts-tooltip-text,
+    [data-theme="dark"] .apexcharts-tooltip-text-y-label,
+    [data-theme="dark"] .apexcharts-tooltip-text-y-value,
+    [data-theme="dark"] .apexcharts-tooltip-text-z-label,
+    [data-theme="dark"] .apexcharts-tooltip-text-z-value,
+    [data-theme="dark"] .apexcharts-xaxistooltip-text,
+    [data-theme="dark"] .apexcharts-legend-text {
+        color: #f8fafc !important;
+    }
+
+    [data-theme="dark"] .apexcharts-tooltip-title {
+        border-bottom-color: #475569 !important;
+    }
+
+    [data-theme="light"] .apexcharts-tooltip,
+    [data-theme="light"] .apexcharts-tooltip-title,
+    [data-theme="light"] .apexcharts-xaxistooltip,
+    [data-theme="light"] .apexcharts-yaxistooltip {
+        color: #1f2937 !important;
+    }
+</style>
+<script>
+    (function() {
+        const navigation = performance.getEntriesByType("navigation")[0];
+        const isReload = navigation && navigation.type === "reload";
+        const searchParams = new URLSearchParams(window.location.search);
+        const hasDashboardDateFilter = searchParams.has("startDate") || searchParams.has("endDate");
+        if (isReload && hasDashboardDateFilter) {
+            window.location.replace(window.location.pathname);
+        }
+    })();
+</script>
+
 <body>
     <div id="app">
         <div th:replace="common/menu :: menu"></div>
-		
+
         <div id="main">
             <header th:replace="common/header :: header_nav"></header>
 
-            <div class="page-heading">
-                <h3>P............cs</h3>
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card dashboard-filter">
+                            <div class="card-body">
+                                <form class="row g-3 align-items-end" method="get" th:action="@{/}">
+                                    <div class="col-12 col-md-5">
+                                        <label class="form-label">วันที่เริ่มต้น</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">วันที่</span>
+                                            <input type="date" class="form-control" name="startDate" th:value="${selectedStartDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-5">
+                                        <label class="form-label">วันที่สิ้นสุด</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">วันที่</span>
+                                            <input type="date" class="form-control" name="endDate" th:value="${selectedEndDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-search"></i> ค้นหา
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row dashboard-stat-grid">
+                    <div class="col-12 col-xl-6">
+                        <div class="card dashboard-stat-card is-focus is-sales">
+                            <div class="card-body">
+                                <div class="dashboard-stat-main">
+                                    <div class="dashboard-stat-icon bg-success">
+                                        <i class="bi bi-cash-stack"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted font-semibold mb-1">ยอดขายรวม</h6>
+                                        <h4 class="font-extrabold mb-0 dashboard-stat-value"><span th:text="${totalSales}">0.00</span></h4>
+                                        <div class="dashboard-stat-sub text-muted">
+                                            ช่วง <strong th:text="${dashboardPeriod}">01/05/2026 - 17/05/2026</strong> จากคำสั่งซื้อ <strong th:text="${totalOrders}">0</strong> รายการ
+                                        </div>
+                                        <div class="dashboard-sales-breakdown">
+                                            <div>
+                                                <div class="dashboard-sales-label">รับแล้ว</div>
+                                                <div class="dashboard-sales-value" th:text="${totalReceived}">0.00</div>
+                                            </div>
+                                            <div>
+                                                <div class="dashboard-sales-label">ยอดคงเหลือ</div>
+                                                <div class="dashboard-sales-value" th:text="${totalBalance}">0.00</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <div class="card dashboard-stat-card is-small is-cost">
+                            <div class="card-body">
+                                <div class="dashboard-stat-main">
+                                    <div class="dashboard-stat-icon bg-warning">
+                                        <i class="bi bi-credit-card"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted font-semibold mb-1">ค่าใช้จ่าย</h6>
+                                        <h4 class="font-extrabold mb-0 dashboard-stat-value"><span th:text="${totalCost}">0.00</span></h4>
+                                        <div class="dashboard-stat-sub text-muted">
+                                            ค่าใช้จ่ายรวมในช่วงวันที่เลือก
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dashboard-cost-breakdown">
+                                    <div class="dashboard-cost-item" th:each="cost : ${costByType}">
+                                        <div class="dashboard-cost-label" th:text="${cost.label}">ประเภทค่าใช้จ่าย</div>
+                                        <div class="dashboard-cost-value" th:text="${cost.value}">0.00</div>
+                                    </div>
+                                    <div class="dashboard-cost-item" th:if="${#lists.isEmpty(costByType)}">
+                                        <div class="dashboard-cost-label">ไม่มีรายละเอียดค่าใช้จ่าย</div>
+                                        <div class="dashboard-cost-value">0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>ยอดขายตามช่วงวันที่</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="salesTrendChart" class="dashboard-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-            
-				<div class="page-content">
-	                <section class="row">
-	                    <div class="col-12 col-lg-9">
-	                        <div class="row">
-	                            <div class="col-6 col-lg-3 col-md-6">
-	                                <div class="card">
-	                                    <div class="card-body px-3 py-4-5">
-	                                        <div class="row">
-	                                            <div class="col-md-4">
-	                                                <div class="stats-icon purple">
-	                                                    <i class="iconly-boldShow"></i>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-md-8">
-	                                                <h6 class="text-muted font-semibold">Profile Views</h6>
-	                                                <h6 class="font-extrabold mb-0">112.000</h6>
-	                                            </div>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="col-6 col-lg-3 col-md-6">
-	                                <div class="card">
-	                                    <div class="card-body px-3 py-4-5">
-	                                        <div class="row">
-	                                            <div class="col-md-4">
-	                                                <div class="stats-icon blue">
-	                                                    <i class="iconly-boldProfile"></i>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-md-8">
-	                                                <h6 class="text-muted font-semibold">Followers</h6>
-	                                                <h6 class="font-extrabold mb-0">183.000</h6>
-	                                            </div>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="col-6 col-lg-3 col-md-6">
-	                                <div class="card">
-	                                    <div class="card-body px-3 py-4-5">
-	                                        <div class="row">
-	                                            <div class="col-md-4">
-	                                                <div class="stats-icon green">
-	                                                    <i class="iconly-boldAdd-User"></i>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-md-8">
-	                                                <h6 class="text-muted font-semibold">Following</h6>
-	                                                <h6 class="font-extrabold mb-0">80.000</h6>
-	                                            </div>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="col-6 col-lg-3 col-md-6">
-	                                <div class="card">
-	                                    <div class="card-body px-3 py-4-5">
-	                                        <div class="row">
-	                                            <div class="col-md-4">
-	                                                <div class="stats-icon red">
-	                                                    <i class="iconly-boldBookmark"></i>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-md-8">
-	                                                <h6 class="text-muted font-semibold">Saved Post</h6>
-	                                                <h6 class="font-extrabold mb-0">112</h6>
-	                                            </div>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </div>
-	                        <div class="row">
-	                            <div class="col-12">
-	                                <div class="card">
-	                                    <div class="card-header">
-	                                        <h4>Profile Visit</h4>
-	                                    </div>
-	                                    <div class="card-body">
-	                                        <div id="chart-profile-visit"></div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </div>
-	                        <div class="row">
-	                            <div class="col-12 col-xl-4">
-	                                <div class="card">
-	                                    <div class="card-header">
-	                                        <h4>Profile Visit</h4>
-	                                    </div>
-	                                    <div class="card-body">
-	                                        <div class="row">
-	                                            <div class="col-6">
-	                                                <div class="d-flex align-items-center">
-	                                                    <svg class="bi text-primary" width="32" height="32" fill="blue"
-	                                                        style="width:10px">
-	                                                        <use
-	                                                            xlink:href="assets/vendors/bootstrap-icons/bootstrap-icons.svg#circle-fill" />
-	                                                    </svg>
-	                                                    <h5 class="mb-0 ms-3">Europe</h5>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-6">
-	                                                <h5 class="mb-0">862</h5>
-	                                            </div>
-	                                            <div class="col-12">
-	                                                <div id="chart-europe"></div>
-	                                            </div>
-	                                        </div>
-	                                        <div class="row">
-	                                            <div class="col-6">
-	                                                <div class="d-flex align-items-center">
-	                                                    <svg class="bi text-success" width="32" height="32" fill="blue"
-	                                                        style="width:10px">
-	                                                        <use
-	                                                            xlink:href="assets/vendors/bootstrap-icons/bootstrap-icons.svg#circle-fill" />
-	                                                    </svg>
-	                                                    <h5 class="mb-0 ms-3">America</h5>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-6">
-	                                                <h5 class="mb-0">375</h5>
-	                                            </div>
-	                                            <div class="col-12">
-	                                                <div id="chart-america"></div>
-	                                            </div>
-	                                        </div>
-	                                        <div class="row">
-	                                            <div class="col-6">
-	                                                <div class="d-flex align-items-center">
-	                                                    <svg class="bi text-danger" width="32" height="32" fill="blue"
-	                                                        style="width:10px">
-	                                                        <use
-	                                                            xlink:href="assets/vendors/bootstrap-icons/bootstrap-icons.svg#circle-fill" />
-	                                                    </svg>
-	                                                    <h5 class="mb-0 ms-3">Indonesia</h5>
-	                                                </div>
-	                                            </div>
-	                                            <div class="col-6">
-	                                                <h5 class="mb-0">1025</h5>
-	                                            </div>
-	                                            <div class="col-12">
-	                                                <div id="chart-indonesia"></div>
-	                                            </div>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="col-12 col-xl-8">
-	                                <div class="card">
-	                                    <div class="card-header">
-	                                        <h4>Latest Comments</h4>
-	                                    </div>
-	                                    <div class="card-body">
-	                                        <div class="table-responsive">
-	                                            <table class="table table-hover table-lg">
-	                                                <thead>
-	                                                    <tr>
-	                                                        <th>Name</th>
-	                                                        <th>Comment</th>
-	                                                    </tr>
-	                                                </thead>
-	                                                <tbody>
-	                                                    <tr>
-	                                                        <td class="col-3">
-	                                                            <div class="d-flex align-items-center">
-	                                                                <div class="avatar avatar-md">
-	                                                                    <img src="assets/images/faces/5.jpg">
-	                                                                </div>
-	                                                                <p class="font-bold ms-3 mb-0">Si Cantik</p>
-	                                                            </div>
-	                                                        </td>
-	                                                        <td class="col-auto">
-	                                                            <p class=" mb-0">Congratulations on your graduation!</p>
-	                                                        </td>
-	                                                    </tr>
-	                                                    <tr>
-	                                                        <td class="col-3">
-	                                                            <div class="d-flex align-items-center">
-	                                                                <div class="avatar avatar-md">
-	                                                                    <img src="assets/images/faces/2.jpg">
-	                                                                </div>
-	                                                                <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-	                                                            </div>
-	                                                        </td>
-	                                                        <td class="col-auto">
-	                                                            <p class=" mb-0">Wow amazing design! Can you make another
-	                                                                tutorial for
-	                                                                this design?</p>
-	                                                        </td>
-	                                                    </tr>
-	                                                </tbody>
-	                                            </table>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </div>
-	                    </div>
-	                    <div class="col-12 col-lg-3">
-	                        <div class="card">
-	                            <div class="card-body py-4 px-5">
-	                                <div class="d-flex align-items-center">
-	                                    <div class="avatar avatar-xl">
-	                                        <img src="assets/images/faces/1.jpg" alt="Face 1">
-	                                    </div>
-	                                    <div class="ms-3 name">
-	                                        <h5 class="font-bold">John Duck</h5>
-	                                        <h6 class="text-muted mb-0">@johnducky</h6>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </div>
-	                        <div class="card">
-	                            <div class="card-header">
-	                                <h4>Recent Messages</h4>
-	                            </div>
-	                            <div class="card-content pb-4">
-	                                <div class="recent-message d-flex px-4 py-3">
-	                                    <div class="avatar avatar-lg">
-	                                        <img src="assets/images/faces/4.jpg">
-	                                    </div>
-	                                    <div class="name ms-4">
-	                                        <h5 class="mb-1">Hank Schrader</h5>
-	                                        <h6 class="text-muted mb-0">@johnducky</h6>
-	                                    </div>
-	                                </div>
-	                                <div class="recent-message d-flex px-4 py-3">
-	                                    <div class="avatar avatar-lg">
-	                                        <img src="assets/images/faces/5.jpg">
-	                                    </div>
-	                                    <div class="name ms-4">
-	                                        <h5 class="mb-1">Dean Winchester</h5>
-	                                        <h6 class="text-muted mb-0">@imdean</h6>
-	                                    </div>
-	                                </div>
-	                                <div class="recent-message d-flex px-4 py-3">
-	                                    <div class="avatar avatar-lg">
-	                                        <img src="assets/images/faces/1.jpg">
-	                                    </div>
-	                                    <div class="name ms-4">
-	                                        <h5 class="mb-1">John Dodol</h5>
-	                                        <h6 class="text-muted mb-0">@dodoljohn</h6>
-	                                    </div>
-	                                </div>
-	                                <div class="px-4">
-	                                    <button class='btn btn-block btn-xl btn-light-primary font-bold mt-3'>Start
-	                                        Conversation</button>
-	                                </div>
-	                            </div>
-	                        </div>
-	                        <div class="card">
-	                            <div class="card-header">
-	                                <h4>Visitors Profile</h4>
-	                            </div>
-	                            <div class="card-body">
-	                                <div id="chart-visitors-profile"></div>
-	                            </div>
-	                        </div>
-	                    </div>
-	                </section>
-	            </div>
+
             <footer th:replace="common/footer :: footer"></footer>
-			<script th:src="@{/mazer/dist/assets/js/pages/dashboard.js}"></script>
+            <script th:src="@{/mazer/dist/assets/vendors/apexcharts/apexcharts.min.js}"></script>
+            <script th:inline="javascript">
+                const salesTrendChartData = JSON.parse(/*[[${salesTrendChart}]]*/ "[]");
+
+                const chartColorMap = {
+                    primary: "#435ebe",
+                    secondary: "#6c757d",
+                    success: "#198754",
+                    info: "#0dcaf0",
+                    warning: "#ffc107",
+                    danger: "#dc3545",
+                    orange: "#f97316"
+                };
+
+                function chartThemeMode() {
+                    return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+                }
+
+                function chartTextColor() {
+                    return chartThemeMode() === "dark" ? "#f8fafc" : "#1f2937";
+                }
+
+                function chartGridColor() {
+                    return chartThemeMode() === "dark" ? "#334155" : "#e5e7eb";
+                }
+
+                function renderSalesTrendChart(elementId, sourceData) {
+                    const element = document.getElementById(elementId);
+                    if (!element) {
+                        return null;
+                    }
+                    const data = sourceData.map(item => ({
+                        label: item.label || "ไม่ระบุ",
+                        amount: Number(item.amount || 0),
+                        fullPaid: Number(item.fullPaid || 0),
+                        pledgePaid: Number(item.pledgePaid || 0)
+                    }));
+                    if (data.length === 0) {
+                        element.innerHTML = "<div class='dashboard-empty'>ไม่มีข้อมูลสำหรับแสดงผล</div>";
+                        return null;
+                    }
+
+                    const chart = new ApexCharts(element, {
+                        chart: {
+                            type: "line",
+                            height: 380,
+                            foreColor: chartTextColor(),
+                            toolbar: { show: false }
+                        },
+                        series: [
+                            { name: "จำนวนเงิน", data: data.map(item => item.amount) },
+                            { name: "จ่ายเต็ม", data: data.map(item => item.fullPaid) },
+                            { name: "จ่ายมัดจำ", data: data.map(item => item.pledgePaid) }
+                        ],
+                        xaxis: {
+                            categories: data.map(item => item.label)
+                        },
+                        colors: [chartColorMap.primary, chartColorMap.info, chartColorMap.warning],
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: "smooth",
+                            width: 3
+                        },
+                        markers: {
+                            size: 4,
+                            strokeWidth: 2
+                        },
+                        legend: {
+                            position: "bottom",
+                            fontSize: "14px",
+                            labels: {
+                                colors: chartTextColor()
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: value => new Intl.NumberFormat("th-TH", {
+                                    maximumFractionDigits: 0
+                                }).format(value)
+                            }
+                        },
+                        tooltip: {
+                            theme: chartThemeMode(),
+                            y: {
+                                formatter: value => new Intl.NumberFormat("th-TH", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }).format(value)
+                            }
+                        },
+                        grid: {
+                            borderColor: chartGridColor()
+                        }
+                    });
+                    chart.render();
+                    return chart;
+                }
+
+                document.addEventListener("DOMContentLoaded", function() {
+                    const charts = [
+                        renderSalesTrendChart("salesTrendChart", salesTrendChartData)
+                    ].filter(Boolean);
+
+                    const themeToggle = document.getElementById("themeToggle");
+                    if (themeToggle) {
+                        themeToggle.addEventListener("click", function() {
+                            setTimeout(function() {
+                                charts.forEach(chart => chart.updateOptions({
+                                    chart: {
+                                        foreColor: chartTextColor()
+                                    },
+                                    grid: {
+                                        borderColor: chartGridColor()
+                                    },
+                                    legend: {
+                                        labels: {
+                                            colors: chartTextColor()
+                                        }
+                                    },
+                                    tooltip: {
+                                        theme: chartThemeMode()
+                                    }
+                                }));
+                            }, 120);
+                        });
+                    }
+                });
+            </script>
         </div>
     </div>
 </body>

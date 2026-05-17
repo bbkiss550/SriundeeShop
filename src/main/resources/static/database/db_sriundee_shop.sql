@@ -3,15 +3,15 @@
 
  Source Server         : MySQL
  Source Server Type    : MySQL
- Source Server Version : 80045
+ Source Server Version : 80042
  Source Host           : localhost:3306
  Source Schema         : db_sriundee_shop
 
  Target Server Type    : MySQL
- Target Server Version : 80045
+ Target Server Version : 80042
  File Encoding         : 65001
 
- Date: 11/03/2026 10:13:33
+ Date: 17/05/2026 22:43:58
 */
 
 SET NAMES utf8mb4;
@@ -57,7 +57,45 @@ CREATE TABLE `t_cost`  (
   `c_note` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `c_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_cost`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_cost
+-- ----------------------------
+INSERT INTO `t_cost` VALUES (1, '2026-05-15', 1, '1450', '', 'A');
+INSERT INTO `t_cost` VALUES (2, '2026-05-16', 1, '5951', '', 'A');
+INSERT INTO `t_cost` VALUES (3, '2026-05-16', 1, '7504', '', 'A');
+INSERT INTO `t_cost` VALUES (4, '2026-05-16', 2, '2500', '', 'A');
+
+-- ----------------------------
+-- Table structure for t_cost_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `t_cost_detail`;
+CREATE TABLE `t_cost_detail`  (
+  `ID_cost_detail` int(0) NOT NULL AUTO_INCREMENT,
+  `ID_cost` int(0) DEFAULT NULL,
+  `ID_order_detail` int(0) DEFAULT NULL,
+  PRIMARY KEY (`ID_cost_detail`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_cost_detail
+-- ----------------------------
+INSERT INTO `t_cost_detail` VALUES (1, 2, 9);
+INSERT INTO `t_cost_detail` VALUES (2, 1, 1);
+INSERT INTO `t_cost_detail` VALUES (3, 1, 2);
+INSERT INTO `t_cost_detail` VALUES (4, 2, 9);
+INSERT INTO `t_cost_detail` VALUES (5, 2, 10);
+INSERT INTO `t_cost_detail` VALUES (6, 2, 11);
+INSERT INTO `t_cost_detail` VALUES (7, 3, 13);
+INSERT INTO `t_cost_detail` VALUES (8, 3, 14);
+INSERT INTO `t_cost_detail` VALUES (9, 4, 1);
+INSERT INTO `t_cost_detail` VALUES (10, 4, 2);
+INSERT INTO `t_cost_detail` VALUES (11, 4, 9);
+INSERT INTO `t_cost_detail` VALUES (12, 4, 10);
+INSERT INTO `t_cost_detail` VALUES (13, 4, 11);
+INSERT INTO `t_cost_detail` VALUES (14, 4, 13);
+INSERT INTO `t_cost_detail` VALUES (15, 4, 14);
 
 -- ----------------------------
 -- Table structure for t_cover
@@ -141,6 +179,46 @@ CREATE TABLE `t_income`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Table structure for t_lot
+-- ----------------------------
+DROP TABLE IF EXISTS `t_lot`;
+CREATE TABLE `t_lot`  (
+  `ID_lot` int(0) NOT NULL AUTO_INCREMENT,
+  `l_lot_number` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `l_create_date` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `l_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  PRIMARY KEY (`ID_lot`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_lot
+-- ----------------------------
+INSERT INTO `t_lot` VALUES (1, '80', '2026-05-16', 'A');
+INSERT INTO `t_lot` VALUES (2, '81', '2026-05-16', 'A');
+
+-- ----------------------------
+-- Table structure for t_lot_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `t_lot_detail`;
+CREATE TABLE `t_lot_detail`  (
+  `ID_lot_detail` int(0) NOT NULL AUTO_INCREMENT,
+  `ID_lot` int(0) DEFAULT NULL,
+  `ID_order_detail` int(0) DEFAULT NULL,
+  PRIMARY KEY (`ID_lot_detail`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_lot_detail
+-- ----------------------------
+INSERT INTO `t_lot_detail` VALUES (1, 1, 1);
+INSERT INTO `t_lot_detail` VALUES (2, 1, 2);
+INSERT INTO `t_lot_detail` VALUES (3, 1, 9);
+INSERT INTO `t_lot_detail` VALUES (6, 2, 10);
+INSERT INTO `t_lot_detail` VALUES (7, 2, 11);
+INSERT INTO `t_lot_detail` VALUES (8, 2, 13);
+INSERT INTO `t_lot_detail` VALUES (9, 2, 14);
+
+-- ----------------------------
 -- Table structure for t_menu
 -- ----------------------------
 DROP TABLE IF EXISTS `t_menu`;
@@ -152,7 +230,7 @@ CREATE TABLE `t_menu`  (
   `m_url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `m_icon` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_menu`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_menu
@@ -164,8 +242,11 @@ INSERT INTO `t_menu` VALUES (4, 'ข้อมูลประเภทสิน�
 INSERT INTO `t_menu` VALUES (5, 'ข้อมูลเว็บไซต์', NULL, 2, '/website', NULL);
 INSERT INTO `t_menu` VALUES (6, 'ข้อมูลสินค้า', 'N', NULL, '/product', 'bi bi-book-half');
 INSERT INTO `t_menu` VALUES (7, 'บันทึกออร์เดอร์', 'N', NULL, '/order', 'bi bi-basket');
-INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/liststatus', 'bi bi-list-check');
-INSERT INTO `t_menu` VALUES (9, 'บันทึกกดของ', 'N', NULL, '/recordkod', 'bi bi-journal-bookmark-fill');
+INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/change', 'bi bi-check-circle-fill');
+INSERT INTO `t_menu` VALUES (9, 'ข้อมูลการกดของ', 'N', NULL, '/check_status_2', 'bi bi-clipboard-check');
+INSERT INTO `t_menu` VALUES (10, 'ข้อมูล LOT', 'N', NULL, '/lot', 'bi bi-tags-fill');
+INSERT INTO `t_menu` VALUES (11, 'ข้อมูลค่าชิปปิ้ง', 'N', NULL, '/cost/shipping', 'bi bi-truck');
+INSERT INTO `t_menu` VALUES (12, 'รายการสั่งซื้อ', 'N', NULL, '/orders', 'bi bi-receipt');
 
 -- ----------------------------
 -- Table structure for t_order
@@ -173,6 +254,8 @@ INSERT INTO `t_menu` VALUES (9, 'บันทึกกดของ', 'N', NULL, 
 DROP TABLE IF EXISTS `t_order`;
 CREATE TABLE `t_order`  (
   `ID_order` int(0) NOT NULL AUTO_INCREMENT,
+  `o_order_date` date DEFAULT NULL,
+  `o_order_code` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `o_customer_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `ID_pay_method` int(0) DEFAULT NULL,
   `ID_pay_type` int(0) DEFAULT NULL,
@@ -185,13 +268,14 @@ CREATE TABLE `t_order`  (
   `o_net` double(255, 0) DEFAULT NULL,
   `o_remark` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_order`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_order
 -- ----------------------------
-INSERT INTO `t_order` VALUES (1, 'bbkiss5501', 1, NULL, NULL, 50, 0, 4580, 0, 0, 4630, NULL);
-INSERT INTO `t_order` VALUES (5, 'nuchsaa', 1, NULL, NULL, 50, 0, 5250, 0, 0, 5300, NULL);
+INSERT INTO `t_order` VALUES (1, '2026-05-14', 'PR-26-000001', 'bbkiss5501', 1, NULL, NULL, 50, 0, 4580, 0, 0, 4630, NULL);
+INSERT INTO `t_order` VALUES (5, '2026-05-15', 'PR-26-000002', 'nuchsaa', 1, NULL, NULL, 50, 0, 5250, 0, 0, 5300, NULL);
+INSERT INTO `t_order` VALUES (6, '2026-05-16', 'PR-26-000003', 'bbkiss5501', 2, 1, NULL, 40, 0, 0, 4500, 5390, 9890, NULL);
 
 -- ----------------------------
 -- Table structure for t_order_detail
@@ -207,18 +291,19 @@ CREATE TABLE `t_order_detail`  (
   `od_price_balance` double(255, 0) DEFAULT NULL,
   `ID_order_status` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_order_detail`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_order_detail
 -- ----------------------------
-INSERT INTO `t_order_detail` VALUES (1, 1, 12, 1, 2190, 1000, 1190, 1);
-INSERT INTO `t_order_detail` VALUES (2, 1, 16, 1, 1090, 500, 590, 1);
-INSERT INTO `t_order_detail` VALUES (9, 1, 9, 2, 1300, 700, 600, 1);
-INSERT INTO `t_order_detail` VALUES (10, 5, 1, 1, 570, 300, 270, 1);
-INSERT INTO `t_order_detail` VALUES (11, 5, 2, 2, 2500, 1400, 1100, 1);
+INSERT INTO `t_order_detail` VALUES (1, 1, 12, 1, 2190, 1000, 1190, 4);
+INSERT INTO `t_order_detail` VALUES (2, 1, 16, 1, 1090, 500, 590, 4);
+INSERT INTO `t_order_detail` VALUES (9, 1, 9, 2, 1300, 700, 600, 4);
+INSERT INTO `t_order_detail` VALUES (10, 5, 1, 1, 570, 300, 270, 4);
+INSERT INTO `t_order_detail` VALUES (11, 5, 2, 2, 2500, 1400, 1100, 4);
 INSERT INTO `t_order_detail` VALUES (12, 5, 3, 2, 2180, 1000, 1180, 1);
-INSERT INTO `t_order_detail` VALUES (13, NULL, 13, 4, 8760, 4000, 4760, 1);
+INSERT INTO `t_order_detail` VALUES (13, 6, 13, 4, 8760, 4000, 4760, 4);
+INSERT INTO `t_order_detail` VALUES (14, 6, 16, 1, 1090, 500, 590, 4);
 
 -- ----------------------------
 -- Table structure for t_order_status
@@ -227,7 +312,7 @@ DROP TABLE IF EXISTS `t_order_status`;
 CREATE TABLE `t_order_status`  (
   `ID_order_status` int(0) NOT NULL,
   `os_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `os_color` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `os_color` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_order_status`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
@@ -235,10 +320,10 @@ CREATE TABLE `t_order_status`  (
 -- Records of t_order_status
 -- ----------------------------
 INSERT INTO `t_order_status` VALUES (1, 'รอกดของ', 'warning');
-INSERT INTO `t_order_status` VALUES (2, 'กดของแล้ว', 'danger');
-INSERT INTO `t_order_status` VALUES (3, 'อยู่ระหว่างส่งกลับไทย', 'info');
-INSERT INTO `t_order_status` VALUES (4, 'เตรียมจัดส่ง', 'primary');
-INSERT INTO `t_order_status` VALUES (5, 'ส่งของเสร็จแล้ว', 'success');
+INSERT INTO `t_order_status` VALUES (2, 'กดของแล้ว รอเข้าโกดัง', 'info');
+INSERT INTO `t_order_status` VALUES (3, 'รอของถึงร้าน', 'orange');
+INSERT INTO `t_order_status` VALUES (4, 'ถึงร้านแล้วรอส่ง', 'danger');
+INSERT INTO `t_order_status` VALUES (5, 'ส่งของสำเร็จ', 'success');
 
 -- ----------------------------
 -- Table structure for t_payment_method
@@ -357,6 +442,23 @@ CREATE TABLE `t_sale`  (
   `s_send_date` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_sale`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for t_settings
+-- ----------------------------
+DROP TABLE IF EXISTS `t_settings`;
+CREATE TABLE `t_settings`  (
+  `ID_setting` int(0) NOT NULL AUTO_INCREMENT,
+  `s_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `s_value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  PRIMARY KEY (`ID_setting`) USING BTREE,
+  UNIQUE INDEX `idx_t_settings_key`(`s_key`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_settings
+-- ----------------------------
+INSERT INTO `t_settings` VALUES (1, 'theme_mode', 'dark');
 
 -- ----------------------------
 -- Table structure for t_type
@@ -480,6 +582,12 @@ DROP VIEW IF EXISTS `q_cost`;
 CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_cost` AS select `t_cost`.`ID_cost` AS `ID_cost`,`t_cost`.`c_create_date` AS `c_create_date`,`t_cost`.`ID_type_cost` AS `ID_type_cost`,`t_type_cost`.`tc_name` AS `tc_name`,`t_cost`.`c_price` AS `c_price`,`t_cost`.`c_note` AS `c_note`,`t_cost`.`c_delete` AS `c_delete` from (`t_cost` join `t_type_cost` on((`t_cost`.`ID_type_cost` = `t_type_cost`.`ID_type_cost`)));
 
 -- ----------------------------
+-- View structure for q_cost_detail
+-- ----------------------------
+DROP VIEW IF EXISTS `q_cost_detail`;
+CREATE ALGORITHM = UNDEFINED DEFINER = `sriundee_shop`@`localhost` SQL SECURITY DEFINER VIEW `q_cost_detail` AS select `t_cost_detail`.`ID_cost_detail` AS `ID_cost_detail`,`q_cost`.`ID_cost` AS `ID_cost`,`q_cost`.`c_create_date` AS `c_create_date`,`q_cost`.`ID_type_cost` AS `ID_type_cost`,`q_cost`.`tc_name` AS `tc_name`,`q_cost`.`c_price` AS `c_price`,`q_cost`.`c_note` AS `c_note`,`q_cost`.`c_delete` AS `c_delete`,`q_order_detail`.`ID_order_detail` AS `ID_order_detail`,`q_order_detail`.`ID_order` AS `ID_order`,`q_order_detail`.`o_customer_name` AS `o_customer_name`,`q_order_detail`.`ID_pro` AS `ID_pro`,`q_order_detail`.`p_name` AS `p_name`,`q_order_detail`.`ID_type` AS `ID_type`,`q_order_detail`.`t_name` AS `t_name`,`q_order_detail`.`ID_art` AS `ID_art`,`q_order_detail`.`a_name` AS `a_name`,`q_order_detail`.`ID_web` AS `ID_web`,`q_order_detail`.`w_name` AS `w_name`,`q_order_detail`.`ID_ver` AS `ID_ver`,`q_order_detail`.`v_name` AS `v_name`,`q_order_detail`.`ID_cover` AS `ID_cover`,`q_order_detail`.`c_name` AS `c_name`,`q_order_detail`.`c_price_total` AS `c_price_total`,`q_order_detail`.`c_price_pledge` AS `c_price_pledge`,`q_order_detail`.`c_price_balance` AS `c_price_balance`,`q_order_detail`.`od_qty` AS `od_qty`,`q_order_detail`.`od_price_total` AS `od_price_total`,`q_order_detail`.`od_price_pledge` AS `od_price_pledge`,`q_order_detail`.`od_price_balance` AS `od_price_balance`,`q_order_detail`.`ID_order_status` AS `ID_order_status`,`q_order_detail`.`os_name` AS `os_name` from ((`t_cost_detail` join `q_cost` on((`q_cost`.`ID_cost` = `t_cost_detail`.`ID_cost`))) join `q_order_detail` on((`q_order_detail`.`ID_order_detail` = `t_cost_detail`.`ID_order_detail`)));
+
+-- ----------------------------
 -- View structure for q_cover
 -- ----------------------------
 DROP VIEW IF EXISTS `q_cover`;
@@ -513,13 +621,13 @@ CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER V
 -- View structure for q_order
 -- ----------------------------
 DROP VIEW IF EXISTS `q_order`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order` AS select `t_order`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_order`.`ID_pay_method` AS `ID_pay_method`,`t_payment_method`.`pm_name` AS `pm_name`,`t_order`.`o_send_cost` AS `o_send_cost`,`t_order`.`o_discount` AS `o_discount`,`t_order`.`o_price_total` AS `o_price_total`,`t_order`.`ID_pay_type` AS `ID_pay_type`,`t_payment_type`.`pt_name` AS `pt_name`,`t_order`.`o_price_pledge` AS `o_price_pledge`,`t_order`.`o_price_balance` AS `o_price_balance`,`t_order`.`o_last_pay_date` AS `o_last_pay_date`,`t_order`.`o_net` AS `o_net`,`t_order`.`o_remark` AS `o_remark` from ((`t_order` join `t_payment_method` on((`t_payment_method`.`ID_pay_method` = `t_order`.`ID_pay_method`))) left join `t_payment_type` on((`t_payment_type`.`ID_pay_type` = `t_order`.`ID_pay_type`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `sriundee_shop`@`localhost` SQL SECURITY DEFINER VIEW `q_order` AS select `t_order`.`ID_order` AS `ID_order`,`t_order`.`o_order_date` AS `o_order_date`,`t_order`.`o_order_code` AS `o_order_code`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_order`.`ID_pay_method` AS `ID_pay_method`,`t_payment_method`.`pm_name` AS `pm_name`,`t_order`.`o_send_cost` AS `o_send_cost`,`t_order`.`o_discount` AS `o_discount`,`t_order`.`o_price_total` AS `o_price_total`,`t_order`.`ID_pay_type` AS `ID_pay_type`,`t_payment_type`.`pt_name` AS `pt_name`,`t_order`.`o_price_pledge` AS `o_price_pledge`,`t_order`.`o_price_balance` AS `o_price_balance`,`t_order`.`o_last_pay_date` AS `o_last_pay_date`,`t_order`.`o_net` AS `o_net`,`t_order`.`o_remark` AS `o_remark` from ((`t_order` join `t_payment_method` on((`t_payment_method`.`ID_pay_method` = `t_order`.`ID_pay_method`))) left join `t_payment_type` on((`t_payment_type`.`ID_pay_type` = `t_order`.`ID_pay_type`)));
 
 -- ----------------------------
 -- View structure for q_order_detail
 -- ----------------------------
 DROP VIEW IF EXISTS `q_order_detail`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name`,`t_order_status`.`os_color` AS `os_color` from ((((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`))) left join `t_order` on((`t_order`.`ID_order` = `t_order_detail`.`ID_order`)));
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `q_order_detail` AS select `t_order_detail`.`ID_order_detail` AS `ID_order_detail`,`t_order_detail`.`ID_order` AS `ID_order`,`t_order`.`o_customer_name` AS `o_customer_name`,`t_cover`.`ID_pro` AS `ID_pro`,`t_product`.`p_name` AS `p_name`,`t_product`.`ID_type` AS `ID_type`,`t_type`.`t_name` AS `t_name`,`t_product`.`ID_art` AS `ID_art`,`t_artist`.`a_name` AS `a_name`,`t_cover`.`ID_web` AS `ID_web`,`t_website`.`w_name` AS `w_name`,`t_cover`.`ID_ver` AS `ID_ver`,`t_version`.`v_name` AS `v_name`,`t_order_detail`.`ID_cover` AS `ID_cover`,`t_cover`.`c_name` AS `c_name`,format(`t_cover`.`c_price_total`,0) AS `c_price_total`,format(`t_cover`.`c_price_pledge`,0) AS `c_price_pledge`,format(`t_cover`.`c_price_balance`,0) AS `c_price_balance`,`t_order_detail`.`od_qty` AS `od_qty`,format(`t_order_detail`.`od_price_total`,0) AS `od_price_total`,format(`t_order_detail`.`od_price_pledge`,0) AS `od_price_pledge`,format(`t_order_detail`.`od_price_balance`,0) AS `od_price_balance`,`t_order_detail`.`ID_order_status` AS `ID_order_status`,`t_order_status`.`os_name` AS `os_name` from ((((((((`t_order_detail` join `t_cover` on((`t_cover`.`ID_cover` = `t_order_detail`.`ID_cover`))) join `t_product` on((`t_product`.`ID_product` = `t_cover`.`ID_pro`))) join `t_website` on((`t_website`.`ID_web` = `t_cover`.`ID_web`))) join `t_version` on((`t_version`.`ID_ver` = `t_cover`.`ID_ver`))) join `t_type` on((`t_type`.`ID_type` = `t_product`.`ID_type`))) join `t_artist` on((`t_artist`.`ID_art` = `t_product`.`ID_art`))) join `t_order_status` on((`t_order_status`.`ID_order_status` = `t_order_detail`.`ID_order_status`))) left join `t_order` on((`t_order`.`ID_order` = `t_order_detail`.`ID_order`)));
 
 -- ----------------------------
 -- View structure for q_product

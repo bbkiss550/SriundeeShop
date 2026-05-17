@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="menu">
-    <div id="sidebar" class="active">
-        <div class="sidebar-wrapper active">
-            <div class="sidebar-header">
-                <div class="d-flex justify-content-between">
-                    <div class="logo">
-                        <a th:href="@{/}"><img th:src="@{/mazer/dist/assets/images/logo/logo-web.png}" alt="Logo" style="height:120px"></a>
-                    </div>
-                    <div class="toggler">
-                        <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
-                    </div>
+    <div id="sidebar" class="active top-navigation">
+        <div class="sidebar-wrapper active top-navigation-wrapper">
+            <div class="sidebar-header top-navigation-header">
+                <a th:href="@{/}" class="top-navigation-logo">
+                    <img th:src="@{/mazer/dist/assets/images/logo/logo-web.png}" alt="Logo">
+                </a>
+                <div class="top-navigation-actions">
+                    <button type="button" id="themeToggle" class="btn theme-toggle-btn" aria-label="Toggle dark mode" aria-pressed="false">
+                        <span id="themeToggleIcon" class="theme-toggle-icon" aria-hidden="true">&#9728;</span>
+                        <span id="themeToggleLabel">Light</span>
+                    </button>
+                    <button type="button" class="btn top-navigation-toggle d-xl-none burger-btn" aria-label="Toggle menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <a href="#" class="sidebar-hide d-xl-none d-none" aria-label="Hide menu"><i class="bi bi-x bi-middle"></i></a>
                 </div>
             </div>
-            <div class="sidebar-menu">
+            <div class="sidebar-menu top-navigation-menu">
                 <ul class="menu" th:utext="${mainMenus}"></ul>
             </div>
             <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>

@@ -9,12 +9,14 @@
     <script th:src="@{/mazer/dist/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/choices.js/choices.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/main.js}"></script>
+    <script th:src="@{/script/theme.js}"></script>
 	<script>
 	    let table1 = document.querySelector('.table');
-	    let dataTable = new simpleDatatables.DataTable(table1);
-	    dataTable = new simpleDatatables.DataTable(".table", {
-	        fixedColumns: false
-	    });
+	    if (table1) {
+	        new simpleDatatables.DataTable(table1, {
+	            fixedColumns: false
+	        });
+	    }
 	</script>
 </footer>
 </html>

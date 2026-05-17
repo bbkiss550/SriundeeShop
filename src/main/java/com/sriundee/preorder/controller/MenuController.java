@@ -35,7 +35,6 @@ public class MenuController {
 	    		String mStyle = "style='display: none;'";
 	    		if(mIDmenu == m.getId()) {
 	    			mActive = "active";
-	    			mStyle = "style='display: block;'";
 	    		}
 	    		strMenu.append("<li class='sidebar-item has-sub " + mActive + "'>");
 	    		strMenu.append("<a href='#' class='sidebar-link'><i class='" + m.getIcon() + "'></i><span>" + m.getName() + "</span></a>");
@@ -46,7 +45,7 @@ public class MenuController {
 		    		if(IDmenu == s.getIdmenu()) {
 		    			sActive = "active";
 		    		}
-		    		strMenu.append("<li class='submenu-item'><a href='" + s.getUrl() + "'>" + s.getName() + "</a></li>");
+		    		strMenu.append("<li class='submenu-item " + sActive + "'><a href='" + s.getUrl() + "'>" + s.getName() + "</a></li>");
 		    	}
 		    	strMenu.append("</ul>");
 		    	strMenu.append("</li>");

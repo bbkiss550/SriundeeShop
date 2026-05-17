@@ -1,6 +1,7 @@
 package com.sriundee.preorder.controller;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -97,8 +98,8 @@ public class OrderController {
 	        }
 
 	        strProduct_card.append("<div class='col-md-" + bootstrap_col + " d-flex mb-4'>");
-	        strProduct_card.append("<div class='card card-move w-100 d-flex flex-column' style='border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 400px;'>");
-	        strProduct_card.append("<img class='card-img-top img-fluid' src='" + p.getp_pic() + "' alt='Card image'>");
+	        strProduct_card.append("<div class='card card-move product-grid-card w-100 d-flex flex-column' onclick='modal_order(" + p.getID_product() + ")'>");
+	        strProduct_card.append("<div class='product-grid-image-wrap'><img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'></div>");
 	        strProduct_card.append("<div class='card-body d-flex flex-column'>");
 	        strProduct_card.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
 	        strProduct_card.append("<div class='mt-auto d-flex justify-content-between align-items-end'>"); 
@@ -106,11 +107,7 @@ public class OrderController {
 	        strProduct_card.append("<p class='mb-0'>ปิดรับ : " + p.getp_end_date() + "</p>");
 	        strProduct_card.append("<p class='mb-0'>วันที่ส่ง : " + p.getp_send_date() + "</p>");
 	        strProduct_card.append("</div>");
-	        strProduct_card.append("<div class='buttons'>");
-	        strProduct_card.append("<a class='btn icon btn-danger' onclick='modal_order(" + p.getID_product() + ")' title='Add to Cart'>");
-	        strProduct_card.append("<i class='bi bi-cart-plus'></i>");
-	        strProduct_card.append("</a>");
-	        strProduct_card.append("</div></div></div></div></div>");
+	        strProduct_card.append("</div></div></div></div>");
 	        row_id++;
 	        
 	        if (row_id % item_per_row == 0 || row_id == card_max) {
@@ -334,11 +331,14 @@ public class OrderController {
     
     @PostMapping("/order/save")
     @ResponseBody
-    public ResponseEntity<String> saveOrderData(@RequestBody OrderDto orderDto) {
+    public synchronized ResponseEntity<String> saveOrderData(@RequestBody OrderDto orderDto) {
         try {
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         	
             Order order = new Order();
+            LocalDate orderDate = LocalDate.now();
+            order.setOrder_date(java.sql.Date.valueOf(orderDate));
+            order.setOrder_code(generateOrderCode(orderDate));
             order.setCustomer_name(orderDto.getCustomer_name());
             order.setPay_method(orderDto.getPay_method());
             order.setPay_type(orderDto.getPay_type());
@@ -372,5 +372,12 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error");
         }
+    }
+
+    private synchronized String generateOrderCode(LocalDate orderDate) {
+        String prefix = String.format("PR-%02d-", orderDate.getYear() % 100);
+        Integer maxRunning = orderRepository.getMaxOrderCodeRunning(prefix);
+        int nextRunning = (maxRunning == null ? 0 : maxRunning) + 1;
+        return prefix + String.format("%06d", nextRunning);
     }
 }

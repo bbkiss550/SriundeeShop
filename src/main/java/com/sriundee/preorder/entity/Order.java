@@ -7,7 +7,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Data;
 
 @Entity
@@ -21,6 +24,7 @@ public class Order {
     private Integer id;
 
     @Column(name = "o_order_date")
+    @Temporal(TemporalType.DATE)
     private Date order_date;
     
     @Column(name = "o_order_code")
@@ -36,6 +40,7 @@ public class Order {
     private Integer pay_type;
 
     @Column(name = "o_last_pay_date")
+    @Temporal(TemporalType.DATE)
     private Date last_pay_date;
 
     @Column(name = "o_send_cost")
@@ -169,5 +174,12 @@ public class Order {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	@PrePersist
+	public void prePersist() {
+		if (order_date == null) {
+			order_date = new Date();
+		}
 	}
 }
