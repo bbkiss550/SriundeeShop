@@ -17,6 +17,7 @@ function load_lot_data() {
     const startDate = document.getElementById("startDate").value;
     const endDate = document.getElementById("endDate").value;
     const status = document.getElementById("status").value;
+    const lotNumber = document.getElementById("lotNumber").value;
 
     if (startDate) {
         params.append("startDate", startDate);
@@ -26,6 +27,9 @@ function load_lot_data() {
     }
     if (status) {
         params.append("status", status);
+    }
+    if (lotNumber) {
+        params.append("lotNumber", lotNumber);
     }
 
     fetch("/lot/search?" + params.toString())
@@ -43,26 +47,15 @@ function load_lot_data() {
 }
 
 function clear_lot_filter() {
-    set_current_month_filter();
+    set_full_year_filter();
     document.getElementById("status").value = "";
+    document.getElementById("lotNumber").value = "";
     load_lot_data();
 }
 
-function set_current_month_filter() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
-    document.getElementById("startDate").value = format_date_input(startDate);
-    document.getElementById("endDate").value = format_date_input(endDate);
-}
-
-function format_date_input(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return year + "-" + month + "-" + day;
+function set_full_year_filter() {
+    document.getElementById("startDate").value = "2026-01-01";
+    document.getElementById("endDate").value = "2026-12-31";
 }
 
 function open_lot_detail(id) {
@@ -238,4 +231,100 @@ function delete_lot_detail(id) {
             });
         });
     });
+}
+
+function edit_lot_number(id, currentLotNumber, currentStartDate, currentEndDate, currentArriveDate, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+
+    Swal.fire({
+        title: "แก้ไข LOT",
+        html: `
+            <div class="text-start edit-lot-form">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">เลข LOT</span>
+                    <input type="text" id="editLotNumber" class="form-control" value="${escape_lot_attr(currentLotNumber || "")}" placeholder="เลข LOT">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">วันที่คาดว่าจะถึงร้าน</span>
+                    <input type="date" id="editLotStartDate" class="form-control" value="${escape_lot_attr(currentStartDate || "")}">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">ถึง</span>
+                    <input type="date" id="editLotEndDate" class="form-control" value="${escape_lot_attr(currentEndDate || "")}">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text">วันที่ของถึงร้าน</span>
+                    <input type="date" id="editLotArriveDate" class="form-control" value="${escape_lot_attr(currentArriveDate || "")}">
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "บันทึก",
+        cancelButtonText: "ปิด",
+        focusConfirm: false,
+        preConfirm: () => {
+            const lotNumber = document.getElementById("editLotNumber").value.trim();
+            const startDate = document.getElementById("editLotStartDate").value;
+            const endDate = document.getElementById("editLotEndDate").value;
+            const arriveDate = document.getElementById("editLotArriveDate").value;
+            if (!lotNumber) {
+                Swal.showValidationMessage("กรุณากรอกเลข LOT");
+                return false;
+            }
+            if ((startDate && !endDate) || (!startDate && endDate)) {
+                Swal.showValidationMessage("กรุณากรอกวันที่คาดว่าจะถึงร้านให้ครบ");
+                return false;
+            }
+            if (startDate && endDate && endDate < startDate) {
+                Swal.showValidationMessage("วันที่ ถึง ต้องไม่น้อยกว่าวันที่คาดว่าจะถึงร้าน");
+                return false;
+            }
+            return { lotNumber, startDate, endDate, arriveDate };
+        }
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        fetch("/lot/update-number/" + id, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(result.value)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Update failed");
+            }
+            return response.text();
+        })
+        .then(() => {
+            Swal.fire({
+                title: "บันทึกสำเร็จ",
+                icon: "success",
+                confirmButtonText: "ตกลง"
+            }).then(() => {
+                load_lot_data();
+            });
+        })
+        .catch(error => {
+            console.error("Error updating lot:", error);
+            Swal.fire({
+                title: "บันทึกไม่สำเร็จ",
+                icon: "error",
+                confirmButtonText: "ตกลง"
+            });
+        });
+    });
+}
+
+function escape_lot_attr(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 }

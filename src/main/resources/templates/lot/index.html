@@ -32,8 +32,14 @@
 	}
 
 	.lot-date-col {
-		width: 120px;
-		min-width: 120px;
+		width: 118px;
+		min-width: 118px;
+		white-space: nowrap;
+	}
+
+	.lot-range-col {
+		width: 240px;
+		min-width: 240px;
 		white-space: nowrap;
 	}
 
@@ -58,6 +64,11 @@
 	.lot-detail-table tbody tr:nth-of-type(odd) {
 		background-color: rgba(0, 0, 0, 0.03);
 	}
+
+	.edit-lot-form .input-group-text {
+		justify-content: center;
+		min-width: 170px;
+	}
 </style>
 
 <body>
@@ -76,21 +87,25 @@
 						<div class="card">
 							<div class="card-body">
 								<form class="row g-3 align-items-end" id="lotFilterForm" method="get" th:action="@{/lot}">
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label for="startDate" class="form-label">วันที่เริ่มต้น</label>
 										<input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label for="endDate" class="form-label">วันที่สิ้นสุด</label>
 										<input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<label for="status" class="form-label">สถานะ</label>
 										<select id="status" name="status" class="form-select">
 											<option value="" th:selected="${status == ''}">ทั้งหมด</option>
 											<option value="A" th:selected="${status == 'A'}">สำเร็จ</option>
 											<option value="D" th:selected="${status == 'D'}">ยกเลิก</option>
 										</select>
+									</div>
+									<div class="col-md-3">
+										<label for="lotNumber" class="form-label">เลข LOT</label>
+										<input type="text" id="lotNumber" name="lotNumber" class="form-control" placeholder="ค้นหาเลข LOT" th:value="${lotNumber}">
 									</div>
 									<div class="col-md-3">
 										<button type="submit" class="btn btn-primary">
@@ -115,6 +130,8 @@
 											<th class="fix_width">#</th>
 	                                        <th class="lot-date-col">วันที่</th>
 	                                        <th class="auto_width">เลข LOT</th>
+	                                        <th class="lot-range-col">คาดว่าจะถึงร้าน</th>
+	                                        <th class="lot-date-col">วันที่ของถึงร้าน</th>
 	                                        <th class="lot-count-col text-end">จำนวนรายการ</th>
 	                                        <th class="status_width">สถานะ</th>
 	                                    </tr>
@@ -129,7 +146,7 @@
 
 			<div class="modal fade text-left" id="modalLotDetail" tabindex="-1" role="dialog" aria-hidden="true">
 			    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-			        <div class="modal-content">
+			        <div class="modal-content" style="height: calc(100vh - 32px);">
 			            <div class="modal-header bg-primary">
 			                <h4 class="modal-title white">รายละเอียดสินค้า</h4>
 			                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -149,6 +166,8 @@
 							            <th>เวอร์ชั่น</th>
 							            <th>ปก</th>
 							            <th class="text-end">จำนวน</th>
+							            <th class="text-end">ราคาเต็ม/ชิ้น</th>
+							            <th class="text-end">มัดจำ/ชิ้น</th>
 							            <th>ชำระ</th>
 							        </tr>
 							    </thead>

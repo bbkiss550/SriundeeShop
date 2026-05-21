@@ -1,7 +1,12 @@
 function modal_order(id) {
 	document.getElementById('IdProduct').value = id;
 	fetch('/order/load/' + id)
-	    .then(response => response.json())
+	    .then(response => {
+			if (!response.ok) {
+				throw new Error('closed-product');
+			}
+			return response.json();
+		})
 		.then(data => {
 			document.getElementById('cov_pName').value = data.product.p_name;
 			document.getElementById('cov_tName').value = data.product.t_name;
@@ -17,7 +22,59 @@ function modal_order(id) {
 			var myModal = new bootstrap.Modal(document.getElementById('modalOrder'));
 			myModal.show();
 	    })
-	    .catch(error => console.error('Error:', error));
+	    .catch(error => {
+			if (error.message === 'closed-product') {
+				Swal.fire({
+					title: "สินค้าปิดพรีแล้ว",
+					text: "ไม่สามารถบันทึกออร์เดอร์สินค้านี้ได้",
+					icon: "warning"
+				});
+				return;
+			}
+			console.error('Error:', error);
+		});
+}
+
+let productArtistChoices = null;
+
+function initProductArtistFilterChoices() {
+	const select = document.getElementById('productArtistFilter');
+	if (!select || productArtistChoices || !window.Choices) {
+		return;
+	}
+
+	productArtistChoices = new Choices(select, {
+		searchEnabled: true,
+		shouldSort: false,
+		itemSelectText: '',
+		searchPlaceholderValue: 'ค้นหาศิลปิน',
+		noResultsText: 'ไม่พบข้อมูล',
+		noChoicesText: 'ไม่มีข้อมูล'
+	});
+
+	select.addEventListener('change', applyProductFilters);
+}
+
+function applyProductFilters() {
+	const showClosed = document.getElementById('showClosedProductSwitch')?.checked;
+	const artistId = document.getElementById('productArtistFilter')?.value || '';
+	const productName = normalizeProductFilterText(document.getElementById('productNameFilter')?.value || '');
+
+	document.querySelectorAll('.product-grid-item').forEach(item => {
+		const isClosedProduct = item.dataset.productStatus === '2';
+		const artistMatched = !artistId || item.dataset.artistId === artistId;
+		const nameMatched = !productName || normalizeProductFilterText(item.dataset.productName || '').includes(productName);
+
+		item.classList.toggle('is-hidden-closed', (isClosedProduct && !showClosed) || !artistMatched || !nameMatched);
+	});
+}
+
+function toggleClosedProducts() {
+	applyProductFilters();
+}
+
+function normalizeProductFilterText(value) {
+	return value.toString().trim().toLowerCase();
 }
 
 function check_pic_null(data) {

@@ -3,6 +3,7 @@ package com.sriundee.preorder.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -47,7 +48,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			FROM q_order o
 			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
-			WHERE (:orderDate IS NULL OR :orderDate = '' OR o.o_order_date = :orderDate)
+			WHERE (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= :startDate)
+			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= :endDate)
 			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name LIKE CONCAT('%', :customerName, '%'))
 			  AND (:payMethod IS NULL OR o.ID_pay_method = :payMethod)
 			  AND (:orderStatus IS NULL OR EXISTS (
@@ -72,8 +74,99 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			ORDER BY o.o_order_date DESC, o.ID_order DESC
 			""", nativeQuery = true)
     List<OrderListBean> getOrderList(
-    		@Param("orderDate") String orderDate,
+    		@Param("startDate") String startDate,
+    		@Param("endDate") String endDate,
     		@Param("customerName") String customerName,
     		@Param("payMethod") Integer payMethod,
     		@Param("orderStatus") Integer orderStatus);
+
+	@Query(value = """
+			SELECT o.ID_order,
+			       DATE_FORMAT(o.o_order_date, '%Y-%m-%d') AS o_order_date,
+			       o.o_order_code,
+			       o.o_customer_name,
+			       o.ID_pay_method,
+			       o.pm_name,
+			       o.o_send_cost,
+			       o.o_discount,
+			       o.o_price_total,
+			       o.o_price_pledge,
+			       o.o_price_balance,
+			       o.o_net,
+			       o.o_remark,
+			       GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_names,
+			       GROUP_CONCAT(DISTINCT os.os_color ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_colors
+			FROM q_order o
+			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
+			WHERE o.ID_pay_method = 2
+			  AND COALESCE(o.o_price_balance, 0) > 0
+			  AND (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= :startDate)
+			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= :endDate)
+			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name LIKE CONCAT('%', :customerName, '%'))
+			GROUP BY o.ID_order,
+			         o.o_order_date,
+			         o.o_order_code,
+			         o.o_customer_name,
+			         o.ID_pay_method,
+			         o.pm_name,
+			         o.o_send_cost,
+			         o.o_discount,
+			         o.o_price_total,
+			         o.o_price_pledge,
+			         o.o_price_balance,
+			         o.o_net,
+			         o.o_remark
+			ORDER BY o.o_order_date DESC, o.ID_order DESC
+			""", nativeQuery = true)
+    List<OrderListBean> getDepositBalanceList(
+    		@Param("startDate") String startDate,
+    		@Param("endDate") String endDate,
+    		@Param("customerName") String customerName);
+
+	@Modifying
+	@Query(value = """
+			UPDATE t_order
+			SET ID_pay_method = 3,
+			    o_price_balance = 0
+			WHERE ID_order = :ID_order
+			  AND ID_pay_method = 2
+			""", nativeQuery = true)
+	int receiveDepositBalance(@Param("ID_order") Integer orderId);
+
+	@Query(value = """
+			SELECT o.ID_order,
+			       DATE_FORMAT(o.o_order_date, '%Y-%m-%d') AS o_order_date,
+			       o.o_order_code,
+			       o.o_customer_name,
+			       o.ID_pay_method,
+			       o.pm_name,
+			       o.o_send_cost,
+			       o.o_discount,
+			       o.o_price_total,
+			       o.o_price_pledge,
+			       o.o_price_balance,
+			       o.o_net,
+			       o.o_remark,
+			       GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_names,
+			       GROUP_CONCAT(DISTINCT os.os_color ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_colors
+			FROM q_order o
+			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
+			WHERE o.ID_order = :ID_order
+			GROUP BY o.ID_order,
+			         o.o_order_date,
+			         o.o_order_code,
+			         o.o_customer_name,
+			         o.ID_pay_method,
+			         o.pm_name,
+			         o.o_send_cost,
+			         o.o_discount,
+			         o.o_price_total,
+			         o.o_price_pledge,
+			         o.o_price_balance,
+			         o.o_net,
+			         o.o_remark
+			""", nativeQuery = true)
+	OrderListBean getOrderReceipt(@Param("ID_order") Integer orderId);
 }

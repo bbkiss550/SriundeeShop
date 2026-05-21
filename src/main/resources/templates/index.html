@@ -122,6 +122,10 @@
         border-top: 1px solid rgba(148, 163, 184, .28);
     }
 
+    .dashboard-sales-item.is-full-row {
+        grid-column: 1 / -1;
+    }
+
     .dashboard-sales-label {
         color: #7c8db5;
         font-size: .78rem;
@@ -189,6 +193,52 @@
 
     .dashboard-chart {
         min-height: 380px;
+    }
+
+    .dashboard-share-chart {
+        min-height: 360px;
+    }
+
+    .dashboard-chart-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem 1.1rem;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: .85rem;
+        border-bottom: 1px solid rgba(148, 163, 184, .28);
+    }
+
+    .dashboard-chart-toolbar-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem 1.1rem;
+        align-items: center;
+    }
+
+    .dashboard-chart-toolbar-label {
+        color: #7c8db5;
+        font-size: .82rem;
+        font-weight: 800;
+    }
+
+    .dashboard-chart-month-select {
+        min-width: 150px;
+    }
+
+    .dashboard-chart-toolbar .form-check {
+        min-height: 0;
+        margin: 0;
+    }
+
+    .dashboard-chart-toolbar .form-check-input,
+    .dashboard-chart-toolbar .form-check-label {
+        cursor: pointer;
+    }
+
+    .dashboard-chart-toolbar .form-check-label {
+        font-weight: 700;
     }
 
     .dashboard-chart-main {
@@ -305,13 +355,17 @@
                                             ช่วง <strong th:text="${dashboardPeriod}">01/05/2026 - 17/05/2026</strong> จากคำสั่งซื้อ <strong th:text="${totalOrders}">0</strong> รายการ
                                         </div>
                                         <div class="dashboard-sales-breakdown">
-                                            <div>
-                                                <div class="dashboard-sales-label">รับแล้ว</div>
-                                                <div class="dashboard-sales-value" th:text="${totalReceived}">0.00</div>
+                                            <div class="dashboard-sales-item">
+                                                <div class="dashboard-sales-label">ยอดจ่ายเต็ม</div>
+                                                <div class="dashboard-sales-value" th:text="${totalFullPaid}">0.00</div>
                                             </div>
-                                            <div>
+                                            <div class="dashboard-sales-item">
                                                 <div class="dashboard-sales-label">ยอดคงเหลือ</div>
                                                 <div class="dashboard-sales-value" th:text="${totalBalance}">0.00</div>
+                                            </div>
+                                            <div class="dashboard-sales-item is-full-row">
+                                                <div class="dashboard-sales-label">ยอดมัดจำที่จ่ายแล้ว</div>
+                                                <div class="dashboard-sales-value" th:text="${totalPledgePaid}">0.00</div>
                                             </div>
                                         </div>
                                     </div>
@@ -356,7 +410,71 @@
                                 <h4>ยอดขายตามช่วงวันที่</h4>
                             </div>
                             <div class="card-body">
+                                <div class="dashboard-chart-toolbar" id="salesTrendToggles">
+                                    <div class="dashboard-chart-toolbar-group">
+                                        <span class="dashboard-chart-toolbar-label">ข้อมูล</span>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-toggle" type="checkbox" value="amount" id="chartAmount" checked>
+                                            <label class="form-check-label" for="chartAmount">ยอดขายทั้งหมด</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-toggle" type="checkbox" value="receivedPaid" id="chartReceivedPaid" checked>
+                                            <label class="form-check-label" for="chartReceivedPaid">ยอดที่รับแล้ว</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-toggle" type="checkbox" value="pledgePaid" id="chartPledgePaid" checked>
+                                            <label class="form-check-label" for="chartPledgePaid">ยอดที่รับมัดจำ</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-toggle" type="checkbox" value="pressCost" id="chartPressCost" checked>
+                                            <label class="form-check-label" for="chartPressCost">ต้นทุนกดของ</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-toggle" type="checkbox" value="shippingCost" id="chartShippingCost" checked>
+                                            <label class="form-check-label" for="chartShippingCost">ค่าชิปปิ้ง</label>
+                                        </div>
+                                    </div>
+                                    <div class="dashboard-chart-toolbar-group">
+                                        <span class="dashboard-chart-toolbar-label">แสดงกราฟ</span>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-granularity" type="radio" name="chartGranularity" value="month" id="chartGranularityMonth" checked>
+                                            <label class="form-check-label" for="chartGranularityMonth">รายเดือน</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-granularity" type="radio" name="chartGranularity" value="week" id="chartGranularityWeek">
+                                            <label class="form-check-label" for="chartGranularityWeek">รายสัปดาห์</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input dashboard-chart-granularity" type="radio" name="chartGranularity" value="day" id="chartGranularityDay">
+                                            <label class="form-check-label" for="chartGranularityDay">รายวัน</label>
+                                        </div>
+                                        <select class="form-select form-select-sm dashboard-chart-month-select d-none" id="chartMonthSelect"></select>
+                                    </div>
+                                </div>
                                 <div id="salesTrendChart" class="dashboard-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12 col-xl-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>สัดส่วนศิลปินที่ขายได้</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="artistSalesShareChart" class="dashboard-share-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>สัดส่วนประเภทสินค้าที่ขายได้</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="typeSalesShareChart" class="dashboard-share-chart"></div>
                             </div>
                         </div>
                     </div>
@@ -367,6 +485,10 @@
             <script th:src="@{/mazer/dist/assets/vendors/apexcharts/apexcharts.min.js}"></script>
             <script th:inline="javascript">
                 const salesTrendChartData = JSON.parse(/*[[${salesTrendChart}]]*/ "[]");
+                const artistSalesShareChartData = JSON.parse(/*[[${artistSalesShareChart}]]*/ "[]");
+                const typeSalesShareChartData = JSON.parse(/*[[${typeSalesShareChart}]]*/ "[]");
+                const dashboardChartSeriesSetting = String(/*[[${dashboardChartSeries}]]*/ "amount,receivedPaid,pledgePaid,pressCost,shippingCost");
+                const dashboardChartGranularitySetting = String(/*[[${dashboardChartGranularity}]]*/ "month");
 
                 const chartColorMap = {
                     primary: "#435ebe",
@@ -390,6 +512,46 @@
                     return chartThemeMode() === "dark" ? "#334155" : "#e5e7eb";
                 }
 
+                function dashboardShareColors() {
+                    return [
+                        chartColorMap.primary,
+                        chartColorMap.success,
+                        chartColorMap.warning,
+                        chartColorMap.info,
+                        chartColorMap.danger,
+                        chartColorMap.orange,
+                        "#14b8a6",
+                        "#8b5cf6"
+                    ];
+                }
+
+                function applyDashboardChartSettings() {
+                    const selectedSeries = new Set(dashboardChartSeriesSetting.split(",").filter(Boolean));
+                    document.querySelectorAll(".dashboard-chart-toggle").forEach(toggle => {
+                        toggle.checked = selectedSeries.has(toggle.value);
+                    });
+                    document.querySelectorAll(".dashboard-chart-granularity").forEach(toggle => {
+                        toggle.checked = toggle.value === dashboardChartGranularitySetting;
+                    });
+                }
+
+                function saveDashboardChartSettings() {
+                    const series = Array.from(document.querySelectorAll(".dashboard-chart-toggle"))
+                        .filter(toggle => toggle.checked)
+                        .map(toggle => toggle.value)
+                        .join(",");
+                    const granularity = document.querySelector(".dashboard-chart-granularity:checked")?.value || "month";
+                    fetch("/settings/dashboard/chart", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ series, granularity })
+                    }).catch(error => {
+                        console.error("Error saving dashboard chart settings:", error);
+                    });
+                }
+
                 function renderSalesTrendChart(elementId, sourceData) {
                     const element = document.getElementById(elementId);
                     if (!element) {
@@ -398,13 +560,34 @@
                     const data = sourceData.map(item => ({
                         label: item.label || "ไม่ระบุ",
                         amount: Number(item.amount || 0),
-                        fullPaid: Number(item.fullPaid || 0),
-                        pledgePaid: Number(item.pledgePaid || 0)
+                        receivedPaid: Number(item.receivedPaid || 0),
+                        pledgePaid: Number(item.pledgePaid || 0),
+                        pressCost: Number(item.pressCost || 0),
+                        shippingCost: Number(item.shippingCost || 0)
                     }));
                     if (data.length === 0) {
                         element.innerHTML = "<div class='dashboard-empty'>ไม่มีข้อมูลสำหรับแสดงผล</div>";
                         return null;
                     }
+
+                    const seriesDefinitions = [
+                        { key: "amount", name: "ยอดขายทั้งหมด", color: chartColorMap.primary },
+                        { key: "receivedPaid", name: "ยอดที่รับแล้ว", color: chartColorMap.success },
+                        { key: "pledgePaid", name: "ยอดที่รับมัดจำ", color: chartColorMap.warning },
+                        { key: "pressCost", name: "ต้นทุนกดของ", color: chartColorMap.danger },
+                        { key: "shippingCost", name: "ค่าชิปปิ้ง", color: chartColorMap.info }
+                    ];
+                    const toggles = Array.from(document.querySelectorAll(".dashboard-chart-toggle"));
+                    const activeDefinitions = () => {
+                        const selectedKeys = toggles
+                            .filter(toggle => toggle.checked)
+                            .map(toggle => toggle.value);
+                        return seriesDefinitions.filter(item => selectedKeys.includes(item.key));
+                    };
+                    const buildSeries = definitions => definitions.map(item => ({
+                        name: item.name,
+                        data: data.map(row => row[item.key])
+                    }));
 
                     const chart = new ApexCharts(element, {
                         chart: {
@@ -464,9 +647,337 @@
                     return chart;
                 }
 
+                function renderSalesTrendChartV2(elementId, sourceData) {
+                    const element = document.getElementById(elementId);
+                    if (!element) {
+                        return null;
+                    }
+                    const rawData = sourceData.map(item => ({
+                        label: item.label || "ไม่ระบุ",
+                        date: parseChartDate(item.label || ""),
+                        amount: Number(item.amount || 0),
+                        receivedPaid: Number(item.receivedPaid || 0),
+                        pledgePaid: Number(item.pledgePaid || 0),
+                        pressCost: Number(item.pressCost || 0),
+                        shippingCost: Number(item.shippingCost || 0)
+                    })).filter(item => item.date);
+                    if (rawData.length === 0) {
+                        element.innerHTML = "<div class='dashboard-empty'>ไม่มีข้อมูลสำหรับแสดงผล</div>";
+                        return null;
+                    }
+
+                    const seriesDefinitions = [
+                        { key: "amount", name: "ยอดขายทั้งหมด", color: chartColorMap.primary },
+                        { key: "receivedPaid", name: "ยอดที่รับแล้ว", color: chartColorMap.success },
+                        { key: "pledgePaid", name: "ยอดที่รับมัดจำ", color: chartColorMap.warning },
+                        { key: "pressCost", name: "ต้นทุนกดของ", color: chartColorMap.danger },
+                        { key: "shippingCost", name: "ค่าชิปปิ้ง", color: chartColorMap.info }
+                    ];
+                    const toggles = Array.from(document.querySelectorAll(".dashboard-chart-toggle"));
+                    const granularityToggles = Array.from(document.querySelectorAll(".dashboard-chart-granularity"));
+                    const monthSelect = document.getElementById("chartMonthSelect");
+                    setupChartMonthSelect(monthSelect, rawData);
+                    const selectedGranularity = () => {
+                        const selected = granularityToggles.find(toggle => toggle.checked);
+                        return selected ? selected.value : "month";
+                    };
+                    const activeData = () => aggregateChartData(rawData, selectedGranularity(), monthSelect ? monthSelect.value : "");
+                    const activeDefinitions = () => {
+                        const selectedKeys = toggles
+                            .filter(toggle => toggle.checked)
+                            .map(toggle => toggle.value);
+                        return seriesDefinitions.filter(item => selectedKeys.includes(item.key));
+                    };
+                    const buildSeries = (definitions, data) => definitions.map(item => ({
+                        name: item.name,
+                        data: data.map(row => row[item.key])
+                    }));
+                    const buildColors = definitions => definitions.map(item => item.color);
+                    const chartData = activeData();
+
+                    const chart = new ApexCharts(element, {
+                        chart: {
+                            type: "line",
+                            height: 380,
+                            foreColor: chartTextColor(),
+                            toolbar: { show: false }
+                        },
+                        series: buildSeries(activeDefinitions(), chartData),
+                        xaxis: {
+                            categories: chartData.map(item => item.label)
+                        },
+                        colors: buildColors(activeDefinitions()),
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: "smooth",
+                            width: 3
+                        },
+                        markers: {
+                            size: 4,
+                            strokeWidth: 2
+                        },
+                        legend: {
+                            position: "bottom",
+                            fontSize: "14px",
+                            labels: {
+                                colors: chartTextColor()
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: value => new Intl.NumberFormat("th-TH", {
+                                    maximumFractionDigits: 0
+                                }).format(value)
+                            }
+                        },
+                        tooltip: {
+                            theme: chartThemeMode(),
+                            y: {
+                                formatter: value => new Intl.NumberFormat("th-TH", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }).format(value)
+                            }
+                        },
+                        grid: {
+                            borderColor: chartGridColor()
+                        }
+                    });
+                    chart.render();
+
+                    const refreshChart = () => {
+                        const definitions = activeDefinitions();
+                        const data = activeData();
+                        chart.updateOptions({
+                            colors: buildColors(definitions),
+                            xaxis: {
+                                categories: data.map(item => item.label)
+                            }
+                        }, false, true);
+                        chart.updateSeries(buildSeries(definitions, data), true);
+                    };
+
+                    toggles.forEach(toggle => {
+                        toggle.addEventListener("change", function() {
+                            saveDashboardChartSettings();
+                            refreshChart();
+                        });
+                    });
+                    granularityToggles.forEach(toggle => {
+                        toggle.addEventListener("change", function() {
+                            saveDashboardChartSettings();
+                            syncChartMonthSelect(monthSelect, selectedGranularity());
+                            refreshChart();
+                        });
+                    });
+                    if (monthSelect) {
+                        syncChartMonthSelect(monthSelect, selectedGranularity());
+                        monthSelect.addEventListener("change", refreshChart);
+                    }
+                    return chart;
+                }
+
+                function renderSalesShareChart(elementId, sourceData) {
+                    const element = document.getElementById(elementId);
+                    if (!element) {
+                        return null;
+                    }
+                    const rows = (sourceData || [])
+                        .map(item => ({
+                            label: item.label || "ไม่ระบุ",
+                            value: Number(item.value || 0)
+                        }))
+                        .filter(item => item.value > 0);
+                    if (rows.length === 0) {
+                        element.innerHTML = "<div class='dashboard-empty'>ไม่มีข้อมูลสำหรับแสดงผล</div>";
+                        return null;
+                    }
+                    const chart = new ApexCharts(element, {
+                        chart: {
+                            type: "donut",
+                            height: 360,
+                            foreColor: chartTextColor()
+                        },
+                        series: rows.map(item => item.value),
+                        labels: rows.map(item => item.label),
+                        colors: dashboardShareColors(),
+                        dataLabels: {
+                            enabled: true,
+                            formatter: value => value.toFixed(1) + "%"
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: "58%",
+                                    labels: {
+                                        show: true,
+                                        total: {
+                                            show: true,
+                                            label: "จำนวนขาย",
+                                            formatter: context => new Intl.NumberFormat("th-TH", {
+                                                maximumFractionDigits: 0
+                                            }).format(context.globals.seriesTotals.reduce((sum, value) => sum + value, 0))
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            position: "bottom",
+                            fontSize: "14px",
+                            labels: {
+                                colors: chartTextColor()
+                            }
+                        },
+                        tooltip: {
+                            theme: chartThemeMode(),
+                            y: {
+                                formatter: value => new Intl.NumberFormat("th-TH", {
+                                    maximumFractionDigits: 0
+                                }).format(value) + " ชิ้น"
+                            }
+                        }
+                    });
+                    chart.render();
+                    return chart;
+                }
+
+                function parseChartDate(label) {
+                    const parts = label.split("/");
+                    if (parts.length !== 3) {
+                        return null;
+                    }
+                    const day = Number(parts[0]);
+                    const month = Number(parts[1]);
+                    const year = Number(parts[2]);
+                    if (!day || !month || !year) {
+                        return null;
+                    }
+                    return new Date(year, month - 1, day);
+                }
+
+                function formatChartDate(date) {
+                    return String(date.getDate()).padStart(2, "0") + "/"
+                        + String(date.getMonth() + 1).padStart(2, "0") + "/"
+                        + date.getFullYear();
+                }
+
+                function formatChartMonth(date) {
+                    return String(date.getMonth() + 1).padStart(2, "0") + "/" + date.getFullYear();
+                }
+
+                function chartMonthKey(date) {
+                    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+                }
+
+                function chartDateKey(date) {
+                    return date.getFullYear() + "-"
+                        + String(date.getMonth() + 1).padStart(2, "0") + "-"
+                        + String(date.getDate()).padStart(2, "0");
+                }
+
+                function currentChartMonthKey() {
+                    const today = new Date();
+                    return chartMonthKey(today);
+                }
+
+                function setupChartMonthSelect(select, data) {
+                    if (!select) {
+                        return;
+                    }
+                    const months = new Map();
+                    data.forEach(item => {
+                        const key = chartMonthKey(item.date);
+                        if (!months.has(key)) {
+                            months.set(key, formatChartMonth(item.date));
+                        }
+                    });
+                    select.innerHTML = "";
+                    Array.from(months.entries())
+                        .sort((a, b) => a[0].localeCompare(b[0]))
+                        .forEach(([key, label]) => {
+                            const option = document.createElement("option");
+                            option.value = key;
+                            option.textContent = label;
+                            select.appendChild(option);
+                        });
+                    const currentMonth = currentChartMonthKey();
+                    if (months.has(currentMonth)) {
+                        select.value = currentMonth;
+                    } else if (select.options.length > 0) {
+                        select.selectedIndex = 0;
+                    }
+                }
+
+                function syncChartMonthSelect(select, granularity) {
+                    if (!select) {
+                        return;
+                    }
+                    select.classList.toggle("d-none", granularity !== "day");
+                }
+
+                function weekStart(date) {
+                    const result = new Date(date);
+                    const day = result.getDay();
+                    const diff = day === 0 ? -6 : 1 - day;
+                    result.setDate(result.getDate() + diff);
+                    result.setHours(0, 0, 0, 0);
+                    return result;
+                }
+
+                function addDays(date, days) {
+                    const result = new Date(date);
+                    result.setDate(result.getDate() + days);
+                    return result;
+                }
+
+                function aggregateChartData(data, granularity, selectedMonth) {
+                    const grouped = new Map();
+                    data.filter(item => granularity !== "day" || !selectedMonth || chartMonthKey(item.date) === selectedMonth).forEach(item => {
+                        let key;
+                        let label;
+                        if (granularity === "day") {
+                            key = chartDateKey(item.date);
+                            label = item.label;
+                        } else if (granularity === "week") {
+                            const start = weekStart(item.date);
+                            const end = addDays(start, 6);
+                            key = chartDateKey(start);
+                            label = formatChartDate(start) + " - " + formatChartDate(end);
+                        } else {
+                            key = item.date.getFullYear() + "-" + String(item.date.getMonth() + 1).padStart(2, "0");
+                            label = formatChartMonth(item.date);
+                        }
+
+                        if (!grouped.has(key)) {
+                            grouped.set(key, {
+                                key,
+                                label,
+                                amount: 0,
+                                receivedPaid: 0,
+                                pledgePaid: 0,
+                                pressCost: 0,
+                                shippingCost: 0
+                            });
+                        }
+                        const row = grouped.get(key);
+                        row.amount += item.amount;
+                        row.receivedPaid += item.receivedPaid;
+                        row.pledgePaid += item.pledgePaid;
+                        row.pressCost += item.pressCost;
+                        row.shippingCost += item.shippingCost;
+                    });
+                    return Array.from(grouped.values()).sort((a, b) => a.key.localeCompare(b.key));
+                }
+
                 document.addEventListener("DOMContentLoaded", function() {
+                    applyDashboardChartSettings();
                     const charts = [
-                        renderSalesTrendChart("salesTrendChart", salesTrendChartData)
+                        renderSalesTrendChartV2("salesTrendChart", salesTrendChartData),
+                        renderSalesShareChart("artistSalesShareChart", artistSalesShareChartData),
+                        renderSalesShareChart("typeSalesShareChart", typeSalesShareChartData)
                     ].filter(Boolean);
 
                     const themeToggle = document.getElementById("themeToggle");

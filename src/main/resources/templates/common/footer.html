@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <footer th:fragment="footer">
+    <div class="app-version-footer" th:if="${appVersion != null}">
+        <span th:text="${appVersion.version}">1.0.0</span>
+        <span th:text="${appVersion.date}">2026-05-21</span>
+    </div>
     <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>

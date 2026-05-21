@@ -16,7 +16,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     		SELECT ID_menu ,m_name ,m_parent ,m_ID_menu ,m_url ,m_icon
     		FROM t_menu
     		WHERE m_ID_menu IS NULL
-    		ORDER BY CASE WHEN ID_menu = 12 THEN 7.5 ELSE ID_menu END
+    		ORDER BY CASE WHEN ID_menu = 14 THEN 1.5 WHEN ID_menu = 12 THEN 7.5 WHEN ID_menu = 13 THEN 7.6 ELSE ID_menu END
     		""", nativeQuery = true)
     List<Menu> getDataAll();
 

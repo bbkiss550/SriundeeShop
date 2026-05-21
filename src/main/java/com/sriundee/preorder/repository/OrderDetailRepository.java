@@ -20,7 +20,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 	@Query(value = "SELECT * FROM q_order_detail where ID_order_detail = :IDod", nativeQuery = true)
     List<OrderDetailBean> getCartByID(@Param("IDod") Integer IDod);
 	
-	@Query(value = "SELECT sum(od_price_total) as sum_price_total,sum(od_price_pledge) as sum_price_pledge,sum(od_price_balance) as sum_price_balance FROM t_order_detail where ID_order is null", nativeQuery = true)
+	@Query(value = "SELECT COALESCE(sum(od_price_total), 0) as sum_price_total,COALESCE(sum(od_price_pledge), 0) as sum_price_pledge,COALESCE(sum(od_price_balance), 0) as sum_price_balance FROM t_order_detail where ID_order is null", nativeQuery = true)
 	List<OrderSummaryBean> getCartSummary();
 	
 	@Query(value = "SELECT * FROM t_order_detail where ID_order is null", nativeQuery = true)
@@ -47,6 +47,33 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			AND (:ID_order_status IS NULL OR q.ID_order_status = :ID_order_status)
 			AND (:a_name IS NULL OR :a_name = '' OR q.a_name LIKE CONCAT('%', :a_name, '%'))
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
+			AND (:lot_number IS NULL OR :lot_number = '' OR EXISTS (
+				SELECT 1
+				FROM t_lot_detail ld
+				JOIN t_lot l ON l.ID_lot = ld.ID_lot
+				WHERE ld.ID_order_detail = q.ID_order_detail
+				  AND l.l_delete = 'A'
+				  AND l.l_lot_number LIKE CONCAT('%', :lot_number, '%')
+			))
 			""", nativeQuery = true)
-	List<OrderDetailBean> getDataByFilter(@Param("ID_order_status") Integer IDOrderStatus, @Param("a_name") String artistName, @Param("ID_web") Integer websiteId);
+	List<OrderDetailBean> getDataByFilter(
+			@Param("ID_order_status") Integer IDOrderStatus,
+			@Param("a_name") String artistName,
+			@Param("ID_web") Integer websiteId,
+			@Param("lot_number") String lotNumber);
+
+	@Query(value = """
+			SELECT q.*, os.os_color AS os_color
+			FROM q_order_detail q
+			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
+			WHERE q.ID_Order IS NOT NULL
+			AND (:ID_art IS NULL OR q.ID_art = :ID_art)
+			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
+			AND (:customer_name IS NULL OR :customer_name = '' OR q.o_customer_name LIKE CONCAT('%', :customer_name, '%'))
+			ORDER BY q.ID_order_detail DESC
+			""", nativeQuery = true)
+	List<OrderDetailBean> getDataByAllFilter(
+			@Param("ID_art") Integer artistId,
+			@Param("ID_web") Integer websiteId,
+			@Param("customer_name") String customerName);
 }

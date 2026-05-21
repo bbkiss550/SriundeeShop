@@ -2,6 +2,10 @@ package com.sriundee.preorder.controller;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -10,6 +14,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,17 +31,24 @@ import com.sriundee.preorder.bean.ProductBean;
 import com.sriundee.preorder.dto.OrderDetailDto;
 import com.sriundee.preorder.dto.OrderDto;
 import com.sriundee.preorder.entity.Cover;
+import com.sriundee.preorder.entity.Income;
 import com.sriundee.preorder.entity.Order;
 import com.sriundee.preorder.entity.OrderDetail;
+import com.sriundee.preorder.entity.Product;
 import com.sriundee.preorder.entity.Version;
 import com.sriundee.preorder.repository.CoverRepository;
+import com.sriundee.preorder.repository.IncomeRepository;
 import com.sriundee.preorder.repository.OrderDetailRepository;
 import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.ProductRepository;
 import com.sriundee.preorder.repository.VersionRepository;
 
+import jakarta.transaction.Transactional;
+
 @Controller
 public class OrderController {
+    private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,##0.00");
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	@Autowired
     private MenuController menuService;
@@ -55,6 +67,12 @@ public class OrderController {
 
 	@Autowired
 	private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private IncomeRepository incomeRepository;
+
+	@Autowired
+	private ArtistController artistController;
 
 	@Autowired
 	private PaymentTypeController paymenttypeController;
@@ -87,19 +105,21 @@ public class OrderController {
 	    model.addAttribute("mainProduct", strProduct);
 
 		StringBuilder strProduct_card = new StringBuilder();
-	    int card_max = productList.size();
-	    row_id = 0;
-	    int item_per_row = 5; 
-	    int bootstrap_col = 12 / item_per_row; 
+	    int bootstrap_col = 12 / 5;
+	    strProduct_card.append("<div class='row g-4 product-grid-list'>");
 
 	    for (ProductBean p : productList) {
-	        if (row_id % item_per_row == 0) {
-	            strProduct_card.append("<div class='row mb-4'>"); 
+	        boolean isOpenPreorder = Integer.valueOf(1).equals(p.getID_pro_status());
+	        strProduct_card.append("<div class='col-md-" + bootstrap_col + " d-flex product-grid-item" + (isOpenPreorder ? "" : " is-hidden-closed") + "' data-product-status='" + p.getID_pro_status() + "' data-artist-id='" + p.getID_art() + "' data-product-name='" + escapeHtml(p.getp_name()) + "'>");
+	        strProduct_card.append("<div class='card card-move product-grid-card w-100 d-flex flex-column " + (isOpenPreorder ? "" : "product-grid-card-closed") + "'");
+	        if (isOpenPreorder) {
+	        	strProduct_card.append(" onclick='modal_order(" + p.getID_product() + ")'");
 	        }
-
-	        strProduct_card.append("<div class='col-md-" + bootstrap_col + " d-flex mb-4'>");
-	        strProduct_card.append("<div class='card card-move product-grid-card w-100 d-flex flex-column' onclick='modal_order(" + p.getID_product() + ")'>");
-	        strProduct_card.append("<div class='product-grid-image-wrap'><img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'></div>");
+	        strProduct_card.append(">");
+	        strProduct_card.append("<div class='product-grid-image-wrap'>");
+	        strProduct_card.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + p.getps_name() + "</span></span>");
+	        strProduct_card.append("<img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'>");
+	        strProduct_card.append("</div>");
 	        strProduct_card.append("<div class='card-body d-flex flex-column'>");
 	        strProduct_card.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
 	        strProduct_card.append("<div class='mt-auto d-flex justify-content-between align-items-end'>"); 
@@ -107,15 +127,13 @@ public class OrderController {
 	        strProduct_card.append("<p class='mb-0'>ปิดรับ : " + p.getp_end_date() + "</p>");
 	        strProduct_card.append("<p class='mb-0'>วันที่ส่ง : " + p.getp_send_date() + "</p>");
 	        strProduct_card.append("</div>");
+	        strProduct_card.append("<span class='product-days-left-badge'>" + getDaysLeftLabel(p.getp_end_date()) + "</span>");
 	        strProduct_card.append("</div></div></div></div>");
-	        row_id++;
-	        
-	        if (row_id % item_per_row == 0 || row_id == card_max) {
-	            strProduct_card.append("</div>");
-	        }
 	    }
+	    strProduct_card.append("</div>");
 	    
 	    model.addAttribute("mainProduct_card", strProduct_card);
+	    model.addAttribute("artistList", "<option value=''>ทั้งหมด</option>" + artistController.getDataList());
 
 	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
 	    model.addAttribute("CartCount", orderList.size());
@@ -127,6 +145,9 @@ public class OrderController {
 	@ResponseBody
 	public Object getData(@PathVariable Integer id) {
     	List<ProductBean> productList = productRepository.getDataAllByID(id);
+    	if (productList.isEmpty() || !Integer.valueOf(1).equals(productList.get(0).getID_pro_status())) {
+    		return ResponseEntity.badRequest().body("Product is closed");
+    	}
 
     	StringBuilder Listqty = new StringBuilder();
     	String strChecked = "";
@@ -183,6 +204,16 @@ public class OrderController {
     @ResponseBody
     public ResponseEntity<String> saveData(@RequestBody OrderDetailDto orderDetailDto) {
         try {
+        	Cover cover = coverRepository.findById(orderDetailDto.getCover()).orElse(null);
+        	if (cover == null) {
+        		return ResponseEntity.status(404).body("Cover not found");
+        	}
+
+        	Product product = productRepository.findById(cover.getProduct()).orElse(null);
+        	if (product == null || !Integer.valueOf(1).equals(product.getProduct_status())) {
+        		return ResponseEntity.badRequest().body("Product is closed");
+        	}
+
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(null);
             orderDetail.setCover(orderDetailDto.getCover());
@@ -197,6 +228,7 @@ public class OrderController {
             return ResponseEntity.ok("Success");
             
         } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(500).body("Error");
         }
     }
@@ -331,12 +363,13 @@ public class OrderController {
     
     @PostMapping("/order/save")
     @ResponseBody
-    public synchronized ResponseEntity<String> saveOrderData(@RequestBody OrderDto orderDto) {
+    @Transactional
+    public synchronized ResponseEntity<?> saveOrderData(@RequestBody OrderDto orderDto) {
         try {
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         	
+            LocalDate orderDate = parseRequiredOrderDate(orderDto.getOrder_date());
             Order order = new Order();
-            LocalDate orderDate = LocalDate.now();
             order.setOrder_date(java.sql.Date.valueOf(orderDate));
             order.setOrder_code(generateOrderCode(orderDate));
             order.setCustomer_name(orderDto.getCustomer_name());
@@ -349,8 +382,11 @@ public class OrderController {
         	}
             order.setSend_cost(orderDto.getSend_cost());
             order.setDiscount(orderDto.getDiscount());
+            double cartProductTotal = getCartProductTotal();
+            order.setPrice_total(cartProductTotal);
             if (orderDto.getPay_method() == 1) {
-                order.setPrice_total(orderDto.getPrice_total());
+                order.setPrice_pledge(0);
+                order.setPrice_balance(0);
             } else {
                 order.setPrice_pledge(orderDto.getPrice_pledge());
                 order.setPrice_balance(orderDto.getPrice_balance());
@@ -367,8 +403,12 @@ public class OrderController {
             	o.setOrder(newOrderId);
             }
             orderDetailRepository.saveAll(orderDetail);
+            saveOrderIncome(order, orderDate);
             
-            return ResponseEntity.ok("Success");
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "Success");
+            response.put("orderId", newOrderId);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error");
         }
@@ -379,5 +419,205 @@ public class OrderController {
         Integer maxRunning = orderRepository.getMaxOrderCodeRunning(prefix);
         int nextRunning = (maxRunning == null ? 0 : maxRunning) + 1;
         return prefix + String.format("%06d", nextRunning);
+    }
+
+    private double getCartProductTotal() {
+        List<OrderSummaryBean> summaryList = orderDetailRepository.getCartSummary();
+        if (summaryList == null || summaryList.isEmpty()) {
+            return 0;
+        }
+        return summaryList.get(0).getsum_price_total();
+    }
+
+    @PostMapping(value = "/order/receipt-preview", produces = "text/html; charset=UTF-8")
+    @ResponseBody
+    public ResponseEntity<String> receiptPreview(@RequestBody OrderDto orderDto) {
+        List<OrderDetailBean> detailList = orderDetailRepository.getCartIsNull();
+        StringBuilder rows = new StringBuilder();
+        int rowNumber = 0;
+        for (OrderDetailBean detail : detailList) {
+            rowNumber++;
+            rows.append("<tr>");
+            rows.append("<td>" + rowNumber + "</td>");
+            rows.append("<td class='product-cell'>" + escapeHtml(detail.getp_name()) + "<div class='muted'>"
+                    + escapeHtml(detail.geta_name()) + " / "
+                    + escapeHtml(detail.getw_name()) + " / "
+                    + escapeHtml(detail.getv_name()) + " / "
+                    + escapeHtml(detail.getc_name()) + "</div></td>");
+            rows.append("<td class='right'>" + toDisplay(detail.getod_qty()) + "</td>");
+            rows.append("<td class='right'>" + formatMoney(detail.getod_price_total()) + "</td>");
+            rows.append("<td class='right'>" + formatMoney(detail.getod_price_pledge()) + "</td>");
+            rows.append("<td class='right'>" + formatMoney(detail.getod_price_balance()) + "</td>");
+            rows.append("</tr>");
+        }
+
+        double productTotal = getCartProductTotal();
+        double pledge = Integer.valueOf(1).equals(orderDto.getPay_method()) ? 0 : orderDto.getPrice_pledge();
+        double balance = Integer.valueOf(1).equals(orderDto.getPay_method()) ? 0 : orderDto.getPrice_balance();
+        String discountRow = "";
+        if (BigDecimal.valueOf(orderDto.getDiscount()).compareTo(BigDecimal.ZERO) > 0) {
+            discountRow = """
+                        <div class="summary-row"><span>ส่วนลด</span><strong class="right">%s</strong></div>
+                    """.formatted(formatMoney(orderDto.getDiscount()));
+        }
+
+        return ResponseEntity.ok("""
+                <div class="receipt">
+                    <div class="header">
+                        <div class="receipt-brand">
+                            <img class="receipt-logo" src="/mazer/dist/assets/images/logo/logo-web.png" alt="Sriundee Shop">
+                            <div class="receipt-title">
+                                <h1>ใบเสร็จรับเงิน</h1>
+                                <div class="shop">Sriundee Shop</div>
+                            </div>
+                        </div>
+                        <div class="meta">
+                            <div><strong>เลขที่คำสั่งซื้อ:</strong> PREVIEW</div>
+                            <div><strong>วันที่:</strong> %s</div>
+                        </div>
+                    </div>
+                    <div class="info">
+                        <div><strong>ลูกค้า:</strong> %s</div>
+                        <div><strong>สถานะชำระเงิน:</strong> %s</div>
+                        <div><strong>หมายเหตุ:</strong> %s</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>สินค้า</th>
+                                <th class="right">จำนวน</th>
+                                <th class="right">ราคาเต็ม</th>
+                                <th class="right">มัดจำ</th>
+                                <th class="right">คงเหลือ</th>
+                            </tr>
+                        </thead>
+                        <tbody>%s</tbody>
+                    </table>
+                    <div class="summary">
+                        <div class="summary-row"><span>ราคาสินค้า</span><strong class="right">%s</strong></div>
+                        <div class="summary-row"><span>ค่าส่ง</span><strong class="right">%s</strong></div>
+                        %s
+                        <div class="summary-row"><span>มัดจำ</span><strong class="right">%s</strong></div>
+                        <div class="summary-row"><span>ยอดคงเหลือ</span><strong class="right">%s</strong></div>
+                        <div class="summary-row total"><span>สุทธิ</span><strong class="right">%s</strong></div>
+                    </div>
+                </div>
+                """.formatted(
+                getReceiptDate(orderDto).format(DISPLAY_DATE_FORMAT),
+                escapeHtml(orderDto.getCustomer_name()),
+                escapeHtml(getPaymentMethodName(orderDto.getPay_method())),
+                escapeHtml(orderDto.getRemark()),
+                rows.toString(),
+                formatMoney(productTotal),
+                formatMoney(orderDto.getSend_cost()),
+                discountRow,
+                formatMoney(pledge),
+                formatMoney(balance),
+                formatMoney(orderDto.getNet())));
+    }
+
+    private String getPaymentMethodName(Integer payMethod) {
+        if (Integer.valueOf(1).equals(payMethod)) {
+            return "จ่ายเต็ม";
+        }
+        if (Integer.valueOf(2).equals(payMethod)) {
+            return "มัดจำ";
+        }
+        return "";
+    }
+
+    private LocalDate parseRequiredOrderDate(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Order date is required");
+        }
+        return LocalDate.parse(value);
+    }
+
+    private LocalDate getReceiptDate(OrderDto orderDto) {
+        try {
+            return parseRequiredOrderDate(orderDto.getOrder_date());
+        } catch (RuntimeException e) {
+            return LocalDate.now();
+        }
+    }
+
+    private String escapeHtml(Object value) {
+        return toDisplay(value)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private String formatMoney(String value) {
+        if (value == null || value.isBlank()) {
+            return "0.00";
+        }
+        try {
+            return MONEY_FORMAT.format(new BigDecimal(value.replace(",", "")));
+        } catch (Exception e) {
+            return value;
+        }
+    }
+
+    private void saveOrderIncome(Order order, LocalDate incomeDate) {
+        Integer payMethod = order.getPay_method();
+        if (Integer.valueOf(1).equals(payMethod)) {
+            saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "จ่ายเต็ม", order.getId());
+        } else if (Integer.valueOf(2).equals(payMethod)) {
+            saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
+        }
+    }
+
+    private void saveIncome(LocalDate createDate, String customerName, Integer typeIncome, double price, String note, Integer orderId) {
+        Income income = new Income();
+        income.setCreateDate(createDate.toString());
+        income.setCustomerName(customerName);
+        income.setTypeIncome(typeIncome);
+        income.setPrice(formatIncomePrice(price));
+        income.setNote(note);
+        income.setDelete("A");
+        income.setOrder(orderId);
+        incomeRepository.save(income);
+    }
+
+    private String formatIncomePrice(double price) {
+        return BigDecimal.valueOf(price).stripTrailingZeros().toPlainString();
+    }
+
+    private String formatMoney(double value) {
+        return MONEY_FORMAT.format(BigDecimal.valueOf(value));
+    }
+
+    private String toDisplay(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    private String getProductStatusTagClass(Integer statusId) {
+        if (Integer.valueOf(1).equals(statusId)) {
+            return "is-open";
+        }
+        if (Integer.valueOf(2).equals(statusId)) {
+            return "is-closed";
+        }
+        return "is-unknown";
+    }
+
+    private String getDaysLeftLabel(String endDateValue) {
+        try {
+            LocalDate endDate = LocalDate.parse(endDateValue, DISPLAY_DATE_FORMAT);
+            long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
+            if (daysLeft < 0) {
+                return "หมดเวลา";
+            }
+            if (daysLeft == 0) {
+                return "วันนี้";
+            }
+            return "เหลือ " + daysLeft + " วัน";
+        } catch (Exception e) {
+            return "-";
+        }
     }
 }

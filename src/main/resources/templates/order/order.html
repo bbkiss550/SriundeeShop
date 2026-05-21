@@ -24,7 +24,132 @@
 			overflow: hidden;
 		}
 
+		.product-grid-filter {
+			position: relative;
+			z-index: 20;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.product-grid-search {
+			display: grid;
+			grid-template-columns: minmax(320px, 460px) minmax(260px, 380px);
+			gap: 0.75rem;
+			align-items: center;
+		}
+
+		.product-grid-search .input-group-text {
+			min-width: 86px;
+			justify-content: center;
+			font-weight: 700;
+		}
+
+		.product-grid-search .input-group {
+			flex-wrap: nowrap;
+			align-items: stretch;
+		}
+
+		.product-grid-search .choices {
+			display: block;
+			flex: 1 1 auto !important;
+			width: 1% !important;
+			min-width: 0;
+			margin: 0 !important;
+		}
+
+		.product-grid-search .choices__inner {
+			min-height: 38px;
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+
+		.product-grid-search .input-group > .choices {
+			position: relative;
+			z-index: 21;
+		}
+
+		.product-grid-search .choices.is-open {
+			z-index: 50;
+		}
+
+		.product-grid-search .choices__list--dropdown,
+		.product-grid-search .choices__list[aria-expanded] {
+			z-index: 60;
+		}
+
+		.product-grid-search .input-group > .choices:not(:last-child) .choices__inner {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		.product-grid-filter .form-check-input {
+			width: 3rem;
+			height: 1.55rem;
+			cursor: pointer;
+			background-color: #d8dee9;
+			border-color: #d8dee9;
+		}
+
+		.product-grid-filter .form-check-input:checked {
+			background-color: #435ebe;
+			border-color: #435ebe;
+		}
+
+		.product-grid-filter .form-check-label {
+			font-weight: 700;
+			margin-left: 0.55rem;
+			cursor: pointer;
+		}
+
+		.product-grid-item.is-hidden-closed {
+			display: none !important;
+		}
+
+		.product-grid-card-closed {
+			cursor: default;
+		}
+
+		.product-grid-card-closed:hover {
+			transform: none;
+		}
+
+		.product-grid-card-closed .product-grid-image {
+			filter: grayscale(0.2) brightness(0.82);
+		}
+
+		.product-days-left-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 76px;
+			min-height: 30px;
+			padding: 0.35rem 0.7rem;
+			color: #ffffff;
+			background: #f97316;
+			border-radius: 6px;
+			font-size: 0.82rem;
+			font-weight: 800;
+			line-height: 1;
+			white-space: nowrap;
+			box-shadow: 0 4px 10px rgba(249, 115, 22, 0.28);
+		}
+
+		@media (max-width: 768px) {
+			.product-grid-filter {
+				align-items: stretch;
+				flex-direction: column;
+			}
+
+			.product-grid-search {
+				grid-template-columns: 1fr;
+			}
+		}
+
 		.product-grid-image-wrap {
+			position: relative;
 			width: 100%;
 			aspect-ratio: 4 / 3;
 			background: #f8f9fa;
@@ -40,6 +165,48 @@
 			display: block;
 			object-fit: cover;
 			object-position: center;
+		}
+
+		.product-status-tag {
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 2;
+			width: 118px;
+			height: 118px;
+			overflow: hidden;
+			font-size: 0.72rem;
+			font-weight: 800;
+			line-height: 1;
+			text-align: center;
+			pointer-events: none;
+		}
+
+		.product-status-tag .product-status-text {
+			position: absolute;
+			top: 25px;
+			left: -42px;
+			z-index: 2;
+			width: 150px;
+			padding: 7px 0 8px;
+			color: #fff;
+			font-size: 0.82rem;
+			box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+			transform: rotate(-45deg);
+			transform-origin: center;
+			white-space: nowrap;
+		}
+
+		.product-status-tag.is-open .product-status-text {
+			background: #198754;
+		}
+
+		.product-status-tag.is-closed .product-status-text {
+			background: #dc3545;
+		}
+
+		.product-status-tag.is-unknown .product-status-text {
+			background: #6c757d;
 		}
 	
 		.card-title {
@@ -133,6 +300,22 @@
 				                    </div>
 	                            </div>
 	                        </div>
+							<div class="product-grid-filter">
+								<div class="product-grid-search">
+									<div class="input-group">
+										<span class="input-group-text">ศิลปิน</span>
+										<select class="form-select" id="productArtistFilter" onchange="applyProductFilters()" th:utext="${artistList}"></select>
+									</div>
+									<div class="input-group">
+										<span class="input-group-text">ค้นหา</span>
+										<input type="text" class="form-control" id="productNameFilter" placeholder="ค้นหาชื่อสินค้า..." autocomplete="off" oninput="applyProductFilters()">
+									</div>
+								</div>
+								<div class="form-check form-switch mb-0">
+									<input class="form-check-input" type="checkbox" role="switch" id="showClosedProductSwitch" autocomplete="off" onchange="applyProductFilters()">
+									<label class="form-check-label" for="showClosedProductSwitch">แสดงสินค้าที่ปิดพรีแล้ว</label>
+								</div>
+							</div>
 							<div th:utext="${mainProduct_card}"></div>
 							<div th:include="./order/modal-order"></div>
 	                    </div>
@@ -146,5 +329,16 @@
 		    <i class="fas fa-shopping-cart"></i>
 		    <span id="cart-count" class="cart-badge" th:utext="${CartCount}">0</span>
 		</button>
+		<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const showClosedProductSwitch = document.getElementById('showClosedProductSwitch');
+				if (showClosedProductSwitch) {
+					showClosedProductSwitch.checked = false;
+				}
+				initProductArtistFilterChoices();
+				applyProductFilters();
+			});
+		</script>
 	</body>
 </html>

@@ -1,20 +1,20 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const filterForm = document.getElementById("costPressFilterForm");
+    const filterForm = document.getElementById("depositBalanceFilterForm");
     if (!filterForm) {
         return;
     }
 
     filterForm.addEventListener("submit", function(event) {
         event.preventDefault();
-        load_cost_press_data();
+        load_deposit_balance_data();
     });
 });
 
-function load_cost_press_data() {
+function load_deposit_balance_data() {
     const params = new URLSearchParams();
     const startDate = document.getElementById("startDate").value;
     const endDate = document.getElementById("endDate").value;
-    const status = document.getElementById("status").value;
+    const customerName = document.getElementById("customerName").value.trim();
 
     if (startDate) {
         params.append("startDate", startDate);
@@ -22,28 +22,28 @@ function load_cost_press_data() {
     if (endDate) {
         params.append("endDate", endDate);
     }
-    if (status) {
-        params.append("status", status);
+    if (customerName) {
+        params.append("customerName", customerName);
     }
 
-    fetch("/cost/press/search?" + params.toString())
+    fetch("/deposit-balance/search?" + params.toString())
         .then(response => response.text())
         .then(html => {
-            document.getElementById("costPressRows").innerHTML = html;
+            document.getElementById("depositBalanceRows").innerHTML = html;
 
             if (window.feather) {
                 feather.replace();
             }
         })
         .catch(error => {
-            console.error("Error loading cost press data:", error);
+            console.error("Error loading deposit balance data:", error);
         });
 }
 
-function clear_cost_press_filter() {
+function clear_deposit_balance_filter() {
     set_full_year_filter();
-    document.getElementById("status").value = "";
-    load_cost_press_data();
+    document.getElementById("customerName").value = "";
+    load_deposit_balance_data();
 }
 
 function set_full_year_filter() {
@@ -51,17 +51,17 @@ function set_full_year_filter() {
     document.getElementById("endDate").value = "2026-12-31";
 }
 
-function open_cost_detail(id) {
-    fetch("/cost/press/detail/" + id)
+function open_deposit_detail(orderId) {
+    fetch("/deposit-balance/" + orderId + "/details")
         .then(response => response.text())
         .then(html => {
-            document.getElementById("costDetailRows").innerHTML = html;
+            document.getElementById("depositDetailRows").innerHTML = html;
 
             if (window.feather) {
                 feather.replace();
             }
 
-            const modalElement = document.getElementById("modalCostDetail");
+            const modalElement = document.getElementById("depositDetailModal");
             let modal = bootstrap.Modal.getInstance(modalElement);
             if (!modal) {
                 modal = new bootstrap.Modal(modalElement);
@@ -69,50 +69,57 @@ function open_cost_detail(id) {
             modal.show();
         })
         .catch(error => {
-            console.error("Error loading cost detail:", error);
+            console.error("Error loading deposit detail:", error);
         });
 }
 
-function cancel_cost_press(id, event) {
+function receive_deposit_balance(orderId, event) {
     if (event) {
         event.stopPropagation();
     }
 
     Swal.fire({
-        title: "ยืนยันการยกเลิก",
-        text: "ต้องการยกเลิกข้อมูลการกดของนี้หรือไม่",
+        title: "ยืนยันรับเงินมัดจำที่เหลือ",
+        text: "ต้องการบันทึกรับเงินที่เหลือของคำสั่งซื้อนี้หรือไม่",
+        input: "date",
+        inputLabel: "วันที่บันทึก",
+        inputValidator: (value) => {
+            if (!value) {
+                return "กรุณาเลือกวันที่บันทึก";
+            }
+        },
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "ยืนยัน",
         cancelButtonText: "ปิด",
-        confirmButtonColor: "#dc3545"
+        confirmButtonColor: "#198754"
     }).then((result) => {
         if (!result.isConfirmed) {
             return;
         }
 
-        fetch("/cost/press/cancel/" + id, {
+        fetch("/deposit-balance/" + orderId + "/receive?recordDate=" + encodeURIComponent(result.value), {
             method: "POST"
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error("Cancel failed");
+                throw new Error("Receive failed");
             }
             return response.text();
         })
         .then(() => {
             Swal.fire({
-                title: "ยกเลิกสำเร็จ",
+                title: "บันทึกสำเร็จ",
                 icon: "success",
                 confirmButtonText: "ตกลง"
             }).then(() => {
-                load_cost_press_data();
+                load_deposit_balance_data();
             });
         })
         .catch(error => {
-            console.error("Error canceling cost press:", error);
+            console.error("Error receiving deposit balance:", error);
             Swal.fire({
-                title: "ยกเลิกไม่สำเร็จ",
+                title: "บันทึกไม่สำเร็จ",
                 icon: "error",
                 confirmButtonText: "ตกลง"
             });

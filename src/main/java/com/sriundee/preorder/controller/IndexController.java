@@ -25,12 +25,17 @@ public class IndexController {
 
 	private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###,##0.00");
 	private static final DateTimeFormatter CHART_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final LocalDate DEFAULT_START_DATE = LocalDate.of(2026, 1, 1);
+	private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2026, 12, 31);
 	
 	@Autowired
     private MenuController menuService;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private SettingController settingController;
 	
 	@GetMapping("/")
 	public String index(Model model,
@@ -62,14 +67,24 @@ public class IndexController {
 	    		WHERE o_order_date BETWEEN ? AND ?
 	    		""", selectedStartDate, selectedEndDate);
 	    BigDecimal totalBalance = getBigDecimal("""
-	    		SELECT COALESCE(SUM(o_price_balance), 0)
+	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
 	    		""", selectedStartDate, selectedEndDate);
-	    BigDecimal totalReceived = totalSales.subtract(totalBalance);
+	    BigDecimal totalFullPaid = getBigDecimal("""
+	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 1 THEN o_net ELSE 0 END), 0)
+	    		FROM q_order
+	    		WHERE o_order_date BETWEEN ? AND ?
+	    		""", selectedStartDate, selectedEndDate);
+	    BigDecimal totalPledgePaid = getBigDecimal("""
+	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method IN (2, 3) THEN o_price_pledge ELSE 0 END), 0)
+	    		FROM q_order
+	    		WHERE o_order_date BETWEEN ? AND ?
+	    		""", selectedStartDate, selectedEndDate);
 	    model.addAttribute("totalSales", formatMoney(totalSales));
-	    model.addAttribute("totalReceived", formatMoney(totalReceived));
+	    model.addAttribute("totalFullPaid", formatMoney(totalFullPaid));
 	    model.addAttribute("totalBalance", formatMoney(totalBalance));
+	    model.addAttribute("totalPledgePaid", formatMoney(totalPledgePaid));
 	    model.addAttribute("totalCost", formatMoney(getBigDecimal("""
 	    		SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
 	    		FROM q_cost
@@ -78,6 +93,12 @@ public class IndexController {
 	    		""", selectedStartDate, selectedEndDate)));
 	    model.addAttribute("costByType", getCostByType(selectedStartDate, selectedEndDate));
 	    model.addAttribute("salesTrendChart", toJson(getSalesTrendChart(chartRange[0], chartRange[1])));
+	    model.addAttribute("artistSalesShareChart", toJson(getSalesShareChart(
+	    		"COALESCE(q.a_name, 'ไม่ระบุศิลปิน')", "q.ID_art", selectedStartDate, selectedEndDate)));
+	    model.addAttribute("typeSalesShareChart", toJson(getSalesShareChart(
+	    		"COALESCE(q.t_name, 'ไม่ระบุประเภท')", "q.ID_type", selectedStartDate, selectedEndDate)));
+	    model.addAttribute("dashboardChartSeries", settingController.getDashboardChartSeriesValue());
+	    model.addAttribute("dashboardChartGranularity", settingController.getDashboardChartGranularityValue());
 	    return "index";
 	}
 
@@ -113,20 +134,44 @@ public class IndexController {
 		List<Map<String, Object>> salesRows = jdbcTemplate.queryForList("""
 				SELECT o_order_date AS orderDate,
 				       COALESCE(SUM(o_net), 0) AS amount,
-				       COALESCE(SUM(CASE WHEN ID_pay_method = 1 THEN o_net ELSE 0 END), 0) AS fullPaid,
+				       COALESCE(SUM(CASE WHEN ID_pay_method IN (1, 3) THEN o_net WHEN ID_pay_method = 2 THEN o_price_pledge ELSE 0 END), 0) AS receivedPaid,
 				       COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_pledge ELSE 0 END), 0) AS pledgePaid
 				FROM q_order
 				WHERE o_order_date BETWEEN ? AND ?
 				GROUP BY o_order_date
 				ORDER BY o_order_date
 				""", startDate, endDate);
+		List<Map<String, Object>> costRows = jdbcTemplate.queryForList("""
+				SELECT c_create_date AS costDate,
+				       ID_type_cost AS costType,
+				       COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0) AS costAmount
+				FROM q_cost
+				WHERE c_delete = 'A'
+				  AND ID_type_cost IN (1, 2)
+				  AND c_create_date BETWEEN ? AND ?
+				GROUP BY c_create_date, ID_type_cost
+				ORDER BY c_create_date, ID_type_cost
+				""", startDate, endDate);
 		Map<LocalDate, Map<String, Object>> salesByDate = new HashMap<>();
 		for (Map<String, Object> row : salesRows) {
-			Object orderDate = row.get("orderDate");
-			if (orderDate instanceof java.sql.Date sqlDate) {
-				salesByDate.put(sqlDate.toLocalDate(), row);
-			} else if (orderDate instanceof LocalDate localDate) {
-				salesByDate.put(localDate, row);
+			LocalDate orderDate = toLocalDate(row.get("orderDate"));
+			if (orderDate != null) {
+				salesByDate.put(orderDate, row);
+			}
+		}
+		Map<LocalDate, BigDecimal> pressCostByDate = new HashMap<>();
+		Map<LocalDate, BigDecimal> shippingCostByDate = new HashMap<>();
+		for (Map<String, Object> row : costRows) {
+			LocalDate costDate = toLocalDate(row.get("costDate"));
+			Integer costType = toInteger(row.get("costType"));
+			BigDecimal costAmount = toBigDecimal(row.get("costAmount"));
+			if (costDate == null || costType == null) {
+				continue;
+			}
+			if (costType == 1) {
+				pressCostByDate.put(costDate, costAmount);
+			} else if (costType == 2) {
+				shippingCostByDate.put(costDate, costAmount);
 			}
 		}
 		return startDate.datesUntil(endDate.plusDays(1))
@@ -135,10 +180,25 @@ public class IndexController {
 					return Map.of(
 							"label", date.format(CHART_DATE_FORMAT),
 							"amount", row == null ? BigDecimal.ZERO : row.get("amount"),
-							"fullPaid", row == null ? BigDecimal.ZERO : row.get("fullPaid"),
-							"pledgePaid", row == null ? BigDecimal.ZERO : row.get("pledgePaid"));
+							"receivedPaid", row == null ? BigDecimal.ZERO : row.get("receivedPaid"),
+							"pledgePaid", row == null ? BigDecimal.ZERO : row.get("pledgePaid"),
+							"pressCost", pressCostByDate.getOrDefault(date, BigDecimal.ZERO),
+							"shippingCost", shippingCostByDate.getOrDefault(date, BigDecimal.ZERO));
 				})
 				.toList();
+	}
+
+	private List<Map<String, Object>> getSalesShareChart(String labelExpression, String groupExpression,
+			LocalDate startDate, LocalDate endDate) {
+		return jdbcTemplate.queryForList("""
+				SELECT %s AS label,
+				       COALESCE(SUM(q.od_qty), 0) AS value
+				FROM q_order_detail q
+				JOIN t_order o ON o.ID_order = q.ID_order
+				WHERE o.o_order_date BETWEEN ? AND ?
+				GROUP BY %s, %s
+				ORDER BY value DESC, label
+				""".formatted(labelExpression, groupExpression, labelExpression), startDate, endDate);
 	}
 
 	private Long getLong(String sql, Object... args) {
@@ -168,10 +228,40 @@ public class IndexController {
 		}
 	}
 
+	private Integer toInteger(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Number number) {
+			return number.intValue();
+		}
+		try {
+			return Integer.valueOf(value.toString());
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	private LocalDate toLocalDate(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof java.sql.Date sqlDate) {
+			return sqlDate.toLocalDate();
+		}
+		if (value instanceof LocalDate localDate) {
+			return localDate;
+		}
+		try {
+			return LocalDate.parse(value.toString());
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
 	private LocalDate[] getSelectedRange(String startDate, String endDate) {
-		LocalDate today = LocalDate.now();
-		LocalDate selectedStartDate = parseDate(startDate, today.withDayOfMonth(1));
-		LocalDate selectedEndDate = parseDate(endDate, today.withDayOfMonth(today.lengthOfMonth()));
+		LocalDate selectedStartDate = parseDate(startDate, DEFAULT_START_DATE);
+		LocalDate selectedEndDate = parseDate(endDate, DEFAULT_END_DATE);
 		if (selectedEndDate.isBefore(selectedStartDate)) {
 			selectedEndDate = selectedStartDate;
 		}

@@ -52,6 +52,20 @@
 	.cost-detail-table tbody tr:nth-of-type(odd) {
 		background-color: rgba(0, 0, 0, 0.03);
 	}
+
+	.cost-press-detail-modal {
+		max-width: calc(100vw - 64px);
+		width: calc(100vw - 64px);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	@media (max-width: 768px) {
+		.cost-press-detail-modal {
+			max-width: calc(100vw - 16px);
+			width: calc(100vw - 16px);
+		}
+	}
 </style>
 
 <body>
@@ -120,8 +134,8 @@
             </div>
 
 			<div class="modal fade text-left" id="modalCostDetail" tabindex="-1" role="dialog" aria-hidden="true">
-			    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-			        <div class="modal-content">
+			    <div class="modal-dialog modal-xl modal-dialog-scrollable cost-press-detail-modal" role="document">
+			        <div class="modal-content" style="height: calc(100vh - 32px);">
 			            <div class="modal-header bg-primary">
 			                <h4 class="modal-title white">รายละเอียดสินค้า</h4>
 			                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -140,6 +154,8 @@
 							            <th>เวอร์ชั่น</th>
 							            <th>ปก</th>
 							            <th class="text-end">จำนวน</th>
+							            <th class="text-end">ราคาเต็ม/ชิ้น</th>
+							            <th class="text-end">มัดจำ/ชิ้น</th>
 							            <th>ชำระ</th>
 							        </tr>
 							    </thead>

@@ -30,6 +30,17 @@
 			line-height: 1.2;
 		}
 
+		.lot-number-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 82px;
+			min-height: 30px;
+			padding: 6px 10px;
+			font-size: 0.82rem;
+			white-space: nowrap;
+		}
+
 	    .btn-status-grid {
 	        font-size: 1rem !important;
 	        padding: 8px 2px !important;
@@ -101,6 +112,19 @@
 
 		.change-selectable-row:hover > td {
 			background-color: #f1f5ff !important;
+		}
+
+		.change-locked-row {
+			cursor: not-allowed;
+			opacity: 0.78;
+		}
+
+		.change-locked-row > td {
+			background-color: rgba(108, 117, 125, 0.08) !important;
+		}
+
+		.change-locked-row .row-check {
+			cursor: not-allowed;
 		}
 
 		.change-status-alert-stack {
@@ -176,6 +200,12 @@
 												<select id="websiteFilter" class="form-select" onchange="load_change_data()" th:utext="${websiteList}"></select>
 											</div>
 										</div>
+										<div class="col-md-4">
+											<div class="input-group">
+												<label for="lotFilter" class="input-group-text">LOT</label>
+												<input type="text" id="lotFilter" class="form-control" placeholder="ค้นหา LOT" oninput="search_lot()">
+											</div>
+										</div>
 									</div>
 		                       </div>
 		                    </div>
@@ -232,6 +262,12 @@
 				                            <select class="form-select" id="newOrderStatus" th:utext="${orderStatusList}"></select>
 				                        </div>
 				                    </div>
+				                    <div class="col-md-6">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 120px;">วันที่บันทึก</span>
+				                            <input type="date" class="form-control" id="statusRecordDate">
+				                        </div>
+				                    </div>
 				                </div>
 				                <div class="fw-bold mt-2 mb-3">รายการที่เลือก <span id="selectedDetailCount">0</span> รายการ</div>
 				                <div id="selectedDetailList" class="mb-4" style="max-height: 360px; overflow-y: auto; overflow-x: hidden;"></div>
@@ -251,10 +287,28 @@
 				                    </div>
 				                </div>
 				                <div class="row pt-3 border-top" id="lotInputGroup" style="display: none;">
-				                    <div class="col-md-6">
+				                    <div class="col-md-4">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 150px;">วันที่ของถึงร้าน</span>
+				                            <input type="date" class="form-control" id="lotArriveDate" name="lotArriveDate">
+				                        </div>
+				                    </div>
+				                    <div class="col-12">
 				                        <div class="input-group mb-3">
 				                            <span class="input-group-text" style="width: 120px;">เลข Lot</span>
 				                            <input type="text" class="form-control" id="l_lot_number" name="l_lot_number">
+				                        </div>
+				                    </div>
+				                    <div class="col-md-6">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 190px;">วันที่คาดว่าจะถึงร้าน</span>
+				                            <input type="date" class="form-control" id="l_start_date" name="l_start_date">
+				                        </div>
+				                    </div>
+				                    <div class="col-md-6">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 70px;">ถึง</span>
+				                            <input type="date" class="form-control" id="l_end_date" name="l_end_date">
 				                        </div>
 				                    </div>
 				                </div>
@@ -270,6 +324,21 @@
 				                        <div class="input-group mb-3">
 				                            <span class="input-group-text" style="width: 120px;">หมายเหตุ</span>
 				                            <input type="text" class="form-control" id="shippingNote">
+				                        </div>
+				                    </div>
+				                </div>
+				                <div class="row pt-3 border-top" id="postalInputGroup" style="display: none;">
+				                    <div class="col-md-4">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 150px;">ค่าส่งไปรษณีย์</span>
+				                            <input type="text" class="form-control text-end money-input" id="postalPrice" placeholder="0" inputmode="decimal">
+				                            <span class="input-group-text">บาท</span>
+				                        </div>
+				                    </div>
+				                    <div class="col-12">
+				                        <div class="input-group mb-3">
+				                            <span class="input-group-text" style="width: 150px;">หมายเหตุ</span>
+				                            <input type="text" class="form-control" id="postalNote">
 				                        </div>
 				                    </div>
 				                </div>

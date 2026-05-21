@@ -35,6 +35,8 @@ public class LotController {
 
 	private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###,##0.00");
+	private static final String DEFAULT_START_DATE = "2026-01-01";
+	private static final String DEFAULT_END_DATE = "2026-12-31";
 
 	@Autowired
     private MenuController menuService;
@@ -53,13 +55,15 @@ public class LotController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "lotNumber", required = false) String lotNumber,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
 		model.addAttribute("mainMenus", menuService.getMenuList(10, null));
-	    model.addAttribute("mainLot", buildLotRows(dateRange.startDate(), dateRange.endDate(), status));
+	    model.addAttribute("mainLot", buildLotRows(dateRange.startDate(), dateRange.endDate(), status, lotNumber));
 	    model.addAttribute("startDate", dateRange.startDate());
 	    model.addAttribute("endDate", dateRange.endDate());
 	    model.addAttribute("status", toDisplay(status));
+	    model.addAttribute("lotNumber", toDisplay(lotNumber));
 	    return "lot/index";
 	}
 
@@ -68,9 +72,10 @@ public class LotController {
 	public ResponseEntity<String> search(
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "status", required = false) String status) {
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "lotNumber", required = false) String lotNumber) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-		return ResponseEntity.ok(buildLotRows(dateRange.startDate(), dateRange.endDate(), status));
+		return ResponseEntity.ok(buildLotRows(dateRange.startDate(), dateRange.endDate(), status, lotNumber));
 	}
 
 	@GetMapping("/lot/detail/{id}")
@@ -114,12 +119,21 @@ public class LotController {
 	public ResponseEntity<String> updateLotNumber(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
 		try {
 			String lotNumber = payload.get("lotNumber");
+			String startDate = payload.get("startDate");
+			String endDate = payload.get("endDate");
+			String arriveDate = payload.get("arriveDate");
 			if (lotNumber == null || lotNumber.isBlank()) {
 				return ResponseEntity.badRequest().body("Lot number is required");
+			}
+			if (!isValidDateRange(startDate, endDate)) {
+				return ResponseEntity.badRequest().body("Invalid lot date range");
 			}
 
 			Lot lot = lotRepository.findById(id).orElseThrow(() -> new RuntimeException("Lot not found"));
 			lot.setLot_number(lotNumber.trim());
+			lot.setStart_date(blankToNull(startDate));
+			lot.setEnd_date(blankToNull(endDate));
+			lot.setArrive_date(blankToNull(arriveDate));
 			lotRepository.save(lot);
 
 			return ResponseEntity.ok("Success");
@@ -159,8 +173,8 @@ public class LotController {
 		}
 	}
 
-	private String buildLotRows(String startDate, String endDate, String status) {
-		List<LotBean> lotList = lotRepository.getLotAll(startDate, endDate, status);
+	private String buildLotRows(String startDate, String endDate, String status, String lotNumber) {
+		List<LotBean> lotList = lotRepository.getLotAll(startDate, endDate, status, lotNumber);
 		StringBuilder strLot = new StringBuilder();
 		Integer rowId = 0;
 		for (LotBean lot : lotList) {
@@ -171,6 +185,8 @@ public class LotController {
 			strLot.append("<td>" + rowId + "</td>");
 			strLot.append("<td class='lot-date-col'>" + formatDate(lot.getl_create_date()) + "</td>");
 			strLot.append("<td>" + toDisplay(lot.getl_lot_number()) + "</td>");
+			strLot.append("<td class='lot-range-col'>" + formatDateRange(lot.getl_start_date(), lot.getl_end_date()) + "</td>");
+			strLot.append("<td class='lot-date-col'>" + formatDate(lot.getl_arrive_date()) + "</td>");
 			strLot.append("<td class='text-end lot-count-col'>" + toDisplay(lot.getdetail_count()) + "</td>");
 			strLot.append("<td>" + buildStatusBadge(lot.getl_delete()) + "</td>");
 			strLot.append("</tr>");
@@ -196,12 +212,14 @@ public class LotController {
 			strDetail.append("<td>" + toDisplay(detail.getv_name()) + "</td>");
 			strDetail.append("<td>" + toDisplay(detail.getc_name()) + "</td>");
 			strDetail.append("<td class='text-end'>" + toDisplay(detail.getod_qty()) + "</td>");
+			strDetail.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_total(), detail.getod_qty())) + "</td>");
+			strDetail.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_pledge(), detail.getod_qty())) + "</td>");
 			strDetail.append("<td>" + buildPaymentBadge(detail.getID_pay_method()) + "</td>");
 			strDetail.append("</tr>");
 		}
 
 		if (detailList.isEmpty()) {
-			strDetail.append("<tr><td colspan='10' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			strDetail.append("<tr><td colspan='12' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
 		} else {
 			strDetail.append(buildSummaryRow(summary));
 		}
@@ -212,12 +230,15 @@ public class LotController {
 		if (Integer.valueOf(1).equals(payMethod)) {
 			return "<span class='badge bg-info detail-payment-badge'>จ่ายเต็ม</span>";
 		}
+		if (Integer.valueOf(3).equals(payMethod)) {
+			return "<span class='badge bg-success detail-payment-badge'>แบ่งชำระ</span>";
+		}
 		return "<span class='badge bg-warning detail-payment-badge'>มัดจำ</span>";
 	}
 
 	private String buildSummaryRow(DetailSummary summary) {
 		StringBuilder row = new StringBuilder();
-		row.append("<tr><td colspan='10' class='detail-summary-cell'>");
+		row.append("<tr><td colspan='12' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
 		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
 		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));
@@ -237,12 +258,9 @@ public class LotController {
 	}
 
 	private DateRange defaultDateRange(String startDate, String endDate) {
-		YearMonth currentMonth = YearMonth.now();
-		String defaultStartDate = currentMonth.atDay(1).toString();
-		String defaultEndDate = currentMonth.atEndOfMonth().toString();
 		return new DateRange(
-				startDate == null || startDate.isBlank() ? defaultStartDate : startDate,
-				endDate == null || endDate.isBlank() ? defaultEndDate : endDate);
+				startDate == null || startDate.isBlank() ? DEFAULT_START_DATE : startDate,
+				endDate == null || endDate.isBlank() ? DEFAULT_END_DATE : endDate);
 	}
 
 	private record DateRange(String startDate, String endDate) {
@@ -267,7 +285,30 @@ public class LotController {
 
 	private String buildEditButton(LotBean lot) {
 		String lotNumber = escapeJs(toDisplay(lot.getl_lot_number()));
-		return "<button type='button' class='btn icon btn-warning' onclick=\"edit_lot_number(" + lot.getID_lot() + ", '" + lotNumber + "', event)\"><i data-feather='edit-2'></i></button>";
+		String startDate = escapeJs(toDisplay(lot.getl_start_date()));
+		String endDate = escapeJs(toDisplay(lot.getl_end_date()));
+		String arriveDate = escapeJs(toDisplay(lot.getl_arrive_date()));
+		return "<button type='button' class='btn icon btn-warning' onclick=\"edit_lot_number(" + lot.getID_lot() + ", '" + lotNumber + "', '" + startDate + "', '" + endDate + "', '" + arriveDate + "', event)\"><i data-feather='edit-2'></i></button>";
+	}
+
+	private boolean isValidDateRange(String startDate, String endDate) {
+		if ((startDate == null || startDate.isBlank()) && (endDate == null || endDate.isBlank())) {
+			return true;
+		}
+		if (startDate == null || startDate.isBlank() || endDate == null || endDate.isBlank()) {
+			return false;
+		}
+		try {
+			LocalDate start = LocalDate.parse(startDate);
+			LocalDate end = LocalDate.parse(endDate);
+			return !end.isBefore(start);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private String blankToNull(String value) {
+		return value == null || value.isBlank() ? null : value.trim();
 	}
 
 	private String escapeJs(String value) {
@@ -289,8 +330,27 @@ public class LotController {
 		}
 	}
 
+	private String formatDateRange(String startDate, String endDate) {
+		String start = formatDate(startDate);
+		String end = formatDate(endDate);
+		if (start.isBlank() && end.isBlank()) {
+			return "";
+		}
+		if (start.isBlank()) {
+			return end;
+		}
+		if (end.isBlank()) {
+			return start;
+		}
+		return start + " ถึง " + end;
+	}
+
 	private String toDisplay(Object value) {
 		return value == null ? "" : value.toString();
+	}
+
+	private String formatMoney(BigDecimal value) {
+		return MONEY_FORMAT.format(value);
 	}
 
 	private BigDecimal parseMoney(String value) {
@@ -304,6 +364,14 @@ public class LotController {
 		}
 	}
 
+	private BigDecimal unitPrice(String total, Object qtyValue) {
+		BigDecimal qty = parseMoney(toDisplay(qtyValue));
+		if (qty.compareTo(BigDecimal.ZERO) == 0) {
+			return BigDecimal.ZERO;
+		}
+		return parseMoney(total).divide(qty, 2, java.math.RoundingMode.HALF_UP);
+	}
+
 	private class DetailSummary {
 		private BigDecimal totalProduct = BigDecimal.ZERO;
 		private BigDecimal fullPaid = BigDecimal.ZERO;
@@ -315,7 +383,7 @@ public class LotController {
 			BigDecimal pledge = parseMoney(pledgeValue);
 			BigDecimal remaining = parseMoney(balanceValue);
 			totalProduct = totalProduct.add(total);
-			if (Integer.valueOf(1).equals(payMethod)) {
+			if (Integer.valueOf(1).equals(payMethod) || Integer.valueOf(3).equals(payMethod)) {
 				fullPaid = fullPaid.add(total);
 			} else {
 				pledgePaid = pledgePaid.add(pledge);

@@ -1,14 +1,49 @@
 let myDataTable;
 let changeDataRequestId = 0;
 let artistSearchTimer;
+let lotSearchTimer;
 let selectedStatusId = null;
 let selectedStatusName = "";
 const selectedRows = new Map();
 
 document.addEventListener("DOMContentLoaded", function() {
+    ensureLotColumnHeader();
+    moveLotArriveDateField();
     initDataTable();
     bindCostPriceFormatter();
 });
+
+function ensureLotColumnHeader() {
+    const table = document.getElementById("table2");
+    if (!table) {
+        return;
+    }
+    const headerRow = table.querySelector("thead tr");
+    if (!headerRow || headerRow.querySelector("[data-lot-header='true']")) {
+        return;
+    }
+    const headers = headerRow.querySelectorAll("th");
+    const statusHeader = headers[headers.length - 1];
+    const lotHeader = document.createElement("th");
+    lotHeader.className = "status_width";
+    lotHeader.dataset.lotHeader = "true";
+    lotHeader.textContent = "LOT";
+    headerRow.insertBefore(lotHeader, statusHeader);
+}
+
+function moveLotArriveDateField() {
+    const arriveDate = document.getElementById("lotArriveDate");
+    const shippingGroup = document.getElementById("shippingInputGroup");
+    const shippingNote = document.getElementById("shippingNote");
+    if (!arriveDate || !shippingGroup || !shippingNote) {
+        return;
+    }
+    const arriveColumn = arriveDate.closest(".col-md-4");
+    const noteColumn = shippingNote.closest(".col-12");
+    if (arriveColumn && noteColumn && arriveColumn.parentElement !== shippingGroup) {
+        shippingGroup.insertBefore(arriveColumn, noteColumn);
+    }
+}
 
 function initDataTable() {
     myDataTable = new simpleDatatables.DataTable("#table2", {
@@ -63,9 +98,19 @@ function getSelectedWebsite() {
     return websiteFilter ? websiteFilter.value : "";
 }
 
+function getSelectedLot() {
+    const lotFilter = document.getElementById("lotFilter");
+    return lotFilter ? lotFilter.value.trim() : "";
+}
+
 function search_artist() {
     clearTimeout(artistSearchTimer);
     artistSearchTimer = setTimeout(load_change_data, 300);
+}
+
+function search_lot() {
+    clearTimeout(lotSearchTimer);
+    lotSearchTimer = setTimeout(load_change_data, 300);
 }
 
 function syncDataTableInfo() {
@@ -99,6 +144,7 @@ function load_change_data() {
     const orderStatus = getSelectedOrderStatus();
     const artist = getSelectedArtist();
     const website = getSelectedWebsite();
+    const lot = getSelectedLot();
 
     if (orderStatus) {
         params.append("orderStatus", orderStatus);
@@ -110,6 +156,10 @@ function load_change_data() {
 
     if (website) {
         params.append("website", website);
+    }
+
+    if (lot) {
+        params.append("lot", lot);
     }
 
     fetch("/change/search?" + params.toString())
@@ -135,7 +185,7 @@ function load_change_data() {
 
 function toggle_all_rows() {
     const checkAll = document.getElementById("checkAll");
-    const checkboxes = Array.from(document.querySelectorAll("#table2 tbody .row-check"));
+    const checkboxes = Array.from(document.querySelectorAll("#table2 tbody .row-check:not(:disabled)"));
 
     if (!checkAll.checked) {
         checkboxes.forEach(checkbox => {
@@ -192,6 +242,12 @@ function toggle_row_from_click(row, event) {
 }
 
 function toggle_row_check(checkbox) {
+    if (checkbox.disabled || checkbox.dataset.statusId === "5") {
+        checkbox.checked = false;
+        showStatusWarning("ส่งของสำเร็จ");
+        return;
+    }
+
     if (checkbox.checked) {
         if (selectedStatusId && checkbox.dataset.statusId !== selectedStatusId) {
             checkbox.checked = false;
@@ -238,7 +294,7 @@ function syncCheckAll() {
         return;
     }
 
-    const checkboxes = Array.from(document.querySelectorAll("#table2 tbody .row-check"));
+    const checkboxes = Array.from(document.querySelectorAll("#table2 tbody .row-check:not(:disabled)"));
     const selectable = selectedStatusId
         ? checkboxes.filter(checkbox => checkbox.dataset.statusId === selectedStatusId)
         : checkboxes;
@@ -354,6 +410,11 @@ function open_change_status_modal() {
         return;
     }
 
+    if (selectedStatusId === "5") {
+        showStatusWarning("ส่งของสำเร็จ");
+        return;
+    }
+
     document.getElementById("selectedStatusName").value = selectedStatusName;
     document.getElementById("selectedDetailCount").textContent = selectedRows.size;
     document.getElementById("selectedDetailList").innerHTML = buildSelectedDetailList();
@@ -389,9 +450,16 @@ function configureNewStatusOptions() {
     const costNote = document.getElementById("costNote");
     const lotInputGroup = document.getElementById("lotInputGroup");
     const lotNumber = document.getElementById("l_lot_number");
+    const lotStartDate = document.getElementById("l_start_date");
+    const lotEndDate = document.getElementById("l_end_date");
     const shippingInputGroup = document.getElementById("shippingInputGroup");
     const shippingPrice = document.getElementById("shippingPrice");
     const shippingNote = document.getElementById("shippingNote");
+    const lotArriveDate = document.getElementById("lotArriveDate");
+    const postalInputGroup = document.getElementById("postalInputGroup");
+    const postalPrice = document.getElementById("postalPrice");
+    const postalNote = document.getElementById("postalNote");
+    const statusRecordDate = document.getElementById("statusRecordDate");
 
     if (!select) {
         return;
@@ -419,6 +487,9 @@ function configureNewStatusOptions() {
         if (shippingInputGroup) {
             shippingInputGroup.style.display = "none";
         }
+        if (postalInputGroup) {
+            postalInputGroup.style.display = "none";
+        }
     } else if (selectedStatusId === "2") {
         Array.from(select.options).forEach(option => {
             if (option.value !== "3") {
@@ -435,6 +506,9 @@ function configureNewStatusOptions() {
         }
         if (shippingInputGroup) {
             shippingInputGroup.style.display = "none";
+        }
+        if (postalInputGroup) {
+            postalInputGroup.style.display = "none";
         }
     } else if (selectedStatusId === "3") {
         Array.from(select.options).forEach(option => {
@@ -453,6 +527,29 @@ function configureNewStatusOptions() {
         if (shippingInputGroup) {
             shippingInputGroup.style.display = "";
         }
+        if (postalInputGroup) {
+            postalInputGroup.style.display = "none";
+        }
+    } else if (selectedStatusId === "4") {
+        Array.from(select.options).forEach(option => {
+            if (option.value !== "5") {
+                option.hidden = true;
+                option.disabled = true;
+            }
+        });
+        select.value = "5";
+        if (costInputGroup) {
+            costInputGroup.style.display = "none";
+        }
+        if (lotInputGroup) {
+            lotInputGroup.style.display = "none";
+        }
+        if (shippingInputGroup) {
+            shippingInputGroup.style.display = "none";
+        }
+        if (postalInputGroup) {
+            postalInputGroup.style.display = "";
+        }
     } else {
         if (select.value === selectedStatusId) {
             const nextOption = Array.from(select.options).find(option => option.value !== selectedStatusId);
@@ -469,6 +566,9 @@ function configureNewStatusOptions() {
         if (shippingInputGroup) {
             shippingInputGroup.style.display = "none";
         }
+        if (postalInputGroup) {
+            postalInputGroup.style.display = "none";
+        }
     }
 
     if (costPrice) {
@@ -480,11 +580,29 @@ function configureNewStatusOptions() {
     if (lotNumber) {
         lotNumber.value = "";
     }
+    if (lotStartDate) {
+        lotStartDate.value = "";
+    }
+    if (lotEndDate) {
+        lotEndDate.value = "";
+    }
     if (shippingPrice) {
         shippingPrice.value = "";
     }
     if (shippingNote) {
         shippingNote.value = "";
+    }
+    if (lotArriveDate) {
+        lotArriveDate.value = "";
+    }
+    if (postalPrice) {
+        postalPrice.value = "";
+    }
+    if (postalNote) {
+        postalNote.value = "";
+    }
+    if (statusRecordDate) {
+        statusRecordDate.value = "";
     }
 }
 
@@ -525,6 +643,7 @@ function normalizeCostPrice(value) {
 
 function save_change_status() {
     const newOrderStatus = document.getElementById("newOrderStatus").value;
+    const recordDate = document.getElementById("statusRecordDate") ? document.getElementById("statusRecordDate").value : "";
     const costPrice = document.getElementById("costPrice") ? document.getElementById("costPrice").value.trim() : "";
     const normalizedCostPrice = normalizeCostPrice(costPrice);
     const costNote = document.getElementById("costNote") ? document.getElementById("costNote").value.trim() : "";
@@ -532,9 +651,31 @@ function save_change_status() {
     const shippingPrice = document.getElementById("shippingPrice") ? document.getElementById("shippingPrice").value.trim() : "";
     const normalizedShippingPrice = normalizeCostPrice(shippingPrice);
     const shippingNote = document.getElementById("shippingNote") ? document.getElementById("shippingNote").value.trim() : "";
+    const lotArriveDate = document.getElementById("lotArriveDate") ? document.getElementById("lotArriveDate").value : "";
+    const postalPrice = document.getElementById("postalPrice") ? document.getElementById("postalPrice").value.trim() : "";
+    const normalizedPostalPrice = normalizeCostPrice(postalPrice);
+    const postalNote = document.getElementById("postalNote") ? document.getElementById("postalNote").value.trim() : "";
+    const lotStartDate = document.getElementById("l_start_date") ? document.getElementById("l_start_date").value : "";
+    const lotEndDate = document.getElementById("l_end_date") ? document.getElementById("l_end_date").value : "";
     const ids = Array.from(selectedRows.values()).map(row => row.id);
 
     if (!newOrderStatus || ids.length === 0) {
+        return;
+    }
+
+    if (!recordDate) {
+        if (window.Swal) {
+            Swal.fire({
+                title: "กรุณาเลือกวันที่บันทึก",
+                icon: "warning",
+                confirmButtonText: "ตกลง"
+            });
+        }
+        return;
+    }
+
+    if (selectedStatusId === "5") {
+        showStatusWarning("ส่งของสำเร็จ");
         return;
     }
 
@@ -550,6 +691,11 @@ function save_change_status() {
 
     if (selectedStatusId === "3" && newOrderStatus !== "4") {
         showStatusWarning("รอของถึงร้าน");
+        return;
+    }
+
+    if (selectedStatusId === "4" && newOrderStatus !== "5") {
+        showStatusWarning("ถึงร้านแล้วรอส่ง");
         return;
     }
 
@@ -586,17 +732,67 @@ function save_change_status() {
         return;
     }
 
+    if (selectedStatusId === "3" && !lotArriveDate) {
+        if (window.Swal) {
+            Swal.fire({
+                title: "กรุณากรอกวันที่ของถึงร้าน",
+                icon: "warning",
+                confirmButtonText: "ตกลง"
+            });
+        }
+        return;
+    }
+
+    if (selectedStatusId === "4" && (!normalizedPostalPrice || !/^\d+(\.\d*)?$/.test(normalizedPostalPrice))) {
+        if (window.Swal) {
+            Swal.fire({
+                title: "กรุณากรอกค่าส่งไปรษณีย์",
+                icon: "warning",
+                confirmButtonText: "ตกลง"
+            });
+        }
+        return;
+    }
+
+    if (selectedStatusId === "2" && (!lotStartDate || !lotEndDate)) {
+        if (window.Swal) {
+            Swal.fire({
+                title: "กรุณากรอกช่วงวันที่คาดว่าจะถึงร้าน",
+                icon: "warning",
+                confirmButtonText: "ตกลง"
+            });
+        }
+        return;
+    }
+
+    if (selectedStatusId === "2" && lotEndDate < lotStartDate) {
+        if (window.Swal) {
+            Swal.fire({
+                title: "วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่มต้น",
+                icon: "warning",
+                confirmButtonText: "ตกลง"
+            });
+        }
+        return;
+    }
+
     fetch("/change/status/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             ids: ids,
             orderStatus: parseInt(newOrderStatus, 10),
+            recordDate: recordDate,
             costPrice: normalizedCostPrice,
             costNote: costNote,
             l_lot_number: lotNumber,
+            l_start_date: lotStartDate,
+            l_end_date: lotEndDate,
             shippingPrice: normalizedShippingPrice,
-            shippingNote: shippingNote
+            shippingNote: shippingNote,
+            l_arrive_date: lotArriveDate,
+            postalPrice: normalizedPostalPrice,
+            postalNote: postalNote
         })
     })
     .then(response => {

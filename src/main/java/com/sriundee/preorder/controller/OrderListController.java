@@ -29,6 +29,8 @@ public class OrderListController {
 
 	private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###,##0.00");
+	private static final String DEFAULT_START_DATE = "2026-01-01";
+	private static final String DEFAULT_END_DATE = "2026-12-31";
 
 	@Autowired
     private MenuController menuService;
@@ -47,14 +49,17 @@ public class OrderListController {
 
 	@GetMapping("/orders")
 	public String index(
-			@RequestParam(value = "orderDate", required = false) String orderDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "customerName", required = false) String customerName,
 			@RequestParam(value = "payMethod", required = false) Integer payMethod,
 			@RequestParam(value = "orderStatus", required = false) Integer orderStatus,
 			Model model) {
+		DateRange dateRange = defaultDateRange(startDate, endDate);
 	    model.addAttribute("mainMenus", menuService.getMenuList(12, null));
-	    model.addAttribute("orderRows", buildOrderRows(orderDate, customerName, payMethod, orderStatus));
-	    model.addAttribute("orderDate", toDisplay(orderDate));
+	    model.addAttribute("orderRows", buildOrderRows(dateRange.startDate(), dateRange.endDate(), customerName, payMethod, orderStatus));
+	    model.addAttribute("startDate", dateRange.startDate());
+	    model.addAttribute("endDate", dateRange.endDate());
 	    model.addAttribute("customerName", toDisplay(customerName));
 	    model.addAttribute("payMethod", payMethod);
 	    model.addAttribute("orderStatus", orderStatus);
@@ -66,11 +71,13 @@ public class OrderListController {
 	@GetMapping("/orders/search")
 	@ResponseBody
 	public ResponseEntity<String> search(
-			@RequestParam(value = "orderDate", required = false) String orderDate,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "customerName", required = false) String customerName,
 			@RequestParam(value = "payMethod", required = false) Integer payMethod,
 			@RequestParam(value = "orderStatus", required = false) Integer orderStatus) {
-		return ResponseEntity.ok(buildOrderRows(orderDate, customerName, payMethod, orderStatus));
+		DateRange dateRange = defaultDateRange(startDate, endDate);
+		return ResponseEntity.ok(buildOrderRows(dateRange.startDate(), dateRange.endDate(), customerName, payMethod, orderStatus));
 	}
 
 	@GetMapping("/orders/{id}/details")
@@ -79,8 +86,28 @@ public class OrderListController {
 		return ResponseEntity.ok(buildDetailRows(id));
 	}
 
-	private String buildOrderRows(String orderDate, String customerName, Integer payMethod, Integer orderStatus) {
-		List<OrderListBean> orderList = orderRepository.getOrderList(orderDate, customerName, payMethod, orderStatus);
+	@GetMapping(value = "/orders/{id}/receipt", produces = "text/html; charset=UTF-8")
+	@ResponseBody
+	public ResponseEntity<String> receipt(@PathVariable("id") Integer id) {
+		OrderListBean order = orderRepository.getOrderReceipt(id);
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(buildReceiptHtml(order, orderDetailRepository.getDataByOrder(id)));
+	}
+
+	@GetMapping(value = "/orders/{id}/receipt-fragment", produces = "text/html; charset=UTF-8")
+	@ResponseBody
+	public ResponseEntity<String> receiptFragment(@PathVariable("id") Integer id) {
+		OrderListBean order = orderRepository.getOrderReceipt(id);
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(buildReceiptContent(order, orderDetailRepository.getDataByOrder(id)));
+	}
+
+	private String buildOrderRows(String startDate, String endDate, String customerName, Integer payMethod, Integer orderStatus) {
+		List<OrderListBean> orderList = orderRepository.getOrderList(startDate, endDate, customerName, payMethod, orderStatus);
 		StringBuilder rows = new StringBuilder();
 		for (OrderListBean order : orderList) {
 			rows.append("<tr class='order-list-row' onclick='open_order_detail(" + order.getID_order() + ")'>");
@@ -92,11 +119,17 @@ public class OrderListController {
 			rows.append("<td class='text-end order-money-col'>" + formatMoney(order.geto_price_balance()) + "</td>");
 			rows.append("<td class='text-end order-money-col'>" + formatMoney(order.geto_send_cost()) + "</td>");
 			rows.append("<td class='text-end order-money-col'>" + formatMoney(order.geto_net()) + "</td>");
-			rows.append("<td>" + buildPaymentBadge(order.getID_pay_method(), order.getpm_name()) + "</td>");
+			rows.append("<td class='order-payment-col'>" + buildPaymentBadge(order.getID_pay_method(), order.getpm_name()) + "</td>");
 			rows.append("<td>" + buildOrderStatusBadges(order.getorder_status_names(), order.getorder_status_colors()) + "</td>");
 			rows.append("</tr>");
 		}
 		return rows.toString();
+	}
+
+	private DateRange defaultDateRange(String startDate, String endDate) {
+		String resolvedStartDate = startDate == null || startDate.isBlank() ? DEFAULT_START_DATE : startDate;
+		String resolvedEndDate = endDate == null || endDate.isBlank() ? DEFAULT_END_DATE : endDate;
+		return new DateRange(resolvedStartDate, resolvedEndDate);
 	}
 
 	private String buildDetailRows(Integer orderId) {
@@ -116,6 +149,8 @@ public class OrderListController {
 			rows.append("<td>" + toDisplay(detail.getv_name()) + "</td>");
 			rows.append("<td>" + toDisplay(detail.getc_name()) + "</td>");
 			rows.append("<td class='text-end'>" + toDisplay(detail.getod_qty()) + "</td>");
+			rows.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_total(), detail.getod_qty())) + "</td>");
+			rows.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_pledge(), detail.getod_qty())) + "</td>");
 			rows.append("<td class='text-end'>" + formatMoney(detail.getod_price_total()) + "</td>");
 			rows.append("<td class='text-end'>" + formatMoney(detail.getod_price_pledge()) + "</td>");
 			rows.append("<td class='text-end'>" + formatMoney(detail.getod_price_balance()) + "</td>");
@@ -123,7 +158,7 @@ public class OrderListController {
 			rows.append("</tr>");
 		}
 		if (detailList.isEmpty()) {
-			rows.append("<tr><td colspan='12' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			rows.append("<tr><td colspan='14' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
 		} else {
 			rows.append(buildSummaryRow(summary));
 		}
@@ -149,7 +184,7 @@ public class OrderListController {
 	}
 
 	private String buildPaymentBadge(Integer payMethod, String payMethodName) {
-		String color = Integer.valueOf(1).equals(payMethod) ? "bg-info" : "bg-warning";
+		String color = Integer.valueOf(1).equals(payMethod) ? "bg-info" : Integer.valueOf(3).equals(payMethod) ? "bg-success" : "bg-warning";
 		return "<span class='badge " + color + " order-list-badge'>" + toDisplay(payMethodName) + "</span>";
 	}
 
@@ -160,7 +195,7 @@ public class OrderListController {
 
 	private String buildSummaryRow(DetailSummary summary) {
 		StringBuilder row = new StringBuilder();
-		row.append("<tr><td colspan='12' class='detail-summary-cell'>");
+		row.append("<tr><td colspan='14' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
 		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
 		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));
@@ -194,6 +229,141 @@ public class OrderListController {
 		return badges.toString();
 	}
 
+	private String buildReceiptContent(OrderListBean order, List<OrderDetailBean> detailList) {
+		StringBuilder rows = new StringBuilder();
+		int rowNumber = 0;
+		for (OrderDetailBean detail : detailList) {
+			rowNumber++;
+			rows.append("<tr>");
+			rows.append("<td>" + rowNumber + "</td>");
+			rows.append("<td class='product-cell'>" + escapeHtml(detail.getp_name()) + "<div class='muted'>"
+					+ escapeHtml(detail.geta_name()) + " / "
+					+ escapeHtml(detail.getw_name()) + " / "
+					+ escapeHtml(detail.getv_name()) + " / "
+					+ escapeHtml(detail.getc_name()) + "</div></td>");
+			rows.append("<td class='right'>" + toDisplay(detail.getod_qty()) + "</td>");
+			rows.append("<td class='right'>" + formatMoney(detail.getod_price_total()) + "</td>");
+			rows.append("<td class='right'>" + formatMoney(detail.getod_price_pledge()) + "</td>");
+			rows.append("<td class='right'>" + formatMoney(detail.getod_price_balance()) + "</td>");
+			rows.append("</tr>");
+		}
+		String discountRow = "";
+		if (toBigDecimal(order.geto_discount()).compareTo(BigDecimal.ZERO) > 0) {
+			discountRow = """
+						<div class="summary-row"><span>ส่วนลด</span><strong class="right">%s</strong></div>
+					""".formatted(formatMoney(order.geto_discount()));
+		}
+		return """
+				<div class="receipt">
+					<div class="header">
+						<div class="receipt-brand">
+							<img class="receipt-logo" src="/mazer/dist/assets/images/logo/logo-web.png" alt="Sriundee Shop">
+							<div class="receipt-title">
+								<h1>ใบเสร็จรับเงิน</h1>
+								<div class="shop">Sriundee Shop</div>
+							</div>
+						</div>
+						<div class="meta">
+							<div><strong>เลขที่คำสั่งซื้อ:</strong> %s</div>
+							<div><strong>วันที่:</strong> %s</div>
+						</div>
+					</div>
+					<div class="info">
+						<div><strong>ลูกค้า:</strong> %s</div>
+						<div><strong>สถานะชำระเงิน:</strong> %s</div>
+						<div><strong>หมายเหตุ:</strong> %s</div>
+					</div>
+					<table>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>สินค้า</th>
+								<th class="right">จำนวน</th>
+								<th class="right">ราคาเต็ม</th>
+								<th class="right">มัดจำ</th>
+								<th class="right">คงเหลือ</th>
+							</tr>
+						</thead>
+						<tbody>%s</tbody>
+					</table>
+					<div class="summary">
+						<div class="summary-row"><span>ราคาสินค้า</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>ค่าส่ง</span><strong class="right">%s</strong></div>
+						%s
+						<div class="summary-row"><span>มัดจำ</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>ยอดคงเหลือ</span><strong class="right">%s</strong></div>
+						<div class="summary-row total"><span>สุทธิ</span><strong class="right">%s</strong></div>
+					</div>
+				</div>
+				""".formatted(
+				escapeHtml(order.geto_order_code()),
+				formatDate(order.geto_order_date()),
+				escapeHtml(order.geto_customer_name()),
+				escapeHtml(order.getpm_name()),
+				escapeHtml(order.geto_remark()),
+				rows.toString(),
+				formatMoney(order.geto_price_total()),
+				formatMoney(order.geto_send_cost()),
+				discountRow,
+				formatMoney(order.geto_price_pledge()),
+				formatMoney(order.geto_price_balance()),
+				formatMoney(order.geto_net()));
+	}
+
+	private String buildReceiptHtml(OrderListBean order, List<OrderDetailBean> detailList) {
+		return """
+				<!DOCTYPE html>
+				<html lang="th">
+				<head>
+					<meta charset="UTF-8">
+					<title>Receipt %s</title>
+					<style>
+						* { box-sizing: border-box; }
+						body { margin: 0; padding: 28px; color: #111827; font-family: Arial, Tahoma, sans-serif; background: #f8fafc; }
+						.receipt { max-width: 880px; margin: 0 auto; padding: 28px; background: #ffffff; border: 1px solid #e5e7eb; }
+						.header { display: flex; justify-content: space-between; gap: 24px; border-bottom: 2px solid #111827; padding-bottom: 18px; margin-bottom: 20px; }
+						.receipt-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+						.receipt-title { min-width: 0; }
+						.receipt-logo { display: block; width: 132px; height: auto; margin: 0; object-fit: contain; }
+						h1 { margin: 0; color: #111827 !important; font-size: 28px; }
+						.shop { font-size: 18px; font-weight: 700; margin-top: 6px; }
+						.meta { text-align: right; line-height: 1.7; }
+						.info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 18px; line-height: 1.6; }
+						.info > div { text-align: left; }
+						table { width: 100%%; border-collapse: collapse; margin-top: 12px; }
+						th, td { border-bottom: 1px solid #e5e7eb; padding: 10px 8px; vertical-align: top; }
+						th { text-align: left; background: #f1f5f9; }
+						.right { text-align: right; white-space: nowrap; }
+						.product-cell { text-align: left; }
+						.muted { color: #64748b; font-size: 12px; margin-top: 4px; }
+						.summary { margin-left: auto; margin-top: 18px; width: 340px; }
+						.summary-row { display: grid; grid-template-columns: 1fr 140px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+						.summary-row span:first-child { text-align: left; padding-right: 0; }
+						.summary-row.total { font-size: 20px; font-weight: 800; border-bottom: 2px solid #111827; }
+						.actions { max-width: 880px; margin: 14px auto 0; text-align: right; }
+						button { padding: 10px 18px; border: 0; border-radius: 6px; color: #fff; background: #435ebe; font-weight: 700; cursor: pointer; }
+						@media print { body { padding: 0; background: #fff; } .receipt { border: 0; max-width: none; } .actions { display: none; } }
+					</style>
+				</head>
+				<body>
+					%s
+					<div class="actions"><button type="button" onclick="window.print()">พิมพ์ใบเสร็จ</button></div>
+				</body>
+				</html>
+				""".formatted(
+				escapeHtml(order.geto_order_code()),
+				buildReceiptContent(order, detailList));
+	}
+
+	private String escapeHtml(Object value) {
+		return toDisplay(value)
+				.replace("&", "&amp;")
+				.replace("<", "&lt;")
+				.replace(">", "&gt;")
+				.replace("\"", "&quot;")
+				.replace("'", "&#39;");
+	}
+
 	private String formatDate(String date) {
 		if (date == null || date.isBlank()) {
 			return "";
@@ -216,6 +386,10 @@ public class OrderListController {
 		}
 	}
 
+	private String formatMoney(BigDecimal value) {
+		return MONEY_FORMAT.format(value);
+	}
+
 	private BigDecimal toBigDecimal(String value) {
 		if (value == null || value.isBlank()) {
 			return BigDecimal.ZERO;
@@ -225,6 +399,14 @@ public class OrderListController {
 		} catch (Exception e) {
 			return BigDecimal.ZERO;
 		}
+	}
+
+	private BigDecimal unitPrice(String total, Object qtyValue) {
+		BigDecimal qty = toBigDecimal(toDisplay(qtyValue));
+		if (qty.compareTo(BigDecimal.ZERO) == 0) {
+			return BigDecimal.ZERO;
+		}
+		return toBigDecimal(total).divide(qty, 2, java.math.RoundingMode.HALF_UP);
 	}
 
 	private String toDisplay(Object value) {
@@ -240,12 +422,15 @@ public class OrderListController {
 		private void add(Integer payMethod, String total, String pledge, String balanceValue) {
 			BigDecimal totalAmount = toBigDecimal(total);
 			totalProduct = totalProduct.add(totalAmount);
-			if (Integer.valueOf(1).equals(payMethod)) {
+			if (Integer.valueOf(1).equals(payMethod) || Integer.valueOf(3).equals(payMethod)) {
 				fullPaid = fullPaid.add(totalAmount);
 			} else {
 				pledgePaid = pledgePaid.add(toBigDecimal(pledge));
 				balance = balance.add(toBigDecimal(balanceValue));
 			}
 		}
+	}
+
+	private record DateRange(String startDate, String endDate) {
 	}
 }

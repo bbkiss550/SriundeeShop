@@ -6,6 +6,7 @@ public class OrderDto {
     private String customer_name;
     private Integer pay_method;
     private Integer pay_type;
+    private String order_date;
     private String last_pay_date;
     private double send_cost;
     private double discount;
@@ -37,6 +38,12 @@ public class OrderDto {
 	}
 	public void setPay_type(Integer pay_type) {
 		this.pay_type = pay_type;
+	}
+	public String getOrder_date() {
+		return order_date;
+	}
+	public void setOrder_date(String order_date) {
+		this.order_date = order_date;
 	}
 	public String getLast_pay_date() {
 		return last_pay_date;

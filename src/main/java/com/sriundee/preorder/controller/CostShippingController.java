@@ -34,6 +34,8 @@ public class CostShippingController {
 
 	private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,###,##0.00");
+	private static final String DEFAULT_START_DATE = "2026-01-01";
+	private static final String DEFAULT_END_DATE = "2026-12-31";
 
 	@Autowired
     private MenuController menuService;
@@ -169,12 +171,14 @@ public class CostShippingController {
 			strDetail.append("<td>" + toDisplay(detail.getv_name()) + "</td>");
 			strDetail.append("<td>" + toDisplay(detail.getc_name()) + "</td>");
 			strDetail.append("<td class='text-end'>" + toDisplay(detail.getod_qty()) + "</td>");
+			strDetail.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_total(), detail.getod_qty())) + "</td>");
+			strDetail.append("<td class='text-end'>" + formatMoney(unitPrice(detail.getod_price_pledge(), detail.getod_qty())) + "</td>");
 			strDetail.append("<td>" + buildPaymentBadge(detail.getID_pay_method()) + "</td>");
 			strDetail.append("</tr>");
 		}
 
 		if (detailList.isEmpty()) {
-			strDetail.append("<tr><td colspan='9' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			strDetail.append("<tr><td colspan='11' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
 		} else {
 			strDetail.append(buildSummaryRow(summary));
 		}
@@ -182,12 +186,9 @@ public class CostShippingController {
 	}
 
 	private DateRange defaultDateRange(String startDate, String endDate) {
-		YearMonth currentMonth = YearMonth.now();
-		String defaultStartDate = currentMonth.atDay(1).toString();
-		String defaultEndDate = currentMonth.atEndOfMonth().toString();
 		return new DateRange(
-				startDate == null || startDate.isBlank() ? defaultStartDate : startDate,
-				endDate == null || endDate.isBlank() ? defaultEndDate : endDate);
+				startDate == null || startDate.isBlank() ? DEFAULT_START_DATE : startDate,
+				endDate == null || endDate.isBlank() ? DEFAULT_END_DATE : endDate);
 	}
 
 	private record DateRange(String startDate, String endDate) {
@@ -197,12 +198,15 @@ public class CostShippingController {
 		if (Integer.valueOf(1).equals(payMethod)) {
 			return "<span class='badge bg-info detail-payment-badge'>จ่ายเต็ม</span>";
 		}
+		if (Integer.valueOf(3).equals(payMethod)) {
+			return "<span class='badge bg-success detail-payment-badge'>แบ่งชำระ</span>";
+		}
 		return "<span class='badge bg-warning detail-payment-badge'>มัดจำ</span>";
 	}
 
 	private String buildSummaryRow(DetailSummary summary) {
 		StringBuilder row = new StringBuilder();
-		row.append("<tr><td colspan='9' class='detail-summary-cell'>");
+		row.append("<tr><td colspan='11' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
 		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
 		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));
@@ -283,6 +287,10 @@ public class CostShippingController {
 		}
 	}
 
+	private String formatMoney(BigDecimal value) {
+		return MONEY_FORMAT.format(value);
+	}
+
 	private String toDisplay(Object value) {
 		return value == null ? "" : value.toString();
 	}
@@ -298,6 +306,14 @@ public class CostShippingController {
 		}
 	}
 
+	private BigDecimal unitPrice(String total, Object qtyValue) {
+		BigDecimal qty = parseMoney(toDisplay(qtyValue));
+		if (qty.compareTo(BigDecimal.ZERO) == 0) {
+			return BigDecimal.ZERO;
+		}
+		return parseMoney(total).divide(qty, 2, java.math.RoundingMode.HALF_UP);
+	}
+
 	private class DetailSummary {
 		private BigDecimal totalProduct = BigDecimal.ZERO;
 		private BigDecimal fullPaid = BigDecimal.ZERO;
@@ -309,7 +325,7 @@ public class CostShippingController {
 			BigDecimal pledge = parseMoney(pledgeValue);
 			BigDecimal remaining = parseMoney(balanceValue);
 			totalProduct = totalProduct.add(total);
-			if (Integer.valueOf(1).equals(payMethod)) {
+			if (Integer.valueOf(1).equals(payMethod) || Integer.valueOf(3).equals(payMethod)) {
 				fullPaid = fullPaid.add(total);
 			} else {
 				pledgePaid = pledgePaid.add(pledge);

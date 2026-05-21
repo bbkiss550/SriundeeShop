@@ -24,6 +24,15 @@ public class Lot {
     @Column(name = "l_create_date")
     private String create_date;
 
+    @Column(name = "l_start_date")
+    private String start_date;
+
+    @Column(name = "l_end_date")
+    private String end_date;
+
+    @Column(name = "l_arrive_date")
+    private String arrive_date;
+
     @Column(name = "l_delete")
     private String delete;
 
@@ -49,6 +58,30 @@ public class Lot {
 
     public void setCreate_date(String create_date) {
         this.create_date = create_date;
+    }
+
+    public String getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(String start_date) {
+        this.start_date = start_date;
+    }
+
+    public String getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(String end_date) {
+        this.end_date = end_date;
+    }
+
+    public String getArrive_date() {
+        return arrive_date;
+    }
+
+    public void setArrive_date(String arrive_date) {
+        this.arrive_date = arrive_date;
     }
 
     public String getDelete() {

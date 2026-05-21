@@ -89,6 +89,31 @@
 	    color: #C62828 !important;
 	    border-color: #EF9A9A !important;
 	}
+
+	.order-receipt-modal-dialog { max-width: 960px; }
+	.receipt-preview-wrap { background: #f8fafc; padding: 1rem; overflow: auto; }
+	.receipt-preview-wrap .receipt { max-width: 880px; margin: 0 auto; padding: 28px; color: #111827; background: #ffffff; border: 1px solid #e5e7eb; font-family: Arial, Tahoma, sans-serif; }
+	.receipt-preview-wrap .header { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 2px solid #111827; }
+	.receipt-preview-wrap .receipt-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+	.receipt-preview-wrap .receipt-title { min-width: 0; }
+	.receipt-preview-wrap .receipt-logo { display: block; width: 132px; height: auto; margin: 0; object-fit: contain; }
+	.receipt-preview-wrap .receipt h1,
+	html[data-theme="dark"] .receipt-preview-wrap .receipt h1 { margin: 0; color: #111827 !important; font-size: 28px; }
+	.receipt-preview-wrap .shop { margin-top: 6px; font-size: 18px; font-weight: 700; }
+	.receipt-preview-wrap .meta { text-align: right; line-height: 1.7; }
+	.receipt-preview-wrap .info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 18px; line-height: 1.6; }
+	.receipt-preview-wrap .info > div,
+	.receipt-preview-wrap .product-cell,
+	.receipt-preview-wrap .summary-row span:first-child { text-align: left; }
+	.receipt-preview-wrap table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+	.receipt-preview-wrap th,
+	.receipt-preview-wrap td { padding: 10px 8px; color: #111827 !important; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
+	.receipt-preview-wrap th { text-align: left; background: #f1f5f9; }
+	.receipt-preview-wrap .right { text-align: right; white-space: nowrap; }
+	.receipt-preview-wrap .muted { margin-top: 4px; color: #64748b; font-size: 12px; }
+	.receipt-preview-wrap .summary { width: 340px; margin-top: 18px; margin-left: auto; }
+	.receipt-preview-wrap .summary-row { display: grid; grid-template-columns: 1fr 140px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+	.receipt-preview-wrap .summary-row.total { font-size: 20px; font-weight: 800; border-bottom: 2px solid #111827; }
 </style>
 
 <div class="modal fade text-left w-100" id="modalCheckout" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
@@ -210,7 +235,12 @@
                                     <input type="date" class="form-control" id="last_pay_date">
                                 </div>
 	                    	</div>
-	                    	<div class="col-md-3"></div>
+	                    	<div class="col-md-3">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">วันที่บันทึก</span>
+                                    <input type="date" class="form-control" id="order_date">
+                                </div>
+	                    	</div>
 	                    	<div class="col-md-2">
 		                        <div class="row" id="pledge_price">
 		                            <div class="input-group mb-3">
@@ -250,7 +280,32 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning ml-1" onclick="alertSelectedRadio()" id="btn_edit" style="display: none;">แก้ไข</button>
+                <button type="button" class="btn btn-primary ml-1" onclick="create_checkout_receipt()" id="btn_checkout_receipt">
+                    <i data-feather="file-text"></i> Preview ใบเสร็จ
+                </button>
                 <button type="button" class="btn btn-success ml-1" onclick="save_new_order()" id="btn_save">บันทึก</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade text-left" id="checkoutReceiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable order-receipt-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-white">ใบเสร็จ</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body receipt-preview-wrap">
+                <div id="checkoutReceiptPreview" class="text-center text-muted">กำลังโหลด...</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="copy_checkout_receipt_image()">
+                    <i data-feather="copy"></i> Copy image
+                </button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
             </div>
         </div>

@@ -41,26 +41,14 @@ function load_cost_shipping_data() {
 }
 
 function clear_cost_shipping_filter() {
-    set_current_month_filter();
+    set_full_year_filter();
     document.getElementById("status").value = "";
     load_cost_shipping_data();
 }
 
-function set_current_month_filter() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
-    document.getElementById("startDate").value = format_date_input(startDate);
-    document.getElementById("endDate").value = format_date_input(endDate);
-}
-
-function format_date_input(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return year + "-" + month + "-" + day;
+function set_full_year_filter() {
+    document.getElementById("startDate").value = "2026-01-01";
+    document.getElementById("endDate").value = "2026-12-31";
 }
 
 function open_cost_shipping_detail(id) {
