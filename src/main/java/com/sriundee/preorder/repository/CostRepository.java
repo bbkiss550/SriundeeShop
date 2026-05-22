@@ -34,4 +34,18 @@ public interface CostRepository extends JpaRepository<Cost, Integer> {
             ORDER BY ID_cost DESC
             """, nativeQuery = true)
     List<CostPressBean> getShippingCostAll(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("status") String status);
+
+    @Query(value = """
+            SELECT *
+            FROM q_cost
+            WHERE ID_type_cost IN (3, 4, 5, 99)
+            AND (:startDate IS NULL OR :startDate = '' OR c_create_date >= :startDate)
+            AND (:endDate IS NULL OR :endDate = '' OR c_create_date <= :endDate)
+            AND (:typeCost IS NULL OR ID_type_cost = :typeCost)
+            ORDER BY ID_cost DESC
+            """, nativeQuery = true)
+    List<CostPressBean> getRemainingCostAll(
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("typeCost") Integer typeCost);
 }

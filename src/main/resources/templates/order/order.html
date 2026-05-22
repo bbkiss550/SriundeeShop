@@ -220,7 +220,7 @@
 	  
 		.btn-cart-floating {
 		    position: fixed;
-		    bottom: 30px;
+		    bottom: calc(var(--app-shell-footer-height) + 30px);
 		    right: 30px;
 		    z-index: 1000;
 		    
@@ -330,15 +330,30 @@
 		    <span id="cart-count" class="cart-badge" th:utext="${CartCount}">0</span>
 		</button>
 		<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-		<script>
+		<script th:inline="javascript">
 			document.addEventListener('DOMContentLoaded', function () {
 				const showClosedProductSwitch = document.getElementById('showClosedProductSwitch');
 				if (showClosedProductSwitch) {
-					showClosedProductSwitch.checked = false;
+					showClosedProductSwitch.checked = /*[[${showClosedProducts}]]*/ false;
+					showClosedProductSwitch.addEventListener('change', function () {
+						saveShowClosedProducts(this.checked);
+					});
 				}
 				initProductArtistFilterChoices();
 				applyProductFilters();
 			});
+
+			function saveShowClosedProducts(value) {
+				fetch('/settings/order/show-closed-products', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ showClosedProducts: value })
+				}).catch(error => {
+					console.error('Error saving closed product setting:', error);
+				});
+			}
 		</script>
 	</body>
 </html>

@@ -55,7 +55,7 @@ function checkout() {
 			document.getElementById('IdPayMethod').value = '2';
 			payMethod(2);
 			document.getElementById('send_cost').value = '50';
-			document.getElementById('order_date').value = '';
+			document.getElementById('order_date').value = get_local_order_record_date();
 			calculateSummary();
 			check_new_cus();
 			payType(1);
@@ -227,6 +227,12 @@ function buildCheckoutPayload() {
 		net: getNumber("net"),
 		remark: document.getElementById("remark").value || ""
 	};
+}
+
+function get_local_order_record_date() {
+	const today = new Date();
+	const timezoneOffset = today.getTimezoneOffset() * 60000;
+	return new Date(today.getTime() - timezoneOffset).toISOString().slice(0, 10);
 }
 
 function create_checkout_receipt() {

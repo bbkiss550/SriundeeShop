@@ -56,6 +56,7 @@ function open_cost_detail(id) {
         .then(response => response.text())
         .then(html => {
             document.getElementById("costDetailRows").innerHTML = html;
+            moveDetailSummaryToFooter("costDetailRows", "costDetailSummary");
 
             if (window.feather) {
                 feather.replace();

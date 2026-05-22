@@ -13,13 +13,21 @@ import com.sriundee.preorder.entity.Menu;
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
 	
     @Query(value = """
-    		SELECT ID_menu ,m_name ,m_parent ,m_ID_menu ,m_url ,m_icon
+    		SELECT ID_menu, m_name, m_parent, m_ID_menu, m_url, m_icon, m_order
     		FROM t_menu
     		WHERE m_ID_menu IS NULL
-    		ORDER BY CASE WHEN ID_menu = 14 THEN 1.5 WHEN ID_menu = 12 THEN 7.5 WHEN ID_menu = 13 THEN 7.6 ELSE ID_menu END
+    		ORDER BY COALESCE(m_order, ID_menu), ID_menu
     		""", nativeQuery = true)
     List<Menu> getDataAll();
 
-    @Query(value = "SELECT ID_menu ,m_name ,m_parent ,m_ID_menu ,m_url ,m_icon FROM t_menu WHERE m_ID_menu = :ID_menu ORDER BY ID_menu", nativeQuery = true)
+    @Query(value = "SELECT ID_menu, m_name, m_parent, m_ID_menu, m_url, m_icon, m_order FROM t_menu WHERE m_ID_menu = :ID_menu ORDER BY COALESCE(m_order, ID_menu), ID_menu", nativeQuery = true)
     List<Menu> getMenuParent(@Param("ID_menu") Integer mParent);
+
+    @Query(value = """
+            SELECT ID_menu, m_name, m_parent, m_ID_menu, m_url, m_icon, m_order
+            FROM t_menu
+            WHERE m_ID_menu IS NULL
+            ORDER BY COALESCE(m_order, ID_menu), ID_menu
+            """, nativeQuery = true)
+    List<Menu> getMenuOrderSettings();
 }

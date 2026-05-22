@@ -80,6 +80,7 @@ function open_order_detail(orderId) {
         .then(response => response.text())
         .then(html => {
             document.getElementById("orderDetailRows").innerHTML = html;
+            moveDetailSummaryToFooter("orderDetailRows", "orderDetailSummary");
 
             if (window.feather) {
                 feather.replace();

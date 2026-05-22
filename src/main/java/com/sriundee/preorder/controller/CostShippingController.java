@@ -113,6 +113,12 @@ public class CostShippingController {
 	@Transactional
 	public ResponseEntity<String> updateShippingCost(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
 		try {
+			String recordDate = toDisplay(payload.get("recordDate")).trim();
+			LocalDate selectedDate = parseDate(recordDate);
+			if (selectedDate == null) {
+				return ResponseEntity.badRequest().body("Record date is required");
+			}
+
 			String shippingPrice = toDisplay(payload.get("shippingPrice")).replace(",", "").trim();
 			if (shippingPrice.isBlank()) {
 				return ResponseEntity.badRequest().body("Shipping price is required");
@@ -128,6 +134,7 @@ public class CostShippingController {
 				return ResponseEntity.badRequest().body("Invalid cost type");
 			}
 
+			cost.setCreate_date(selectedDate.toString());
 			cost.setPrice(shippingPrice);
 			cost.setNote(toDisplay(payload.get("shippingNote")).trim());
 			costRepository.save(cost);
@@ -248,7 +255,8 @@ public class CostShippingController {
 		}
 		String price = escapeJs(formatMoney(cost.getc_price()));
 		String note = escapeJs(toDisplay(cost.getc_note()));
-		return "<button type='button' class='btn icon btn-warning' onclick=\"edit_cost_shipping(" + cost.getID_cost() + ", '" + price + "', '" + note + "', event)\"><i data-feather='edit-2'></i></button>";
+		String recordDate = escapeJs(toDisplay(cost.getc_create_date()));
+		return "<button type='button' class='btn icon btn-warning' onclick=\"edit_cost_shipping(" + cost.getID_cost() + ", '" + price + "', '" + note + "', '" + recordDate + "', event)\"><i data-feather='edit-2'></i></button>";
 	}
 
 	private String escapeJs(String value) {
@@ -263,6 +271,17 @@ public class CostShippingController {
 		Integer detailCount = costDetailRepository.countDataByCost(costId);
 		Integer notArrivedCount = costDetailRepository.countNotStatusByCost(costId, 4);
 		return detailCount != null && detailCount > 0 && (notArrivedCount == null || notArrivedCount == 0);
+	}
+
+	private LocalDate parseDate(String date) {
+		if (date == null || date.isBlank()) {
+			return null;
+		}
+		try {
+			return LocalDate.parse(date);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private String formatDate(String date) {

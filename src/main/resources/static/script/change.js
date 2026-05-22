@@ -602,8 +602,14 @@ function configureNewStatusOptions() {
         postalNote.value = "";
     }
     if (statusRecordDate) {
-        statusRecordDate.value = "";
+        statusRecordDate.value = getLocalStatusRecordDate();
     }
+}
+
+function getLocalStatusRecordDate() {
+    const today = new Date();
+    const timezoneOffset = today.getTimezoneOffset() * 60000;
+    return new Date(today.getTime() - timezoneOffset).toISOString().slice(0, 10);
 }
 
 function bindCostPriceFormatter() {

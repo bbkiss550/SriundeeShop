@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    .expense-date-col {
+        width: 140px;
+        min-width: 140px;
+        white-space: nowrap;
+    }
+
+    .expense-action-col {
+        width: 84px;
+        min-width: 84px;
+        white-space: nowrap;
+    }
+
+    .expense-type-col {
+        width: 190px;
+        min-width: 190px;
+    }
+
+    .expense-money-col {
+        width: 150px;
+        min-width: 150px;
+        white-space: nowrap;
+    }
+
+    .expense-status-col {
+        width: 120px;
+        min-width: 120px;
+    }
+
+    .expense-status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 88px;
+        min-height: 30px;
+    }
+
+    .expense-field-label {
+        width: 150px;
+        justify-content: flex-end;
+    }
+
+    .expense-filter-row {
+        display: grid;
+        grid-template-columns: minmax(330px, 1fr) minmax(330px, 1fr) minmax(360px, 1fr) auto;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .expense-filter-row .input-group {
+        flex-wrap: nowrap;
+    }
+
+    .expense-filter-row .input-group-text {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .expense-filter-start-label {
+        min-width: 104px;
+        justify-content: center;
+    }
+
+    .expense-filter-end-label {
+        min-width: 46px;
+        justify-content: center;
+    }
+
+    .expense-filter-type-label {
+        min-width: 148px;
+        justify-content: center;
+    }
+
+    .expense-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 1399px) {
+        .expense-filter-row {
+            grid-template-columns: repeat(2, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 767px) {
+        .expense-filter-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>บันทึกค่าใช้จ่าย</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${expenseSuccess != null}">
+                                    <span th:text="${expenseSuccess}">บันทึกค่าใช้จ่ายเรียบร้อย</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${expenseError != null}">
+                                    <span th:text="${expenseError}">กรุณาตรวจสอบข้อมูล</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+
+                                <button type="button" class="btn btn-success mb-4" onclick="open_expense_modal()">
+                                    <i data-feather="plus-square"></i> เพิ่มค่าใช้จ่าย
+                                </button>
+
+                                <form class="expense-filter-row mb-4" method="get" th:action="@{/cost/expense}">
+                                    <div class="input-group">
+                                            <span class="input-group-text expense-filter-start-label">วันที่เริ่มต้น</span>
+                                            <input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
+                                    </div>
+                                    <div class="input-group">
+                                            <span class="input-group-text expense-filter-end-label">ถึง</span>
+                                            <input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
+                                    </div>
+                                    <div class="input-group">
+                                            <span class="input-group-text expense-filter-type-label">ประเภทค่าใช้จ่าย</span>
+                                            <select id="filterTypeCost" name="typeCost" class="form-select">
+                                                <option value="" th:selected="${typeCost == null}">ทั้งหมด</option>
+                                                <option th:each="costType : ${costTypes}" th:value="${costType.id}" th:text="${costType.label}" th:selected="${typeCost == costType.id}">ประเภทค่าใช้จ่าย</option>
+                                            </select>
+                                    </div>
+                                    <div class="expense-filter-actions">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i data-feather="search"></i> ค้นหา
+                                        </button>
+                                        <a class="btn btn-light-secondary" th:href="@{/cost/expense}">ล้างค่า</a>
+                                    </div>
+                                </form>
+
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="expense-action-col">แก้ไข</th>
+                                            <th class="expense-date-col">วันที่</th>
+                                            <th class="expense-type-col">ประเภท</th>
+                                            <th class="expense-money-col text-end">จำนวนเงิน</th>
+                                            <th>หมายเหตุ</th>
+                                            <th class="expense-status-col">สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:utext="${expenseRows}"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="modal fade text-left" id="expenseModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h4 class="modal-title text-white" id="expenseModalTitle">บันทึกค่าใช้จ่าย</h4>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <form id="expenseForm" method="post" th:action="@{/cost/expense}">
+                            <div class="modal-body">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text expense-field-label">วันที่บันทึก</span>
+                                    <input type="date" id="expenseRecordDate" name="recordDate" class="form-control" required>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text expense-field-label">ประเภทค่าใช้จ่าย</span>
+                                    <select id="expenseTypeCost" name="typeCost" class="form-select" required>
+                                        <option value="" selected disabled>เลือกประเภท</option>
+                                        <option th:each="costType : ${costTypes}" th:value="${costType.id}" th:text="${costType.label}">ประเภทค่าใช้จ่าย</option>
+                                    </select>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text expense-field-label">จำนวนเงิน</span>
+                                    <input type="text" id="expensePrice" name="price" class="form-control text-end" inputmode="decimal" placeholder="0.00" required>
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text expense-field-label">หมายเหตุ</span>
+                                    <input type="text" id="expenseNote" name="note" class="form-control" placeholder="ระบุหมายเหตุ">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">
+                                    <i data-feather="save"></i> บันทึก
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+    <script th:src="@{/script/cost/expense.js}"></script>
+</body>
+</html>

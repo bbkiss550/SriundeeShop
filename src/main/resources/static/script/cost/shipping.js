@@ -56,6 +56,7 @@ function open_cost_shipping_detail(id) {
         .then(response => response.text())
         .then(html => {
             document.getElementById("costShippingDetailRows").innerHTML = html;
+            moveDetailSummaryToFooter("costShippingDetailRows", "costShippingDetailSummary");
 
             if (window.feather) {
                 feather.replace();
@@ -120,7 +121,7 @@ function cancel_cost_shipping(id, event) {
     });
 }
 
-function edit_cost_shipping(id, currentPrice, currentNote, event) {
+function edit_cost_shipping(id, currentPrice, currentNote, currentRecordDate, event) {
     if (event) {
         event.stopPropagation();
     }
@@ -128,6 +129,10 @@ function edit_cost_shipping(id, currentPrice, currentNote, event) {
     Swal.fire({
         title: "แก้ไขค่าส่ง",
         html:
+            "<div class='input-group mb-3'>" +
+                "<span class='input-group-text' style='width: 110px;'>วันที่บันทึก</span>" +
+                "<input type='date' id='swalShippingRecordDate' class='form-control' value='" + escape_html(currentRecordDate || get_local_shipping_record_date()) + "'>" +
+            "</div>" +
             "<div class='input-group mb-3'>" +
                 "<span class='input-group-text' style='width: 110px;'>ค่าส่ง</span>" +
                 "<input type='text' id='swalShippingPrice' class='form-control text-end' inputmode='decimal' value='" + escape_html(currentPrice || "") + "'>" +
@@ -156,9 +161,15 @@ function edit_cost_shipping(id, currentPrice, currentNote, event) {
             priceInput.select();
         },
         preConfirm: () => {
+            const recordDate = document.getElementById("swalShippingRecordDate").value.trim();
             const price = document.getElementById("swalShippingPrice").value.trim();
             const normalizedPrice = normalize_shipping_price(price);
             const note = document.getElementById("swalShippingNote").value.trim();
+
+            if (!recordDate) {
+                Swal.showValidationMessage("กรุณาเลือกวันที่บันทึก");
+                return false;
+            }
 
             if (!normalizedPrice || !/^\d+(\.\d*)?$/.test(normalizedPrice)) {
                 Swal.showValidationMessage("กรุณากรอกค่าส่ง");
@@ -166,6 +177,7 @@ function edit_cost_shipping(id, currentPrice, currentNote, event) {
             }
 
             return {
+                recordDate: recordDate,
                 shippingPrice: normalizedPrice,
                 shippingNote: note
             };
@@ -229,6 +241,12 @@ function format_shipping_price(value) {
 
 function normalize_shipping_price(value) {
     return value.replace(/,/g, "");
+}
+
+function get_local_shipping_record_date() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - offset).toISOString().slice(0, 10);
 }
 
 function escape_html(value) {

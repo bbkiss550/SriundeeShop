@@ -29,6 +29,9 @@ public class Menu {
     @Column(name = "m_icon")
     private String icon;
 
+    @Column(name = "m_order")
+    private Integer order;
+
 	public Integer getId() {
 		return id;
 	}
@@ -75,5 +78,13 @@ public class Menu {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 }

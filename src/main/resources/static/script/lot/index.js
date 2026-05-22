@@ -64,6 +64,7 @@ function open_lot_detail(id) {
         .then(response => response.text())
         .then(html => {
             document.getElementById("lotDetailRows").innerHTML = html;
+            moveDetailSummaryToFooter("lotDetailRows", "lotDetailSummary");
 
             if (window.feather) {
                 feather.replace();

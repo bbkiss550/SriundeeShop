@@ -56,6 +56,7 @@ function open_deposit_detail(orderId) {
         .then(response => response.text())
         .then(html => {
             document.getElementById("depositDetailRows").innerHTML = html;
+            moveDetailSummaryToFooter("depositDetailRows", "depositDetailSummary");
 
             if (window.feather) {
                 feather.replace();
@@ -83,6 +84,7 @@ function receive_deposit_balance(orderId, event) {
         text: "ต้องการบันทึกรับเงินที่เหลือของคำสั่งซื้อนี้หรือไม่",
         input: "date",
         inputLabel: "วันที่บันทึก",
+        inputValue: get_local_deposit_record_date(),
         inputValidator: (value) => {
             if (!value) {
                 return "กรุณาเลือกวันที่บันทึก";
@@ -125,4 +127,10 @@ function receive_deposit_balance(orderId, event) {
             });
         });
     });
+}
+
+function get_local_deposit_record_date() {
+    const today = new Date();
+    const timezoneOffset = today.getTimezoneOffset() * 60000;
+    return new Date(today.getTime() - timezoneOffset).toISOString().slice(0, 10);
 }

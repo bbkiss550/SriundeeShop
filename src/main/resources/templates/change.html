@@ -55,7 +55,7 @@
 
 		.btn-change-floating {
 		    position: fixed;
-		    bottom: 30px;
+		    bottom: calc(var(--app-shell-footer-height) + 30px);
 		    right: 30px;
 		    z-index: 1000;
 		    width: 80px;
@@ -130,7 +130,7 @@
 		.change-status-alert-stack {
 			position: fixed;
 			left: 50%;
-			bottom: 28px;
+			bottom: calc(var(--app-shell-footer-height) + 28px);
 			transform: translateX(-50%);
 			z-index: 1080;
 			min-width: 320px;
@@ -215,7 +215,7 @@
 					    <div class="col-12">
 							<div class="card">
 					            <div class="card-body">
-									<table class="table table-striped" id="table2">
+									<table class="table table-striped" id="table2" data-datatable-managed="true">
 									    <thead>
 									        <tr>
 									            <th class="auto_width">
@@ -228,6 +228,7 @@
 									            <th class="auto_width">เวอชั่น</th>
 									            <th class="auto_width">ปก</th>
 									            <th class="status_width">จำนวน</th>
+									            <th class="status_width" data-lot-header="true">LOT</th>
 									            <th class="status_width">สถานะ</th>
 									        </tr>
 									    </thead>

@@ -6,6 +6,76 @@
 <script th:src="@{/script/product/version.js}"></script>
 <script th:src="@{/script/product/cover.js}"></script>
 
+<style>
+	.product-table {
+		overflow: visible;
+	}
+
+	.product-table .product-image-col {
+		width: 72px !important;
+	}
+
+	.product-table .product-image-cell {
+		position: relative;
+		overflow: visible;
+		vertical-align: middle;
+	}
+
+	.product-table .product-table-img {
+		display: block;
+		width: 42px !important;
+		height: 42px;
+		border: 1px solid #dce7f1;
+		border-radius: 6px;
+		object-fit: cover;
+		cursor: zoom-in;
+		transition: border-color 180ms ease, box-shadow 180ms ease;
+	}
+
+	html[data-theme="dark"] .product-table .product-table-img {
+		border-color: #314561;
+	}
+
+	.product-table .product-table-img:hover,
+	.product-table .product-table-img:focus {
+		border-color: #435ebe;
+		box-shadow: 0 0 0 3px rgba(67, 94, 190, 0.2);
+	}
+
+	.product-image-hover-preview {
+		position: fixed;
+		z-index: 2055;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: min(720px, calc(100vw - 32px));
+		height: min(920px, calc(100vh - 32px));
+		padding: 8px;
+		border: 1px solid #dce7f1;
+		border-radius: 8px;
+		background: #ffffff;
+		box-shadow: 0 22px 56px rgba(17, 24, 39, 0.42);
+		pointer-events: none;
+	}
+
+	.product-image-hover-preview.is-visible {
+		display: flex;
+	}
+
+	.product-image-hover-preview img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 6px;
+		object-fit: contain;
+	}
+
+	html[data-theme="dark"] .product-image-hover-preview {
+		border-color: #43536d;
+		background: #111827;
+	}
+</style>
+
 <body>
     <div id="app">
         <div th:replace="common/menu :: menu"></div>
@@ -28,7 +98,7 @@
 										<hr>
 									</div>
 			                        <div class="card-body">
-			                            <table class="table table-striped" id="table1">
+			                            <table class="table table-striped product-table" id="table1">
 			                                <thead>
 			                                    <tr>
 													<th class="fix_width">แก้ไข</th>
@@ -36,7 +106,7 @@
 													<th class="fix_width">ปก</th>
 													<th class="fix_width">เวอร์ชั่น</th>
 													<th class="fix_width">#</th>
-													<th class="auto_width">ภาพ</th>
+													<th class="product-image-col">ภาพ</th>
 			                                        <th class="auto_width">ชื่อ</th>
 													<th class="auto_width">ประเภท</th>
 													<th class="auto_width">ศิลปิน</th>

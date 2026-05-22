@@ -1,5 +1,9 @@
 package com.sriundee.preorder.controller;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.entity.LogVersion;
+import com.sriundee.preorder.entity.Menu;
 import com.sriundee.preorder.entity.Setting;
 import com.sriundee.preorder.repository.LogVersionRepository;
+import com.sriundee.preorder.repository.MenuRepository;
 import com.sriundee.preorder.repository.SettingRepository;
+
+import jakarta.transaction.Transactional;
 
 @Controller
 @ControllerAdvice
@@ -29,6 +37,8 @@ public class SettingController {
     private static final String DEFAULT_THEME = "light";
     private static final String SCHEDULE_SHOW_COMPLETED_KEY = "schedule_show_completed";
     private static final String DEFAULT_SCHEDULE_SHOW_COMPLETED = "false";
+    private static final String ORDER_SHOW_CLOSED_PRODUCTS_KEY = "order_show_closed_products";
+    private static final String DEFAULT_ORDER_SHOW_CLOSED_PRODUCTS = "false";
     private static final String DASHBOARD_CHART_SERIES_KEY = "dashboard_chart_series";
     private static final String DEFAULT_DASHBOARD_CHART_SERIES = "amount,receivedPaid,pledgePaid,pressCost,shippingCost";
     private static final String DASHBOARD_CHART_GRANULARITY_KEY = "dashboard_chart_granularity";
@@ -40,6 +50,9 @@ public class SettingController {
 
     @Autowired
     private LogVersionRepository logVersionRepository;
+
+    @Autowired
+    private MenuRepository menuRepository;
 
     @ModelAttribute("appTheme")
     public String appTheme() {
@@ -84,6 +97,20 @@ public class SettingController {
         return ResponseEntity.ok(Map.of("showCompleted", showCompleted));
     }
 
+    @GetMapping("/settings/order/show-closed-products")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> getOrderShowClosedProducts() {
+        return ResponseEntity.ok(Map.of("showClosedProducts", getOrderShowClosedProductsValue()));
+    }
+
+    @PostMapping("/settings/order/show-closed-products")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> saveOrderShowClosedProducts(@RequestBody Map<String, Boolean> payload) {
+        boolean showClosedProducts = Boolean.TRUE.equals(payload.get("showClosedProducts"));
+        saveSetting(ORDER_SHOW_CLOSED_PRODUCTS_KEY, Boolean.toString(showClosedProducts));
+        return ResponseEntity.ok(Map.of("showClosedProducts", showClosedProducts));
+    }
+
     @GetMapping("/settings/dashboard/chart")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getDashboardChartSettings() {
@@ -102,6 +129,50 @@ public class SettingController {
         return ResponseEntity.ok(Map.of("series", series, "granularity", granularity));
     }
 
+    @GetMapping("/settings/menu-order")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getMenuOrderSettings() {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (Menu menu : menuRepository.getMenuOrderSettings()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("id", menu.getId());
+            row.put("name", menu.getName());
+            row.put("order", menu.getOrder() == null ? menu.getId() : menu.getOrder());
+            rows.add(row);
+        }
+        return ResponseEntity.ok(rows);
+    }
+
+    @PostMapping("/settings/menu-order")
+    @ResponseBody
+    @Transactional
+    public ResponseEntity<Map<String, String>> saveMenuOrderSettings(@RequestBody List<MenuOrderValue> payload) {
+        if (payload == null || payload.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Menu order is required"));
+        }
+
+        Map<Integer, Integer> requestedOrders = new HashMap<>();
+        for (MenuOrderValue item : payload) {
+            if (item == null || item.id() == null || item.order() == null || item.order() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Invalid menu order"));
+            }
+            requestedOrders.put(item.id(), item.order());
+        }
+
+        List<Menu> menus = menuRepository.findAllById(requestedOrders.keySet());
+        if (menus.size() != requestedOrders.size()
+                || menus.stream().anyMatch(menu -> menu.getIdmenu() != null)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid menu"));
+        }
+
+        menus.sort(Comparator.comparing(Menu::getId));
+        for (Menu menu : menus) {
+            menu.setOrder(requestedOrders.get(menu.getId()));
+        }
+        menuRepository.saveAll(menus);
+        return ResponseEntity.ok(Map.of("message", "Success"));
+    }
+
     private String getThemeMode() {
         return normalizeTheme(getSettingValue(THEME_KEY, DEFAULT_THEME));
     }
@@ -112,6 +183,10 @@ public class SettingController {
 
     public boolean getScheduleShowCompletedValue() {
         return Boolean.parseBoolean(getSettingValue(SCHEDULE_SHOW_COMPLETED_KEY, DEFAULT_SCHEDULE_SHOW_COMPLETED));
+    }
+
+    public boolean getOrderShowClosedProductsValue() {
+        return Boolean.parseBoolean(getSettingValue(ORDER_SHOW_CLOSED_PRODUCTS_KEY, DEFAULT_ORDER_SHOW_CLOSED_PRODUCTS));
     }
 
     public String getDashboardChartSeriesValue() {
@@ -155,5 +230,8 @@ public class SettingController {
         version.setVersion("1.0.0");
         version.setDate("2026-05-21");
         return version;
+    }
+
+    private record MenuOrderValue(Integer id, Integer order) {
     }
 }

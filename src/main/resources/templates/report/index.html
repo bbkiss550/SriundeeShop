@@ -161,22 +161,22 @@
                             <div class="card-body">
                                 <form class="row g-3 align-items-end" method="get" th:action="@{/reports}">
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label">วันที่เริ่มต้น</label>
                                         <div class="input-group">
-                                            <span class="input-group-text">วันที่</span>
+                                            <span class="input-group-text">วันที่เริ่มต้น</span>
                                             <input type="date" class="form-control" name="startDate" th:value="${startDate}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label">วันที่สิ้นสุด</label>
                                         <div class="input-group">
-                                            <span class="input-group-text">วันที่</span>
+                                            <span class="input-group-text">ถึง</span>
                                             <input type="date" class="form-control" name="endDate" th:value="${endDate}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label">ช่วงรายงาน</label>
-                                        <div class="form-control" th:text="${reportPeriod}"></div>
+                                        <div class="input-group">
+                                            <span class="input-group-text">ช่วงรายงาน</span>
+                                            <div class="form-control" th:text="${reportPeriod}"></div>
+                                        </div>
                                     </div>
                                     <div class="col-12 col-md-3">
                                         <button type="submit" class="btn btn-primary w-100">

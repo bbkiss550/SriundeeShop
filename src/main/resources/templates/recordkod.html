@@ -19,7 +19,7 @@
 
     #draftBtn {
         position: fixed;
-        bottom: 28px;
+        bottom: calc(var(--app-shell-footer-height) + 28px);
         right: 28px;
         z-index: 1050;
         border-radius: 50px;
@@ -64,23 +64,29 @@
                                 <div class="search-bar">
                                     <div class="row g-2 align-items-end">
                                         <div class="col-md-4">
-                                            <label for="inputCustomer" class="form-label fw-bold">ชื่อลูกค้า</label>
-                                            <input type="text" id="inputCustomer" class="form-control"
-                                                placeholder="ค้นหาชื่อลูกค้า...">
+                                            <div class="input-group">
+                                                <label for="inputCustomer" class="input-group-text">ชื่อลูกค้า</label>
+                                                <input type="text" id="inputCustomer" class="form-control"
+                                                    placeholder="ค้นหาชื่อลูกค้า...">
+                                            </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label for="selectArtist" class="form-label fw-bold">ศิลปิน</label>
-                                            <select id="selectArtist" class="form-select">
-                                                <option value="">-- ทั้งหมด --</option>
-                                                <th:block th:utext="${listArtist}"></th:block>
-                                            </select>
+                                            <div class="input-group">
+                                                <label for="selectArtist" class="input-group-text">ศิลปิน</label>
+                                                <select id="selectArtist" class="form-select">
+                                                    <option value="">-- ทั้งหมด --</option>
+                                                    <th:block th:utext="${listArtist}"></th:block>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label for="selectWebsite" class="form-label fw-bold">เว็บ</label>
-                                            <select id="selectWebsite" class="form-select">
-                                                <option value="">-- ทั้งหมด --</option>
-                                                <th:block th:utext="${listWebsite}"></th:block>
-                                            </select>
+                                            <div class="input-group">
+                                                <label for="selectWebsite" class="input-group-text">เว็บ</label>
+                                                <select id="selectWebsite" class="form-select">
+                                                    <option value="">-- ทั้งหมด --</option>
+                                                    <th:block th:utext="${listWebsite}"></th:block>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="col-md-1">
                                             <button type="button" class="btn btn-primary w-100" onclick="search_data()">
@@ -105,7 +111,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <table class="table table-striped" id="tableRecordKod">
+                                <table class="table table-striped" id="tableRecordKod" data-datatable-managed="true">
                                     <thead>
                                         <tr>
                                             <th style="width:40px"></th>

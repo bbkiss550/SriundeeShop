@@ -34,6 +34,16 @@
 	    color: #1B5E20 !important;
 	    border-color: #C8E6C9 !important;
 	}
+
+	.order-choice-field {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		min-height: 38px;
+		height: auto;
+		padding: 0.35rem 0.5rem;
+	}
 </style>
 
 <div class="modal fade text-left w-100" id="modalOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
@@ -94,29 +104,37 @@
 							<div class="col-md-6">
                                 <div class="row">
 								    <div class="col-12">
-								        <label class="form-label d-block">เว็บไซต์</label>
-								        <div id="data_website"></div>
+								        <div class="input-group">
+											<span class="input-group-text" style="width: 100px; justify-content: right;">เว็บไซต์</span>
+											<div class="form-control order-choice-field" id="data_website"></div>
+										</div>
 								    </div>
 								</div>
 								<hr>
                                 <div class="row">
 								    <div class="col-12">
-								        <label class="form-label d-block">เวอชั่น</label>
-								        <div id="data_version"></div>
+								        <div class="input-group">
+											<span class="input-group-text" style="width: 100px; justify-content: right;">เวอชั่น</span>
+											<div class="form-control order-choice-field" id="data_version"></div>
+										</div>
 								    </div>
 								</div>
 								<hr>
 								<div class="row">
 								    <div class="col-12">
-								        <label class="form-label d-block">ปก</label>
-								        <div id="data_cover"></div>
+								        <div class="input-group">
+											<span class="input-group-text" style="width: 100px; justify-content: right;">ปก</span>
+											<div class="form-control order-choice-field" id="data_cover"></div>
+										</div>
 								    </div>
 								</div>
 								<hr>
 								<div class="row">
 								    <div class="col-12">
-										<label class="form-label d-block">จำนวน</label>
-								        <div id="data_qty"></div>
+										<div class="input-group">
+											<span class="input-group-text" style="width: 100px; justify-content: right;">จำนวน</span>
+											<div class="form-control order-choice-field" id="data_qty"></div>
+										</div>
 	                                </div>
 								</div>
 								<div class="divider"><div class="divider-text"> ราคาต่อชิ้น </div></div>

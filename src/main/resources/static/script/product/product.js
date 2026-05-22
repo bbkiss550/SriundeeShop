@@ -252,3 +252,87 @@ function delete_data(id) {
 		}
 	});
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+	bind_product_image_preview();
+});
+
+function bind_product_image_preview() {
+	const table = document.querySelector(".product-table");
+	if (!table) {
+		return;
+	}
+
+	const preview = document.createElement("div");
+	preview.className = "product-image-hover-preview";
+	preview.setAttribute("aria-hidden", "true");
+	preview.innerHTML = "<img alt=''>";
+	document.body.appendChild(preview);
+
+	const previewImage = preview.querySelector("img");
+	const hidePreview = function() {
+		preview.classList.remove("is-visible");
+		previewImage.removeAttribute("src");
+	};
+
+	const showPreview = function(image) {
+		if (!image || !image.src) {
+			hidePreview();
+			return;
+		}
+
+		previewImage.src = image.src;
+		previewImage.alt = image.alt || "ภาพสินค้า";
+		preview.classList.add("is-visible");
+		position_product_image_preview(preview, image);
+	};
+
+	table.addEventListener("mouseover", function(event) {
+		const image = event.target.closest(".product-table-img");
+		if (image) {
+			showPreview(image);
+		}
+	});
+
+	table.addEventListener("mouseout", function(event) {
+		const image = event.target.closest(".product-table-img");
+		if (image && !image.contains(event.relatedTarget)) {
+			hidePreview();
+		}
+	});
+
+	table.addEventListener("focusin", function(event) {
+		const image = event.target.closest(".product-table-img");
+		if (image) {
+			showPreview(image);
+		}
+	});
+
+	table.addEventListener("focusout", function(event) {
+		if (event.target.closest(".product-table-img")) {
+			hidePreview();
+		}
+	});
+
+	window.addEventListener("scroll", hidePreview, true);
+	window.addEventListener("resize", hidePreview);
+}
+
+function position_product_image_preview(preview, image) {
+	const gap = 16;
+	const edge = 16;
+	const imageRect = image.getBoundingClientRect();
+	const previewRect = preview.getBoundingClientRect();
+
+	let left = imageRect.right + gap;
+	if (left + previewRect.width > window.innerWidth - edge) {
+		left = imageRect.left - previewRect.width - gap;
+	}
+	left = Math.max(edge, Math.min(left, window.innerWidth - previewRect.width - edge));
+
+	let top = imageRect.top + (imageRect.height / 2) - (previewRect.height / 2);
+	top = Math.max(edge, Math.min(top, window.innerHeight - previewRect.height - edge));
+
+	preview.style.left = left + "px";
+	preview.style.top = top + "px";
+}

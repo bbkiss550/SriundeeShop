@@ -79,6 +79,9 @@ public class OrderController {
 
 	@Autowired
 	private PaymentMethodController paymentMethodController;
+
+	@Autowired
+	private SettingController settingController;
 	
     @GetMapping("/order")
     public String index(Model model) {
@@ -133,6 +136,7 @@ public class OrderController {
 	    strProduct_card.append("</div>");
 	    
 	    model.addAttribute("mainProduct_card", strProduct_card);
+	    model.addAttribute("showClosedProducts", settingController.getOrderShowClosedProductsValue());
 	    model.addAttribute("artistList", "<option value=''>ทั้งหมด</option>" + artistController.getDataList());
 
 	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();

@@ -53,7 +53,7 @@ public class ProductController {
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-dark' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='image'></i></a></div></td>");
 			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
-			strProduct.append("<td><img src='" + p.getp_pic() + "' class='table-img'></td>");
+			strProduct.append("<td class='product-image-cell'><img src='" + p.getp_pic() + "' class='table-img product-table-img' tabindex='0'></td>");
 			strProduct.append("<td>" + p.getp_name() + "</td>");
 			strProduct.append("<td>" + p.gett_name() + "</td>");
 			strProduct.append("<td>" + p.geta_name() + "</td>");
