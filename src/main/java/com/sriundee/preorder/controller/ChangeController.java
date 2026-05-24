@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,7 +90,7 @@ public class ChangeController {
     @PostMapping("/change/status/update")
     @ResponseBody
     @Transactional
-    public ResponseEntity<String> updateStatus(@RequestBody Map<String, Object> payload) {
+    public synchronized ResponseEntity<String> updateStatus(@RequestBody Map<String, Object> payload) {
         try {
             @SuppressWarnings("unchecked")
             List<Integer> ids = (List<Integer>) payload.get("ids");
@@ -221,6 +222,7 @@ public class ChangeController {
 
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
@@ -275,7 +277,7 @@ public class ChangeController {
     	String placeholders = orderDetailIds.stream().map(id -> "?").collect(Collectors.joining(","));
     	jdbcTemplate.update("""
     			UPDATE t_lot l
-    			SET l.l_arrive_date = ?
+    			SET l_arrive_date = ?
     			FROM t_lot_detail ld
     			WHERE l.l_delete = 'A'
     			  AND ld.ID_lot = l.ID_lot

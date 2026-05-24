@@ -82,13 +82,23 @@ function receive_deposit_balance(orderId, event) {
     Swal.fire({
         title: "ยืนยันรับเงินมัดจำที่เหลือ",
         text: "ต้องการบันทึกรับเงินที่เหลือของคำสั่งซื้อนี้หรือไม่",
-        input: "date",
-        inputLabel: "วันที่บันทึก",
-        inputValue: get_local_deposit_record_date(),
-        inputValidator: (value) => {
-            if (!value) {
-                return "กรุณาเลือกวันที่บันทึก";
+        html:
+            "<div class='input-group mt-3'>" +
+            "<span class='input-group-text' style='width: 120px;'>วันที่บันทึก</span>" +
+            "<input type='date' id='depositRecordDateSwal' class='form-control' value='" + get_local_deposit_record_date() + "'>" +
+            "</div>",
+        didOpen: () => {
+            if (window.refreshDateDisplayInputs) {
+                window.refreshDateDisplayInputs(Swal.getHtmlContainer());
             }
+        },
+        preConfirm: () => {
+            const value = document.getElementById("depositRecordDateSwal")?.value || "";
+            if (!value) {
+                Swal.showValidationMessage("กรุณาเลือกวันที่บันทึก");
+                return false;
+            }
+            return value;
         },
         icon: "warning",
         showCancelButton: true,
