@@ -36,6 +36,9 @@ public class IndexController {
 
 	@Autowired
 	private SettingController settingController;
+
+	@Autowired
+	private DashboardManageController dashboardManageController;
 	
 	@GetMapping("/")
 	public String index(Model model,
@@ -89,7 +92,7 @@ public class IndexController {
 	    		SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
 	    		FROM q_cost
 	    		WHERE c_delete = 'A'
-	    		  AND c_create_date BETWEEN ? AND ?
+	    		  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
 	    		""", selectedStartDate, selectedEndDate)));
 	    model.addAttribute("costByType", getCostByType(selectedStartDate, selectedEndDate));
 	    model.addAttribute("salesTrendChart", toJson(getSalesTrendChart(chartRange[0], chartRange[1])));
@@ -99,6 +102,8 @@ public class IndexController {
 	    		"COALESCE(q.t_name, 'ไม่ระบุประเภท')", "q.ID_type", selectedStartDate, selectedEndDate)));
 	    model.addAttribute("dashboardChartSeries", settingController.getDashboardChartSeriesValue());
 	    model.addAttribute("dashboardChartGranularity", settingController.getDashboardChartGranularityValue());
+	    model.addAttribute("dashboardConfig", dashboardManageController.getDashboardWidgetsValue());
+	    model.addAttribute("dashboardData", toJson(dashboardManageController.buildDashboardData(selectedStartDate, selectedEndDate)));
 	    return "index";
 	}
 
@@ -116,7 +121,7 @@ public class IndexController {
 				       END AS tone
 				FROM q_cost
 				WHERE c_delete = 'A'
-				  AND c_create_date BETWEEN ? AND ?
+				  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
 				GROUP BY ID_type_cost, tc_name
 				ORDER BY ID_type_cost
 				""", startDate, endDate);
@@ -148,7 +153,7 @@ public class IndexController {
 				FROM q_cost
 				WHERE c_delete = 'A'
 				  AND ID_type_cost IN (1, 2)
-				  AND c_create_date BETWEEN ? AND ?
+				  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
 				GROUP BY c_create_date, ID_type_cost
 				ORDER BY c_create_date, ID_type_cost
 				""", startDate, endDate);
@@ -307,3 +312,4 @@ public class IndexController {
 		}
 	}
 }
+

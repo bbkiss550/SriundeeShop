@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.sriundee.preorder.entity.LogVersion;
 import com.sriundee.preorder.entity.Menu;
@@ -57,6 +60,12 @@ public class SettingController {
     @ModelAttribute("appTheme")
     public String appTheme() {
         return getThemeMode();
+    }
+
+    @ModelAttribute("appUsername")
+    public String appUsername() {
+        String username = currentUsername();
+        return username == null ? "" : username;
     }
 
     @ModelAttribute("appVersion")
@@ -198,18 +207,64 @@ public class SettingController {
     }
 
     private String getSettingValue(String key, String defaultValue) {
-        Setting setting = settingRepository.findByKey(key);
+        Setting setting = findCurrentUserSetting(key);
+        if (setting == null) {
+            setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
+        }
         return setting == null || setting.getValue() == null ? defaultValue : setting.getValue();
     }
 
     private void saveSetting(String key, String value) {
-        Setting setting = settingRepository.findByKey(key);
+        Integer userId = currentUserId();
+        Setting setting = userId == null
+                ? settingRepository.findFirstByKeyAndUserIdIsNull(key)
+                : settingRepository.findFirstByKeyAndUserId(key, userId);
         if (setting == null) {
             setting = new Setting();
             setting.setKey(key);
+            setting.setUserId(userId);
         }
         setting.setValue(value);
         settingRepository.save(setting);
+    }
+
+    private Setting findCurrentUserSetting(String key) {
+        Integer userId = currentUserId();
+        if (userId == null) {
+            return null;
+        }
+        return settingRepository.findFirstByKeyAndUserId(key, userId);
+    }
+
+    public Integer currentUserId() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (!(attributes instanceof ServletRequestAttributes servletAttributes)) {
+            return null;
+        }
+        Object userId = servletAttributes.getRequest().getSession(false) == null
+                ? null
+                : servletAttributes.getRequest().getSession(false).getAttribute(LoginController.SESSION_USER_ID);
+        if (userId instanceof Integer id) {
+            return id;
+        }
+        if (userId != null) {
+            try {
+                return Integer.parseInt(userId.toString());
+            } catch (RuntimeException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String currentUsername() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (!(attributes instanceof ServletRequestAttributes servletAttributes)
+                || servletAttributes.getRequest().getSession(false) == null) {
+            return null;
+        }
+        Object username = servletAttributes.getRequest().getSession(false).getAttribute(LoginController.SESSION_USERNAME);
+        return username == null ? null : username.toString();
     }
 
     private String normalizeDashboardChartSeries(String series) {

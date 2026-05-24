@@ -106,7 +106,7 @@
     .dashboard-cost-value {
         display: block;
         margin-top: .2rem;
-        color: #ffffff;
+        color: #111827;
         font-size: 1.05rem;
         line-height: 1.2;
         font-weight: 800;
@@ -134,11 +134,16 @@
 
     .dashboard-sales-value {
         margin-top: .2rem;
-        color: #ffffff;
+        color: #111827;
         font-size: 1.05rem;
         line-height: 1.2;
         font-weight: 800;
         word-break: break-word;
+    }
+
+    [data-theme="dark"] .dashboard-cost-value,
+    [data-theme="dark"] .dashboard-sales-value {
+        color: #ffffff;
     }
 
     .dashboard-expense-card {
@@ -254,10 +259,53 @@
         font-weight: 700;
     }
 
+    .dashboard-custom-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .dashboard-custom-widget {
+        grid-column: span 6;
+        min-height: 190px;
+        border-left: 5px solid #435ebe;
+    }
+
+    .dashboard-custom-widget[data-width="25"] { grid-column: span 3; }
+    .dashboard-custom-widget[data-width="33"] { grid-column: span 4; }
+    .dashboard-custom-widget[data-width="50"] { grid-column: span 6; }
+    .dashboard-custom-widget[data-width="66"] { grid-column: span 8; }
+    .dashboard-custom-widget[data-width="75"] { grid-column: span 9; }
+    .dashboard-custom-widget[data-width="100"] { grid-column: span 12; }
+
+    .dashboard-custom-widget.tone-success { border-left-color: #198754; }
+    .dashboard-custom-widget.tone-info { border-left-color: #0dcaf0; }
+    .dashboard-custom-widget.tone-warning { border-left-color: #ffc107; }
+    .dashboard-custom-widget.tone-danger { border-left-color: #dc3545; }
+    .dashboard-custom-widget.tone-orange { border-left-color: #f97316; }
+
+    .dashboard-custom-metric {
+        margin-top: 0.4rem;
+        font-size: 2rem;
+        line-height: 1.1;
+        font-weight: 800;
+    }
+
+    .dashboard-custom-chart {
+        min-height: 330px;
+    }
+
     .dashboard-filter .input-group-text {
         min-width: 88px;
         justify-content: center;
         font-weight: 700;
+    }
+
+    @media (max-width: 1199px) {
+        .dashboard-custom-widget,
+        .dashboard-custom-widget[data-width] {
+            grid-column: span 12;
+        }
     }
 
     [data-theme="dark"] .apexcharts-tooltip,
@@ -338,6 +386,7 @@
                     </div>
                 </section>
 
+                <div id="defaultDashboardContent">
                 <section class="row dashboard-stat-grid">
                     <div class="col-12 col-xl-6">
                         <div class="card dashboard-stat-card is-focus is-sales">
@@ -455,28 +504,9 @@
                     </div>
                 </section>
 
-                <section class="row">
-                    <div class="col-12 col-xl-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>สัดส่วนศิลปินที่ขายได้</h4>
-                            </div>
-                            <div class="card-body">
-                                <div id="artistSalesShareChart" class="dashboard-share-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>สัดส่วนประเภทสินค้าที่ขายได้</h4>
-                            </div>
-                            <div class="card-body">
-                                <div id="typeSalesShareChart" class="dashboard-share-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                </div>
+
+                <section id="customDashboardContent" class="dashboard-custom-grid d-none"></section>
             </div>
 
             <footer th:replace="common/footer :: footer"></footer>
@@ -487,6 +517,8 @@
                 const typeSalesShareChartData = JSON.parse(/*[[${typeSalesShareChart}]]*/ "[]");
                 const dashboardChartSeriesSetting = String(/*[[${dashboardChartSeries}]]*/ "amount,receivedPaid,pledgePaid,pressCost,shippingCost");
                 const dashboardChartGranularitySetting = String(/*[[${dashboardChartGranularity}]]*/ "month");
+                window.dashboardRuntimeWidgets = JSON.parse(/*[[${dashboardConfig}]]*/ "[]");
+                window.dashboardRuntimeData = JSON.parse(/*[[${dashboardData}]]*/ "{}");
 
                 const chartColorMap = {
                     primary: "#435ebe",
@@ -973,9 +1005,7 @@
                 document.addEventListener("DOMContentLoaded", function() {
                     applyDashboardChartSettings();
                     const charts = [
-                        renderSalesTrendChartV2("salesTrendChart", salesTrendChartData),
-                        renderSalesShareChart("artistSalesShareChart", artistSalesShareChartData),
-                        renderSalesShareChart("typeSalesShareChart", typeSalesShareChartData)
+                        renderSalesTrendChartV2("salesTrendChart", salesTrendChartData)
                     ].filter(Boolean);
 
                     const themeToggle = document.getElementById("themeToggle");
@@ -1003,6 +1033,7 @@
                     }
                 });
             </script>
+            <script th:src="@{/script/dashboard/runtime.js}"></script>
         </div>
     </div>
 </body>

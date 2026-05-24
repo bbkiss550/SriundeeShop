@@ -9,4 +9,8 @@ import com.sriundee.preorder.entity.Setting;
 public interface SettingRepository extends JpaRepository<Setting, Integer> {
 
     Setting findByKey(String key);
+
+    Setting findFirstByKeyAndUserId(String key, Integer userId);
+
+    Setting findFirstByKeyAndUserIdIsNull(String key);
 }

@@ -27,7 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 			FROM q_product
 			WHERE p_delete = 'A'
 			ORDER BY
-			    COALESCE(STR_TO_DATE(p_end_date, '%d/%m/%Y'), STR_TO_DATE(p_send_date, '%d/%m/%Y')),
+			    COALESCE(TO_DATE(NULLIF(p_end_date, ''), 'DD/MM/YYYY'), TO_DATE(NULLIF(p_send_date, ''), 'DD/MM/YYYY')) NULLS LAST,
 			    ID_product DESC
 			""", nativeQuery = true)
 	List<ProductBean> getScheduleProducts();

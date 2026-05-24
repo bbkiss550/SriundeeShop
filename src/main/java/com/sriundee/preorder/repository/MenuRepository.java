@@ -16,6 +16,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
     		SELECT ID_menu, m_name, m_parent, m_ID_menu, m_url, m_icon, m_order
     		FROM t_menu
     		WHERE m_ID_menu IS NULL
+    		  AND COALESCE(m_url, '') <> '/dashboard/manage'
     		ORDER BY COALESCE(m_order, ID_menu), ID_menu
     		""", nativeQuery = true)
     List<Menu> getDataAll();
@@ -27,6 +28,7 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
             SELECT ID_menu, m_name, m_parent, m_ID_menu, m_url, m_icon, m_order
             FROM t_menu
             WHERE m_ID_menu IS NULL
+              AND COALESCE(m_url, '') <> '/dashboard/manage'
             ORDER BY COALESCE(m_order, ID_menu), ID_menu
             """, nativeQuery = true)
     List<Menu> getMenuOrderSettings();

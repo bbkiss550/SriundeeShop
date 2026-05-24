@@ -3,7 +3,7 @@ function modal_order(id) {
 	fetch('/order/load/' + id)
 	    .then(response => {
 			if (!response.ok) {
-				throw new Error('closed-product');
+				throw new Error('load-product');
 			}
 			return response.json();
 		})
@@ -18,20 +18,17 @@ function modal_order(id) {
 			document.getElementById('data_website').innerHTML = data.listWebsite || '';
 			document.getElementById('data_version').innerHTML = data.listVersion || '';
 			document.getElementById('data_cover').innerHTML = data.listCover || '';
+			defaultOrderModalChoices();
 
 			var myModal = new bootstrap.Modal(document.getElementById('modalOrder'));
 			myModal.show();
 	    })
 	    .catch(error => {
-			if (error.message === 'closed-product') {
-				Swal.fire({
-					title: "สินค้าปิดพรีแล้ว",
-					text: "ไม่สามารถบันทึกออร์เดอร์สินค้านี้ได้",
-					icon: "warning"
-				});
-				return;
-			}
 			console.error('Error:', error);
+			Swal.fire({
+				title: "โหลดข้อมูลสินค้าไม่สำเร็จ",
+				icon: "error"
+			});
 		});
 }
 
@@ -85,20 +82,38 @@ function check_pic_null(data) {
 	return res;
 }
 
-function select_cover() {
+function defaultOrderModalChoices() {
+	selectFirstRadio('group-website');
+	selectFirstRadio('group-version');
+	select_cover();
+}
+
+function selectFirstRadio(name) {
+	const radios = document.querySelectorAll('input[name="' + name + '"]');
+	if (radios.length > 0 && !document.querySelector('input[name="' + name + '"]:checked')) {
+		radios[0].checked = true;
+	}
+	return document.querySelector('input[name="' + name + '"]:checked');
+}
+
+function select_cover(selectFirstCover = true) {
 	const select_product = document.getElementById('IdProduct').value 
 	const select_website = document.querySelector('input[name="group-website"]:checked');
 	const select_version = document.querySelector('input[name="group-version"]:checked');
 
-	if (select_product && select_website.value && select_version.value) {
+	if (select_product && select_website?.value && select_version?.value) {
 		fetch('/order/loadcover/' + select_product + '/' + select_website.value + '/' + select_version.value)
 		    .then(response => response.json())
 			.then(data => {
 				document.getElementById('data_cover').innerHTML = data.listCover || '';
-				
 				document.getElementById('price_total').value = "";
 				document.getElementById('price_pledge').value = "";
 				document.getElementById('price_balance').value = "";
+				if (selectFirstCover) {
+					selectFirstRadio('group-cover');
+					select_price();
+					return;
+				}
 				cal();
 		    })
 		    .catch(error => console.error('Error:', error));
@@ -108,7 +123,7 @@ function select_cover() {
 function select_price() {
 	const select_cover = document.querySelector('input[name="group-cover"]:checked');
 
-	if (select_cover.value) {
+	if (select_cover?.value) {
 		fetch('/order/getprice/' + select_cover.value)
 		    .then(response => response.json())
 			.then(data => {

@@ -22,6 +22,9 @@ public class Setting {
     @Column(name = "s_value")
     private String value;
 
+    @Column(name = "ID_user")
+    private Integer userId;
+
     public Integer getId() {
         return id;
     }
@@ -44,5 +47,13 @@ public class Setting {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

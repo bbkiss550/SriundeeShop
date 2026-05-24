@@ -23,15 +23,15 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<CustomerNameBean> getCsutomerList();
 
 	@Query(value = """
-			SELECT COALESCE(MAX(CAST(SUBSTRING(o_order_code, 7) AS UNSIGNED)), 0)
+			SELECT COALESCE(MAX(CAST(SUBSTRING(o_order_code FROM 7) AS INTEGER)), 0)
 			FROM t_order
-			WHERE o_order_code LIKE CONCAT(:prefix, '%')
+			WHERE o_order_code LIKE (:prefix || '%')
 			""", nativeQuery = true)
 	Integer getMaxOrderCodeRunning(@Param("prefix") String prefix);
 
 	@Query(value = """
 			SELECT o.ID_order,
-			       DATE_FORMAT(o.o_order_date, '%Y-%m-%d') AS o_order_date,
+			       TO_CHAR(o.o_order_date, 'YYYY-MM-DD') AS o_order_date,
 			       o.o_order_code,
 			       o.o_customer_name,
 			       o.ID_pay_method,
@@ -43,14 +43,14 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
-			       GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_names,
-			       GROUP_CONCAT(DISTINCT os.os_color ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_colors
+			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
+			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
 			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
-			WHERE (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= :startDate)
-			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= :endDate)
-			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name LIKE CONCAT('%', :customerName, '%'))
+			WHERE (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= CAST(:startDate AS DATE))
+			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= CAST(:endDate AS DATE))
+			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name ILIKE ('%' || :customerName || '%'))
 			  AND (:payMethod IS NULL OR o.ID_pay_method = :payMethod)
 			  AND (:orderStatus IS NULL OR EXISTS (
 			      SELECT 1
@@ -82,7 +82,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 	@Query(value = """
 			SELECT o.ID_order,
-			       DATE_FORMAT(o.o_order_date, '%Y-%m-%d') AS o_order_date,
+			       TO_CHAR(o.o_order_date, 'YYYY-MM-DD') AS o_order_date,
 			       o.o_order_code,
 			       o.o_customer_name,
 			       o.ID_pay_method,
@@ -94,16 +94,16 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
-			       GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_names,
-			       GROUP_CONCAT(DISTINCT os.os_color ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_colors
+			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
+			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
 			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
 			WHERE o.ID_pay_method = 2
 			  AND COALESCE(o.o_price_balance, 0) > 0
-			  AND (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= :startDate)
-			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= :endDate)
-			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name LIKE CONCAT('%', :customerName, '%'))
+			  AND (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= CAST(:startDate AS DATE))
+			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= CAST(:endDate AS DATE))
+			  AND (:customerName IS NULL OR :customerName = '' OR o.o_customer_name ILIKE ('%' || :customerName || '%'))
 			GROUP BY o.ID_order,
 			         o.o_order_date,
 			         o.o_order_code,
@@ -136,7 +136,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 	@Query(value = """
 			SELECT o.ID_order,
-			       DATE_FORMAT(o.o_order_date, '%Y-%m-%d') AS o_order_date,
+			       TO_CHAR(o.o_order_date, 'YYYY-MM-DD') AS o_order_date,
 			       o.o_order_code,
 			       o.o_customer_name,
 			       o.ID_pay_method,
@@ -148,8 +148,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
-			       GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_names,
-			       GROUP_CONCAT(DISTINCT os.os_color ORDER BY os.ID_order_status SEPARATOR '||') AS order_status_colors
+			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
+			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
 			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status

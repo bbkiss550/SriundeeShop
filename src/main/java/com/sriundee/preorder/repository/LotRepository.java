@@ -30,7 +30,7 @@ public interface LotRepository extends JpaRepository<Lot, Integer> {
             WHERE (:startDate IS NULL OR :startDate = '' OR l.l_create_date >= :startDate)
               AND (:endDate IS NULL OR :endDate = '' OR l.l_create_date <= :endDate)
               AND (:status IS NULL OR :status = '' OR l.l_delete = :status)
-              AND (:lotNumber IS NULL OR :lotNumber = '' OR l.l_lot_number LIKE CONCAT('%', :lotNumber, '%'))
+              AND (:lotNumber IS NULL OR :lotNumber = '' OR l.l_lot_number ILIKE ('%' || :lotNumber || '%'))
             GROUP BY l.ID_lot, l.l_lot_number, l.l_create_date, l.l_start_date, l.l_end_date, l.l_arrive_date, l.l_delete
             ORDER BY l.ID_lot DESC
             """, nativeQuery = true)

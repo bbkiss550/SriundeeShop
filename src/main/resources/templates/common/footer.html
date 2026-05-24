@@ -5,6 +5,10 @@
         <span th:text="${appVersion.version}">1.0.0</span>
         <span th:text="${appVersion.date}">2026-05-21</span>
     </div>
+    <a th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" th:href="@{/logout}" class="btn app-footer-logout-btn" title="Log out">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Log out</span>
+    </a>
     <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>
@@ -13,6 +17,7 @@
     <script th:src="@{/mazer/dist/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/choices.js/choices.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/main.js}"></script>
+    <script th:src="@{/script/date-display.js}"></script>
     <script th:src="@{/script/theme.js}"></script>
     <script th:src="@{/script/menu-order.js}"></script>
     <script>

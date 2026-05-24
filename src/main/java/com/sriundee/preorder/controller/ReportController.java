@@ -45,13 +45,13 @@ public class ReportController {
                 SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
                 FROM q_income
                 WHERE c_delete = 'A'
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 """, start, end);
         BigDecimal expense = money("""
                 SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
                 FROM q_cost
                 WHERE c_delete = 'A'
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 """, start, end);
         BigDecimal receivable = money("""
                 SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0)
@@ -80,6 +80,10 @@ public class ReportController {
         model.addAttribute("financeReceivable", displayMoney(receivable));
         model.addAttribute("financeProfit", displayMoney(income.subtract(expense)));
         model.addAttribute("financeRows", financeRows(start, end));
+        model.addAttribute("taxLedgerIncome", displayMoney(income));
+        model.addAttribute("taxLedgerExpense", displayMoney(expense));
+        model.addAttribute("taxLedgerNet", displayMoney(income.subtract(expense)));
+        model.addAttribute("taxLedgerRows", taxLedgerRows(start, end));
 
         model.addAttribute("incomeFull", displayMoney(incomeByType(1, start, end)));
         model.addAttribute("incomePledge", displayMoney(incomeByType(2, start, end)));
@@ -123,25 +127,25 @@ public class ReportController {
                        SUM(expense) AS expense,
                        SUM(receivable) AS receivable
                 FROM (
-                    SELECT DATE_FORMAT(o_order_date, '%m/%Y') AS period,
-                           DATE_FORMAT(o_order_date, '%Y-%m') AS sort_period,
+                    SELECT TO_CHAR(o_order_date, 'MM/YYYY') AS period,
+                           TO_CHAR(o_order_date, 'YYYY-MM') AS sort_period,
                            SUM(o_net) AS sales, 0 AS income, 0 AS expense,
                            SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END) AS receivable
                     FROM q_order
                     WHERE o_order_date BETWEEN ? AND ?
-                    GROUP BY DATE_FORMAT(o_order_date, '%m/%Y'), DATE_FORMAT(o_order_date, '%Y-%m')
+                    GROUP BY TO_CHAR(o_order_date, 'MM/YYYY'), TO_CHAR(o_order_date, 'YYYY-MM')
                     UNION ALL
-                    SELECT DATE_FORMAT(c_create_date, '%m/%Y'), DATE_FORMAT(c_create_date, '%Y-%m'),
-                           0, SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0, 0
+                    SELECT TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM'),
+                           0, SUM(CAST(REPLACE(c_price, ',', '') AS NUMERIC(14,2))), 0, 0
                     FROM q_income
-                    WHERE c_delete = 'A' AND c_create_date BETWEEN ? AND ?
-                    GROUP BY DATE_FORMAT(c_create_date, '%m/%Y'), DATE_FORMAT(c_create_date, '%Y-%m')
+                    WHERE c_delete = 'A' AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                    GROUP BY TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM')
                     UNION ALL
-                    SELECT DATE_FORMAT(c_create_date, '%m/%Y'), DATE_FORMAT(c_create_date, '%Y-%m'),
-                           0, 0, SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0
+                    SELECT TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM'),
+                           0, 0, SUM(CAST(REPLACE(c_price, ',', '') AS NUMERIC(14,2))), 0
                     FROM q_cost
-                    WHERE c_delete = 'A' AND c_create_date BETWEEN ? AND ?
-                    GROUP BY DATE_FORMAT(c_create_date, '%m/%Y'), DATE_FORMAT(c_create_date, '%Y-%m')
+                    WHERE c_delete = 'A' AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                    GROUP BY TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM')
                 ) report_month
                 GROUP BY period, sort_period
                 ORDER BY sort_period
@@ -154,13 +158,66 @@ public class ReportController {
                 "profit", displayMoney(decimal(row.get("income")).subtract(decimal(row.get("expense"))))));
     }
 
+    private List<Map<String, Object>> taxLedgerRows(LocalDate start, LocalDate end) {
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
+                SELECT *
+                FROM (
+                    SELECT CAST(i.c_create_date AS DATE) AS tx_date,
+                           1 AS sort_type,
+                           i.ID_income AS ref_id,
+                           COALESCE(i.ti_name, 'รายรับ') AS category,
+                           COALESCE(o.o_order_code, '-') AS document_no,
+                           COALESCE(i.c_customer_name, '') AS party,
+                           COALESCE(i.c_note, '') AS detail,
+                           COALESCE(CAST(NULLIF(REPLACE(i.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS income_amount,
+                           CAST(0 AS NUMERIC(14,2)) AS expense_amount
+                    FROM q_income i
+                    LEFT JOIN t_order o ON o.ID_order = i.ID_order
+                    WHERE i.c_delete = 'A'
+                      AND CAST(i.c_create_date AS DATE) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT CAST(c.c_create_date AS DATE) AS tx_date,
+                           2 AS sort_type,
+                           c.ID_cost AS ref_id,
+                           COALESCE(c.tc_name, 'รายจ่าย') AS category,
+                           '-' AS document_no,
+                           '' AS party,
+                           COALESCE(c.c_note, '') AS detail,
+                           CAST(0 AS NUMERIC(14,2)) AS income_amount,
+                           COALESCE(CAST(NULLIF(REPLACE(c.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS expense_amount
+                    FROM q_cost c
+                    WHERE c.c_delete = 'A'
+                      AND CAST(c.c_create_date AS DATE) BETWEEN ? AND ?
+                ) ledger
+                ORDER BY tx_date, sort_type, ref_id
+                """, start, end, start, end);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        BigDecimal balance = BigDecimal.ZERO;
+        for (Map<String, Object> row : rows) {
+            BigDecimal income = decimal(row.get("income_amount"));
+            BigDecimal expense = decimal(row.get("expense_amount"));
+            balance = balance.add(income).subtract(expense);
+            result.add(map(
+                    "date", displayDate(row.get("tx_date")),
+                    "category", text(row.get("category")),
+                    "document", defaultText(row.get("document_no"), "-"),
+                    "party", defaultText(row.get("party"), "-"),
+                    "detail", defaultText(row.get("detail"), "-"),
+                    "income", displayMoney(income),
+                    "expense", displayMoney(expense),
+                    "balance", displayMoney(balance)));
+        }
+        return result;
+    }
+
     private List<Map<String, Object>> incomeRows(LocalDate start, LocalDate end) {
         return transform(jdbcTemplate.queryForList("""
                 SELECT i.c_create_date, o.o_order_code, i.c_customer_name, i.ti_name, i.c_note, i.c_price
                 FROM q_income i
                 LEFT JOIN t_order o ON o.ID_order = i.ID_order
                 WHERE i.c_delete = 'A'
-                  AND i.c_create_date BETWEEN ? AND ?
+                  AND CAST(i.c_create_date AS DATE) BETWEEN ? AND ?
                 ORDER BY i.c_create_date DESC, i.ID_income DESC
                 """, start, end), row -> map(
                 "date", displayDate(row.get("c_create_date")),
@@ -175,7 +232,7 @@ public class ReportController {
         return transform(jdbcTemplate.queryForList("""
                 SELECT o.o_order_code, o.o_order_date, o.o_customer_name, o.o_net,
                        o.o_price_pledge, o.o_price_balance,
-                       COALESCE(GROUP_CONCAT(DISTINCT os.os_name ORDER BY os.ID_order_status SEPARATOR ', '), '-') AS statuses
+                       COALESCE(STRING_AGG(DISTINCT os.os_name, ', '), '-') AS statuses
                 FROM q_order o
                 LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
                 LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
@@ -200,7 +257,7 @@ public class ReportController {
                 SELECT c_create_date, tc_name, c_note, c_delete, c_price
                 FROM q_cost
                 WHERE c_delete = 'A'
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 ORDER BY c_create_date DESC, ID_cost DESC
                 """, start, end), row -> map(
                 "date", displayDate(row.get("c_create_date")),
@@ -283,7 +340,7 @@ public class ReportController {
                 LEFT JOIN t_lot_detail ld ON ld.ID_lot = l.ID_lot
                 LEFT JOIN t_order_detail od ON od.ID_order_detail = ld.ID_order_detail
                 WHERE l.l_delete = 'A'
-                  AND l.l_create_date BETWEEN ? AND ?
+                  AND CAST(l.l_create_date AS DATE) BETWEEN ? AND ?
                 GROUP BY l.ID_lot, l.l_lot_number, l.l_create_date, l.l_start_date, l.l_end_date, l.l_arrive_date
                 ORDER BY l.l_create_date DESC, l.ID_lot DESC
                 """, start, end), row -> map(
@@ -324,7 +381,7 @@ public class ReportController {
                 FROM q_income
                 WHERE c_delete = 'A'
                   AND ID_type_income = ?
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 """, type, start, end);
     }
 
@@ -334,7 +391,7 @@ public class ReportController {
                 FROM q_cost
                 WHERE c_delete = 'A'
                   AND ID_type_cost = ?
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 """, type, start, end);
     }
 
@@ -343,7 +400,7 @@ public class ReportController {
                 SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
                 FROM q_cost
                 WHERE c_delete = 'A'
-                  AND c_create_date BETWEEN ? AND ?
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
                 """, start, end);
     }
 
@@ -446,3 +503,4 @@ public class ReportController {
         Map<String, Object> map(Map<String, Object> row);
     }
 }
+

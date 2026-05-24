@@ -4,25 +4,36 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.bean.OrderDetailBean;
 import com.sriundee.preorder.bean.OrderListBean;
+import com.sriundee.preorder.dto.OrderDto;
+import com.sriundee.preorder.entity.Income;
+import com.sriundee.preorder.entity.Order;
 import com.sriundee.preorder.entity.OrderStatus;
 import com.sriundee.preorder.entity.PaymentMethod;
+import com.sriundee.preorder.repository.IncomeRepository;
 import com.sriundee.preorder.repository.OrderDetailRepository;
 import com.sriundee.preorder.repository.OrderRepository;
 import com.sriundee.preorder.repository.OrderStatusRepository;
 import com.sriundee.preorder.repository.PaymentMethodRepository;
+
+import jakarta.transaction.Transactional;
 
 @Controller
 public class OrderListController {
@@ -47,6 +58,12 @@ public class OrderListController {
 	@Autowired
 	private OrderStatusRepository orderStatusRepository;
 
+	@Autowired
+	private IncomeRepository incomeRepository;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
 	@GetMapping("/orders")
 	public String index(
 			@RequestParam(value = "startDate", required = false) String startDate,
@@ -63,7 +80,8 @@ public class OrderListController {
 	    model.addAttribute("customerName", toDisplay(customerName));
 	    model.addAttribute("payMethod", payMethod);
 	    model.addAttribute("orderStatus", orderStatus);
-	    model.addAttribute("paymentMethodList", buildPaymentMethodOptions(payMethod));
+	    model.addAttribute("paymentMethodList", buildPaymentMethodOptions(payMethod, true));
+	    model.addAttribute("editPaymentMethodList", buildPaymentMethodOptions(null, false));
 	    model.addAttribute("orderStatusList", buildOrderStatusOptions(orderStatus));
 	    return "order/list";
 	}
@@ -84,6 +102,58 @@ public class OrderListController {
 	@ResponseBody
 	public ResponseEntity<String> details(@PathVariable("id") Integer id) {
 		return ResponseEntity.ok(buildDetailRows(id));
+	}
+
+	@GetMapping("/orders/{id}")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> getOrder(@PathVariable("id") Integer id) {
+		return orderRepository.findById(id)
+				.map(order -> ResponseEntity.ok(toOrderMap(order)))
+				.orElse(ResponseEntity.notFound().build());
+	}
+
+	@PostMapping("/orders/{id}/update")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> updateOrder(@PathVariable("id") Integer id, @RequestBody OrderDto orderDto) {
+		return orderRepository.findById(id).map(order -> {
+			LocalDate orderDate = parseRequiredDate(orderDto.getOrder_date());
+			order.setOrder_date(java.sql.Date.valueOf(orderDate));
+			order.setCustomer_name(toDisplay(orderDto.getCustomer_name()));
+			order.setPay_method(orderDto.getPay_method());
+			order.setPay_type(orderDto.getPay_type());
+			order.setLast_pay_date(parseOptionalSqlDate(orderDto.getLast_pay_date()));
+			order.setSend_cost(orderDto.getSend_cost());
+			order.setDiscount(orderDto.getDiscount());
+			order.setPrice_pledge(orderDto.getPrice_pledge());
+			order.setPrice_balance(Integer.valueOf(1).equals(orderDto.getPay_method()) ? 0 : orderDto.getPrice_balance());
+			order.setNet(orderDto.getNet());
+			order.setRemark(orderDto.getRemark());
+			orderRepository.save(order);
+			refreshOrderIncome(order, orderDate);
+			return ResponseEntity.ok("Success");
+		}).orElse(ResponseEntity.notFound().build());
+	}
+
+	@PostMapping("/orders/{id}/delete")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> deleteOrder(@PathVariable("id") Integer id) {
+		if (!orderRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		jdbcTemplate.update("""
+				DELETE FROM t_cost_detail
+				WHERE ID_order_detail IN (SELECT ID_order_detail FROM t_order_detail WHERE ID_order = ?)
+				""", id);
+		jdbcTemplate.update("""
+				DELETE FROM t_lot_detail
+				WHERE ID_order_detail IN (SELECT ID_order_detail FROM t_order_detail WHERE ID_order = ?)
+				""", id);
+		incomeRepository.deleteByOrderId(id);
+		jdbcTemplate.update("DELETE FROM t_order_detail WHERE ID_order = ?", id);
+		orderRepository.deleteById(id);
+		return ResponseEntity.ok("Success");
 	}
 
 	@GetMapping(value = "/orders/{id}/receipt", produces = "text/html; charset=UTF-8")
@@ -111,6 +181,10 @@ public class OrderListController {
 		StringBuilder rows = new StringBuilder();
 		for (OrderListBean order : orderList) {
 			rows.append("<tr class='order-list-row' onclick='open_order_detail(" + order.getID_order() + ")'>");
+			rows.append("<td class='order-action-col'>"
+					+ "<button type='button' class='btn icon btn-warning' onclick='edit_order(" + order.getID_order() + ", event)'><i data-feather='edit-2'></i></button>"
+					+ "<button type='button' class='btn icon btn-danger ms-1' onclick='delete_order(" + order.getID_order() + ", event)'><i data-feather='trash-2'></i></button>"
+					+ "</td>");
 			rows.append("<td class='order-code-col'>" + toDisplay(order.geto_order_code()) + "</td>");
 			rows.append("<td class='order-date-col'>" + formatDate(order.geto_order_date()) + "</td>");
 			rows.append("<td>" + toDisplay(order.geto_customer_name()) + "</td>");
@@ -130,6 +204,67 @@ public class OrderListController {
 		String resolvedStartDate = startDate == null || startDate.isBlank() ? DEFAULT_START_DATE : startDate;
 		String resolvedEndDate = endDate == null || endDate.isBlank() ? DEFAULT_END_DATE : endDate;
 		return new DateRange(resolvedStartDate, resolvedEndDate);
+	}
+
+	private Map<String, Object> toOrderMap(Order order) {
+		Map<String, Object> data = new LinkedHashMap<>();
+		data.put("id", order.getId());
+		data.put("order_date", formatSqlDate(order.getOrder_date()));
+		data.put("customer_name", toDisplay(order.getCustomer_name()));
+		data.put("pay_method", order.getPay_method());
+		data.put("pay_type", order.getPay_type());
+		data.put("last_pay_date", formatSqlDate(order.getLast_pay_date()));
+		data.put("send_cost", order.getSend_cost());
+		data.put("discount", order.getDiscount());
+		data.put("price_total", order.getPrice_total());
+		data.put("price_pledge", order.getPrice_pledge());
+		data.put("price_balance", order.getPrice_balance());
+		data.put("net", order.getNet());
+		data.put("remark", toDisplay(order.getRemark()));
+		return data;
+	}
+
+	private LocalDate parseRequiredDate(String value) {
+		if (value == null || value.isBlank()) {
+			throw new IllegalArgumentException("Date is required");
+		}
+		return LocalDate.parse(value);
+	}
+
+	private java.sql.Date parseOptionalSqlDate(String value) {
+		return value == null || value.isBlank() ? null : java.sql.Date.valueOf(LocalDate.parse(value));
+	}
+
+	private String formatSqlDate(java.util.Date value) {
+		if (value == null) {
+			return "";
+		}
+		return new java.sql.Date(value.getTime()).toLocalDate().toString();
+	}
+
+	private void refreshOrderIncome(Order order, LocalDate incomeDate) {
+		incomeRepository.deleteByOrderId(order.getId());
+		Integer payMethod = order.getPay_method();
+		if (Integer.valueOf(1).equals(payMethod)) {
+			saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "จ่ายเต็ม", order.getId());
+		} else if (Integer.valueOf(2).equals(payMethod)) {
+			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
+		} else if (Integer.valueOf(3).equals(payMethod)) {
+			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
+			saveIncome(incomeDate, order.getCustomer_name(), 3, order.getPrice_balance(), "จ่ายมัดจำที่เหลือ", order.getId());
+		}
+	}
+
+	private void saveIncome(LocalDate createDate, String customerName, Integer typeIncome, double price, String note, Integer orderId) {
+		Income income = new Income();
+		income.setCreateDate(createDate.toString());
+		income.setCustomerName(customerName);
+		income.setTypeIncome(typeIncome);
+		income.setPrice(BigDecimal.valueOf(price).stripTrailingZeros().toPlainString());
+		income.setNote(note);
+		income.setDelete("A");
+		income.setOrder(orderId);
+		incomeRepository.save(income);
 	}
 
 	private String buildDetailRows(Integer orderId) {
@@ -165,8 +300,11 @@ public class OrderListController {
 		return rows.toString();
 	}
 
-	private String buildPaymentMethodOptions(Integer selectedId) {
-		StringBuilder options = new StringBuilder("<option value=''>ทั้งหมด</option>");
+	private String buildPaymentMethodOptions(Integer selectedId, boolean includeAllOption) {
+		StringBuilder options = new StringBuilder();
+		if (includeAllOption) {
+			options.append("<option value=''>ทั้งหมด</option>");
+		}
 		for (PaymentMethod paymentMethod : paymentMethodRepository.getDataAll()) {
 			String selected = paymentMethod.getId().equals(selectedId) ? " selected" : "";
 			options.append("<option value='" + paymentMethod.getId() + "'" + selected + ">" + paymentMethod.getName() + "</option>");

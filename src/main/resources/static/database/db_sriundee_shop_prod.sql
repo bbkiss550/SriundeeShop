@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : MySQL
+ Source Server         : sriundee_shop
  Source Server Type    : MySQL
- Source Server Version : 80042
+ Source Server Version : 80046
  Source Host           : localhost:3306
  Source Schema         : db_sriundee_shop
 
  Target Server Type    : MySQL
- Target Server Version : 80042
+ Target Server Version : 80046
  File Encoding         : 65001
 
- Date: 21/05/2026 15:03:32
+ Date: 24/05/2026 20:34:46
 */
 
 SET NAMES utf8mb4;
@@ -28,7 +28,14 @@ CREATE TABLE `t_artist`  (
   `a_logo` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `a_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_art`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_artist
+-- ----------------------------
+INSERT INTO `t_artist` VALUES (12, 'I.O.I', 5, 'https://pbs.twimg.com/media/HIq6wAWaYAAZ9fg?format=jpg&name=medium', 'A');
+INSERT INTO `t_artist` VALUES (13, 'ALPHA DRIVE ONE', 5, 'https://pbs.twimg.com/profile_images/2049503990564765696/sx1fFgsj_400x400.jpg', 'A');
+INSERT INTO `t_artist` VALUES (14, 'KRYSTAL', 5, 'https://pbs.twimg.com/media/HIWU138akAAoAqt?format=png&name=small', 'A');
 
 -- ----------------------------
 -- Table structure for t_cost
@@ -45,6 +52,15 @@ CREATE TABLE `t_cost`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Records of t_cost
+-- ----------------------------
+INSERT INTO `t_cost` VALUES (9, '2026-05-16', 1, '1314.33', '', 'A');
+INSERT INTO `t_cost` VALUES (10, '2026-05-16', 1, '4222.20', '', 'A');
+INSERT INTO `t_cost` VALUES (11, '2026-05-15', 1, '1334', '', 'A');
+INSERT INTO `t_cost` VALUES (12, '2026-05-15', 1, '1314.33', '', 'A');
+INSERT INTO `t_cost` VALUES (13, '2026-05-16', 1, '2633.20', '', 'A');
+
+-- ----------------------------
 -- Table structure for t_cost_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `t_cost_detail`;
@@ -53,7 +69,28 @@ CREATE TABLE `t_cost_detail`  (
   `ID_cost` int(0) DEFAULT NULL,
   `ID_order_detail` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_cost_detail`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 29 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_cost_detail
+-- ----------------------------
+INSERT INTO `t_cost_detail` VALUES (29, 9, 4);
+INSERT INTO `t_cost_detail` VALUES (30, 9, 9);
+INSERT INTO `t_cost_detail` VALUES (31, 9, 12);
+INSERT INTO `t_cost_detail` VALUES (32, 10, 1);
+INSERT INTO `t_cost_detail` VALUES (33, 10, 2);
+INSERT INTO `t_cost_detail` VALUES (34, 10, 3);
+INSERT INTO `t_cost_detail` VALUES (35, 10, 5);
+INSERT INTO `t_cost_detail` VALUES (36, 10, 6);
+INSERT INTO `t_cost_detail` VALUES (37, 10, 7);
+INSERT INTO `t_cost_detail` VALUES (38, 10, 8);
+INSERT INTO `t_cost_detail` VALUES (39, 10, 10);
+INSERT INTO `t_cost_detail` VALUES (40, 10, 11);
+INSERT INTO `t_cost_detail` VALUES (41, 10, 13);
+INSERT INTO `t_cost_detail` VALUES (42, 11, 14);
+INSERT INTO `t_cost_detail` VALUES (43, 12, 15);
+INSERT INTO `t_cost_detail` VALUES (44, 13, 16);
+INSERT INTO `t_cost_detail` VALUES (45, 13, 17);
 
 -- ----------------------------
 -- Table structure for t_cover
@@ -70,7 +107,17 @@ CREATE TABLE `t_cover`  (
   `c_price_balance` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `c_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_cover`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_cover
+-- ----------------------------
+INSERT INTO `t_cover` VALUES (1, 6, 9, 11, 'PHOTOBOOK ver.', '550.0', '250.0', '300.0', 'A');
+INSERT INTO `t_cover` VALUES (2, 6, 10, 11, 'PHOTOBOOK ver.', '550.0', '250.0', '300.0', 'A');
+INSERT INTO `t_cover` VALUES (3, 8, 10, 12, 'OFFICIAL LIGHT STICK', '1490.0', '700.0', '790.0', 'A');
+INSERT INTO `t_cover` VALUES (4, 7, 11, 13, 'PHOTOBOOK ver.', '550.0', '350.0', '200.0', 'A');
+INSERT INTO `t_cover` VALUES (5, 7, 12, 13, 'PHOTOBOOK ver.', '550.0', '350.0', '200.0', 'A');
+INSERT INTO `t_cover` VALUES (6, 9, 13, 14, 'Out Box', '250.0', '100.0', '150.0', 'A');
 
 -- ----------------------------
 -- Table structure for t_group
@@ -107,7 +154,33 @@ CREATE TABLE `t_income`  (
   `ID_order` int(0) DEFAULT NULL,
   `ID_sale` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_income`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_income
+-- ----------------------------
+INSERT INTO `t_income` VALUES (1, '2026-04-27', '@momeromars', 1, '600', 'จ่ายเต็ม', 'A', 1, NULL);
+INSERT INTO `t_income` VALUES (2, '2026-05-01', '@faypcx', 1, '600', 'จ่ายเต็ม', 'A', 2, NULL);
+INSERT INTO `t_income` VALUES (3, '2026-05-03', 'Line / noggy', 2, '250', 'จ่ายมัดจำ', 'A', 3, NULL);
+INSERT INTO `t_income` VALUES (4, '2026-05-05', '@Firstt_Trades', 2, '500', 'จ่ายมัดจำ', 'A', 4, NULL);
+INSERT INTO `t_income` VALUES (5, '2026-05-07', '@ningningiluvx', 2, '250', 'จ่ายมัดจำ', 'A', 5, NULL);
+INSERT INTO `t_income` VALUES (6, '2026-05-08', 'Line / Pear.r', 2, '250', 'จ่ายมัดจำ', 'A', 6, NULL);
+INSERT INTO `t_income` VALUES (7, '2026-05-09', '@Sonnoah_', 2, '250', 'จ่ายมัดจำ', 'A', 7, NULL);
+INSERT INTO `t_income` VALUES (8, '2026-05-09', '@uninons', 2, '500', 'จ่ายมัดจำ', 'A', 8, NULL);
+INSERT INTO `t_income` VALUES (9, '2026-05-12', '@My_Kyuyok', 2, '250', 'จ่ายมัดจำ', 'A', 9, NULL);
+INSERT INTO `t_income` VALUES (10, '2026-05-16', '@jkjnbear', 2, '500', 'จ่ายมัดจำ', 'A', 10, NULL);
+INSERT INTO `t_income` VALUES (11, '2026-05-23', '@PhonlawatL0ve', 2, '700', 'จ่ายมัดจำ', 'A', 11, NULL);
+INSERT INTO `t_income` VALUES (12, '2026-05-15', '@gwi11_9', 2, '700', 'จ่ายมัดจำ', 'A', 12, NULL);
+INSERT INTO `t_income` VALUES (13, '2026-05-16', '@KariyoungWonna', 2, '700', 'จ่ายมัดจำ', 'A', 13, NULL);
+INSERT INTO `t_income` VALUES (14, '2026-05-16', '@mtno1r', 2, '700', 'จ่ายมัดจำ', 'A', 14, NULL);
+INSERT INTO `t_income` VALUES (15, '2026-05-21', '@mandushot', 1, '600', 'จ่ายเต็ม', 'A', 15, NULL);
+INSERT INTO `t_income` VALUES (16, '2026-05-22', '@bellannabells', 2, '350', 'จ่ายมัดจำ', 'A', 16, NULL);
+INSERT INTO `t_income` VALUES (17, '2026-05-23', '@somebody_rainy', 2, '350', 'จ่ายมัดจำ', 'A', 17, NULL);
+INSERT INTO `t_income` VALUES (18, '2026-05-23', '@bluietny', 2, '350', 'จ่ายมัดจำ', 'A', 18, NULL);
+INSERT INTO `t_income` VALUES (19, '2026-05-23', '@MethawiMnt62564', 2, '350', 'จ่ายมัดจำ', 'A', 19, NULL);
+INSERT INTO `t_income` VALUES (20, '2026-05-15', '@chabarimrua', 2, '100', 'จ่ายมัดจำ', 'A', 20, NULL);
+INSERT INTO `t_income` VALUES (21, '2026-05-15', '@bonosyumi', 2, '100', 'จ่ายมัดจำ', 'A', 21, NULL);
+INSERT INTO `t_income` VALUES (22, '2026-05-23', '@bluietny', 2, '100', 'จ่ายมัดจำ', 'A', 22, NULL);
 
 -- ----------------------------
 -- Table structure for t_lot
@@ -125,6 +198,11 @@ CREATE TABLE `t_lot`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Records of t_lot
+-- ----------------------------
+INSERT INTO `t_lot` VALUES (1, '237', '2026-05-21', '2026-06-10', '2026-06-15', NULL, 'A');
+
+-- ----------------------------
 -- Table structure for t_lot_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `t_lot_detail`;
@@ -134,6 +212,14 @@ CREATE TABLE `t_lot_detail`  (
   `ID_order_detail` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_lot_detail`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_lot_detail
+-- ----------------------------
+INSERT INTO `t_lot_detail` VALUES (1, 1, 14);
+INSERT INTO `t_lot_detail` VALUES (2, 1, 15);
+INSERT INTO `t_lot_detail` VALUES (3, 1, 16);
+INSERT INTO `t_lot_detail` VALUES (4, 1, 17);
 
 -- ----------------------------
 -- Table structure for t_menu
@@ -148,7 +234,7 @@ CREATE TABLE `t_menu`  (
   `m_icon` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `m_order` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_menu`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_menu
@@ -157,19 +243,18 @@ INSERT INTO `t_menu` VALUES (2, 'ข้อมูลพื้นฐาน', 'Y', 
 INSERT INTO `t_menu` VALUES (3, 'ข้อมูลศิลปิน', NULL, 2, '/artist', NULL, 1);
 INSERT INTO `t_menu` VALUES (4, 'ข้อมูลประเภทสินค้า', NULL, 2, '/type', NULL, 2);
 INSERT INTO `t_menu` VALUES (5, 'ข้อมูลเว็บไซต์', NULL, 2, '/website', NULL, 3);
-INSERT INTO `t_menu` VALUES (6, 'ข้อมูลสินค้า', 'N', NULL, '/product', 'bi bi-book-half', 3);
-INSERT INTO `t_menu` VALUES (7, 'บันทึกออร์เดอร์', 'N', NULL, '/order', 'bi bi-basket', 4);
-INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/change', 'bi bi-check-circle-fill', 7);
-INSERT INTO `t_menu` VALUES (9, 'ข้อมูลการกดของ', 'N', NULL, '/check_status_2', 'bi bi-clipboard-check', 8);
-INSERT INTO `t_menu` VALUES (10, 'ข้อมูล LOT', 'N', NULL, '/lot', 'bi bi-tags-fill', 9);
-INSERT INTO `t_menu` VALUES (11, 'ข้อมูลค่าชิปปิ้ง', 'N', NULL, '/cost/shipping', 'bi bi-truck', 10);
-INSERT INTO `t_menu` VALUES (12, 'รายการสั่งซื้อ', 'N', NULL, '/orders', 'bi bi-receipt', 5);
-INSERT INTO `t_menu` VALUES (13, 'บันทึกรับเงินมัดจำ', 'N', NULL, '/deposit-balance', 'bi bi-cash-stack', 6);
+INSERT INTO `t_menu` VALUES (6, 'ข้อมูลสินค้า', 'N', NULL, '/product', 'bi bi-book-half', 4);
+INSERT INTO `t_menu` VALUES (7, 'บันทึกออร์เดอร์', 'N', NULL, '/order', 'bi bi-basket', 5);
+INSERT INTO `t_menu` VALUES (8, 'อัปเดทสถานะ', 'N', NULL, '/change', 'bi bi-check-circle-fill', 8);
+INSERT INTO `t_menu` VALUES (9, 'ข้อมูลการกดของ', 'N', NULL, '/check_status_2', 'bi bi-clipboard-check', 9);
+INSERT INTO `t_menu` VALUES (10, 'ข้อมูล LOT', 'N', NULL, '/lot', 'bi bi-tags-fill', 10);
+INSERT INTO `t_menu` VALUES (11, 'ข้อมูลค่าชิปปิ้ง', 'N', NULL, '/cost/shipping', 'bi bi-truck', 11);
+INSERT INTO `t_menu` VALUES (12, 'รายการสั่งซื้อ', 'N', NULL, '/orders', 'bi bi-receipt', 6);
+INSERT INTO `t_menu` VALUES (13, 'บันทึกรับเงินมัดจำ', 'N', NULL, '/deposit-balance', 'bi bi-cash-stack', 7);
 INSERT INTO `t_menu` VALUES (14, 'ปฏิทินกำหนดการ', 'N', NULL, '/schedule-calendar', 'bi bi-calendar-event', 1);
-INSERT INTO `t_menu` VALUES (15, 'รายงาน', 'N', NULL, '/reports', 'bi bi-file-earmark-bar-graph', 11);
-INSERT INTO `t_menu` VALUES (16, 'บันทึกค่าใช้จ่าย', 'N', NULL, '/cost/expense', 'bi bi-credit-card', 12);
-INSERT INTO `t_menu` VALUES (17, 'คำนวณราคาขาย', 'N', NULL, '/pricing-calculator', 'bi bi-calculator', 13);
-INSERT INTO `t_menu` VALUES (18, 'จัดการ Dashboard', 'N', NULL, '/dashboard/manage', 'bi bi-grid-1x2', 14);
+INSERT INTO `t_menu` VALUES (15, 'รายงาน', 'N', NULL, '/reports', 'bi bi-file-earmark-bar-graph', 12);
+INSERT INTO `t_menu` VALUES (16, 'บันทึกค่าใช้จ่าย', 'N', NULL, '/cost/expense', 'bi bi-credit-card', 13);
+INSERT INTO `t_menu` VALUES (17, 'คำนวณราคาขาย', 'N', NULL, '/pricing-calculator', 'bi bi-calculator', 3);
 
 -- ----------------------------
 -- Table structure for t_order
@@ -191,7 +276,33 @@ CREATE TABLE `t_order`  (
   `o_net` double(255, 0) DEFAULT NULL,
   `o_remark` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_order`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_order
+-- ----------------------------
+INSERT INTO `t_order` VALUES (1, '2026-04-27', 'PR-26-000001', '@momeromars', 1, NULL, NULL, 50, 0, 550, 0, 0, 600, '');
+INSERT INTO `t_order` VALUES (2, '2026-05-01', 'PR-26-000002', '@faypcx', 1, NULL, NULL, 50, 0, 550, 0, 0, 600, '');
+INSERT INTO `t_order` VALUES (3, '2026-05-03', 'PR-26-000003', 'Line / noggy', 2, 1, NULL, 50, 0, 550, 250, 350, 600, '');
+INSERT INTO `t_order` VALUES (4, '2026-05-05', 'PR-26-000004', '@Firstt_Trades', 2, 1, NULL, 50, 0, 1100, 500, 650, 1150, '');
+INSERT INTO `t_order` VALUES (5, '2026-05-07', 'PR-26-000005', '@ningningiluvx', 2, 1, NULL, 50, 0, 550, 250, 350, 600, '');
+INSERT INTO `t_order` VALUES (6, '2026-05-08', 'PR-26-000006', 'Line / Pear.r', 2, 1, NULL, 50, 0, 550, 250, 350, 600, '');
+INSERT INTO `t_order` VALUES (7, '2026-05-09', 'PR-26-000007', '@Sonnoah_', 2, 1, NULL, 50, 0, 550, 250, 350, 600, '');
+INSERT INTO `t_order` VALUES (8, '2026-05-09', 'PR-26-000008', '@uninons', 2, 1, NULL, 50, 0, 1100, 500, 650, 1150, '');
+INSERT INTO `t_order` VALUES (9, '2026-05-12', 'PR-26-000009', '@My_Kyuyok', 1, 1, NULL, 50, 0, 550, 0, 0, 600, '');
+INSERT INTO `t_order` VALUES (10, '2026-05-16', 'PR-26-000010', '@jkjnbear', 2, 1, NULL, 50, 0, 1100, 500, 650, 1150, '');
+INSERT INTO `t_order` VALUES (11, '2026-05-15', 'PR-26-000011', '@PhonlawatL0ve', 2, 1, NULL, 60, 0, 1490, 700, 850, 1550, '');
+INSERT INTO `t_order` VALUES (12, '2026-05-15', 'PR-26-000012', '@gwi11_9', 2, 1, NULL, 60, 0, 1490, 700, 850, 1550, '');
+INSERT INTO `t_order` VALUES (13, '2026-05-16', 'PR-26-000013', '@KariyoungWonna', 2, 1, NULL, 60, 0, 1490, 700, 850, 1550, '');
+INSERT INTO `t_order` VALUES (14, '2026-05-16', 'PR-26-000014', '@mtno1r', 2, 1, NULL, 60, 0, 1490, 700, 850, 1550, '');
+INSERT INTO `t_order` VALUES (15, '2026-05-21', 'PR-26-000015', '@mandushot', 1, NULL, NULL, 50, 0, 550, 0, 0, 600, '');
+INSERT INTO `t_order` VALUES (16, '2026-05-22', 'PR-26-000016', '@bellannabells', 2, 1, NULL, 50, 0, 550, 350, 250, 600, '');
+INSERT INTO `t_order` VALUES (17, '2026-05-23', 'PR-26-000017', '@somebody_rainy', 2, 1, NULL, 50, 0, 550, 350, 250, 600, '');
+INSERT INTO `t_order` VALUES (18, '2026-05-23', 'PR-26-000018', '@bluietny', 2, 1, NULL, 50, 0, 550, 350, 250, 600, '');
+INSERT INTO `t_order` VALUES (19, '2026-05-23', 'PR-26-000019', '@MethawiMnt62564', 2, 1, NULL, 50, 0, 550, 350, 250, 600, '');
+INSERT INTO `t_order` VALUES (20, '2026-05-15', 'PR-26-000020', '@chabarimrua', 2, 1, NULL, 50, 0, 250, 100, 200, 300, '');
+INSERT INTO `t_order` VALUES (21, '2026-05-15', 'PR-26-000021', '@bonosyumi', 2, 1, NULL, 50, 0, 250, 100, 200, 300, '');
+INSERT INTO `t_order` VALUES (22, '2026-05-23', 'PR-26-000022', '@bluietny', 2, 1, NULL, 0, 0, 250, 100, 150, 250, '');
 
 -- ----------------------------
 -- Table structure for t_order_detail
@@ -207,7 +318,36 @@ CREATE TABLE `t_order_detail`  (
   `od_price_balance` double(255, 0) DEFAULT NULL,
   `ID_order_status` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_order_detail`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_order_detail
+-- ----------------------------
+INSERT INTO `t_order_detail` VALUES (1, 1, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (2, 2, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (3, 3, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (4, 4, 1, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (5, 4, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (6, 5, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (7, 6, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (8, 7, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (9, 8, 1, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (10, 8, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (11, 9, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (12, 10, 1, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (13, 10, 2, 1, 550, 250, 300, 2);
+INSERT INTO `t_order_detail` VALUES (14, 11, 3, 1, 1490, 700, 790, 3);
+INSERT INTO `t_order_detail` VALUES (15, 12, 3, 1, 1490, 700, 790, 3);
+INSERT INTO `t_order_detail` VALUES (16, 13, 3, 1, 1490, 700, 790, 3);
+INSERT INTO `t_order_detail` VALUES (17, 14, 3, 1, 1490, 700, 790, 3);
+INSERT INTO `t_order_detail` VALUES (18, 15, 4, 1, 550, 350, 200, 1);
+INSERT INTO `t_order_detail` VALUES (19, 16, 4, 1, 550, 350, 200, 1);
+INSERT INTO `t_order_detail` VALUES (20, 17, 4, 1, 550, 350, 200, 1);
+INSERT INTO `t_order_detail` VALUES (21, 18, 4, 1, 550, 350, 200, 1);
+INSERT INTO `t_order_detail` VALUES (22, 19, 4, 1, 550, 350, 200, 1);
+INSERT INTO `t_order_detail` VALUES (23, 20, 6, 1, 250, 100, 150, 1);
+INSERT INTO `t_order_detail` VALUES (24, 21, 6, 1, 250, 100, 150, 1);
+INSERT INTO `t_order_detail` VALUES (25, 22, 6, 1, 250, 100, 150, 1);
 
 -- ----------------------------
 -- Table structure for t_order_status
@@ -244,7 +384,7 @@ CREATE TABLE `t_payment_method`  (
 -- ----------------------------
 INSERT INTO `t_payment_method` VALUES (1, 'จ่ายเต็ม', 'A');
 INSERT INTO `t_payment_method` VALUES (2, 'มัดจำ', 'A');
-INSERT INTO `t_payment_method` VALUES (3, 'ชำระมัดจำแล้ว', 'D');
+INSERT INTO `t_payment_method` VALUES (3, 'ชำระมัดจำแล้ว', 'A');
 
 -- ----------------------------
 -- Table structure for t_payment_type
@@ -277,7 +417,15 @@ CREATE TABLE `t_product`  (
   `p_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `p_pic` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_product`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_product
+-- ----------------------------
+INSERT INTO `t_product` VALUES (6, 'I.O.I 3RD MINI ALBUM [I.O.I : LOOP]', 7, 12, '2026-05-14', '2026-06-03', 1, 'A', 'https://pbs.twimg.com/media/HG6vaksaMAAos2z?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (7, 'I.O.I 3RD MINI ALBUM [I.O.I : LOOP]', 8, 12, '2026-05-25', '2026-06-30', 1, 'A', 'https://pbs.twimg.com/media/HIxG7CmbYAAI5dI?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (8, 'ALPHA DRIVE ONE OFFICIAL LIGHT STICK', 9, 13, '2026-12-31', '2026-12-31', 1, 'A', 'https://pbs.twimg.com/media/HIVowbNbYAEIAu5?format=jpg&name=medium');
+INSERT INTO `t_product` VALUES (9, 'KRYSTAL [PWLT]', 7, 14, '2026-05-26', '2026-05-27', 1, 'A', 'https://pbs.twimg.com/media/HIWU138akAAoAqt?format=png&name=small');
 
 -- ----------------------------
 -- Table structure for t_product_status
@@ -304,7 +452,7 @@ CREATE TABLE `t_product_web`  (
   `ID_pro` int(0) DEFAULT NULL,
   `ID_web` int(0) DEFAULT NULL,
   PRIMARY KEY (`ID_pro_web`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for t_sale
@@ -326,7 +474,7 @@ CREATE TABLE `t_sale`  (
   `s_pending` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `s_send_date` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_sale`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for t_settings
@@ -335,20 +483,19 @@ DROP TABLE IF EXISTS `t_settings`;
 CREATE TABLE `t_settings`  (
   `ID_setting` int(0) NOT NULL AUTO_INCREMENT,
   `s_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `s_value` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `s_value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_setting`) USING BTREE,
   UNIQUE INDEX `idx_t_settings_key`(`s_key`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of t_settings
 -- ----------------------------
-INSERT INTO `t_settings` VALUES (1, 'theme_mode', 'dark');
+INSERT INTO `t_settings` VALUES (1, 'theme_mode', 'light');
 INSERT INTO `t_settings` VALUES (2, 'schedule_show_completed', 'true');
 INSERT INTO `t_settings` VALUES (3, 'dashboard_chart_series', 'amount,receivedPaid,pledgePaid,pressCost,shippingCost');
 INSERT INTO `t_settings` VALUES (4, 'dashboard_chart_granularity', 'day');
-INSERT INTO `t_settings` VALUES (5, 'order_show_closed_products', 'false');
-INSERT INTO `t_settings` VALUES (6, 'dashboard_widgets', '[]');
+INSERT INTO `t_settings` VALUES (5, 'order_show_closed_products', 'true');
 
 -- ----------------------------
 -- Table structure for t_type
@@ -359,7 +506,14 @@ CREATE TABLE `t_type`  (
   `t_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `t_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_type`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_type
+-- ----------------------------
+INSERT INTO `t_type` VALUES (7, 'PRE-ORDER', 'A');
+INSERT INTO `t_type` VALUES (8, 'LUCKY DRAW', 'A');
+INSERT INTO `t_type` VALUES (9, 'LIGHT STICK', 'A');
 
 -- ----------------------------
 -- Table structure for t_type_cost
@@ -409,7 +563,15 @@ CREATE TABLE `t_version`  (
   `v_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `v_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_ver`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_version
+-- ----------------------------
+INSERT INTO `t_version` VALUES (11, 6, 'PHOTOBOOK ver.', 'A');
+INSERT INTO `t_version` VALUES (12, 8, 'OFFICIAL LIGHT STICK', 'A');
+INSERT INTO `t_version` VALUES (13, 7, 'PHOTOBOOK ver.', 'A');
+INSERT INTO `t_version` VALUES (14, 9, 'Out Box', 'A');
 
 -- ----------------------------
 -- Table structure for t_website
@@ -420,7 +582,16 @@ CREATE TABLE `t_website`  (
   `w_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `w_delete` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID_web`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_website
+-- ----------------------------
+INSERT INTO `t_website` VALUES (9, 'Aladin', 'A');
+INSERT INTO `t_website` VALUES (10, 'YES24', 'A');
+INSERT INTO `t_website` VALUES (11, 'Applemusic', 'A');
+INSERT INTO `t_website` VALUES (12, 'Soundwave', 'A');
+INSERT INTO `t_website` VALUES (13, 'Ktown4u', 'A');
 
 -- ----------------------------
 -- View structure for q_artist

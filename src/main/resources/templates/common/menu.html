@@ -9,9 +9,14 @@
                 </a>
                 <div class="top-navigation-actions">
                     <div class="top-navigation-settings-stack">
-                        <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="ตั้งค่าลำดับเมนู" title="ตั้งค่าลำดับเมนู">
-                            <i class="bi bi-gear-fill"></i>
-                        </button>
+                        <div class="top-navigation-settings-row">
+                            <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="ตั้งค่าลำดับเมนู" title="ตั้งค่าลำดับเมนู">
+                                <i class="bi bi-gear-fill"></i>
+                            </button>
+                            <a th:href="@{/dashboard/manage}" class="btn dashboard-manage-toggle-btn" aria-label="จัดการ Dashboard" title="จัดการ Dashboard">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                            </a>
+                        </div>
                         <button type="button" id="themeToggle" class="btn theme-toggle-btn" aria-label="Toggle dark mode" aria-pressed="false">
                             <span id="themeToggleIcon" class="theme-toggle-icon" aria-hidden="true">&#9728;</span>
                             <span id="themeToggleLabel">Light</span>

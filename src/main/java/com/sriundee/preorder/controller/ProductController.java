@@ -1,6 +1,7 @@
 package com.sriundee.preorder.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -57,7 +58,7 @@ public class ProductController {
 			strProduct.append("<td>" + p.getp_name() + "</td>");
 			strProduct.append("<td>" + p.gett_name() + "</td>");
 			strProduct.append("<td>" + p.geta_name() + "</td>");
-			strProduct.append("<td>" + p.getp_end_date() + "</td>");
+			strProduct.append("<td>" + displayScheduleDate(p.getp_end_date()) + "</td>");
 			if (p.getID_pro_status() == 1) {
 				strProduct.append("<td><span class='badge bg-success' style='padding: 15px;'>" + p.getps_name() + "</span></td>");
 			} else {
@@ -89,8 +90,8 @@ public class ProductController {
             product.setName(productDto.getName());
             product.setType(productDto.getType());
             product.setArtist(productDto.getArtist());
-            product.setEnd_date(formatter.parse(productDto.getEnd_date()));
-            product.setSend_date(formatter.parse(productDto.getSend_date()));
+            product.setEnd_date(parseNullableDate(formatter, productDto.getEnd_date()));
+            product.setSend_date(parseNullableDate(formatter, productDto.getSend_date()));
             product.setProduct_status(productDto.getProduct_status());
             product.setDelete("A");
             product.setPic(productDto.getPic());
@@ -119,8 +120,8 @@ public class ProductController {
         	product.setName(productDto.getName());
             product.setType(productDto.getType());
             product.setArtist(productDto.getArtist());
-            product.setEnd_date(formatter.parse(productDto.getEnd_date()));
-            product.setSend_date(formatter.parse(productDto.getSend_date()));
+            product.setEnd_date(parseNullableDate(formatter, productDto.getEnd_date()));
+            product.setSend_date(parseNullableDate(formatter, productDto.getSend_date()));
             product.setProduct_status(productDto.getProduct_status());
             product.setDelete("A");
             product.setPic(productDto.getPic());
@@ -146,5 +147,16 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
+    }
+
+    private Date parseNullableDate(SimpleDateFormat formatter, String value) throws Exception {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return formatter.parse(value);
+    }
+
+    private String displayScheduleDate(String value) {
+        return value == null || value.isBlank() ? "ไม่มีกำหนด" : value;
     }
 }

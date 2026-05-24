@@ -45,7 +45,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
 			WHERE q.ID_Order IS NOT NULL
 			AND (:ID_order_status IS NULL OR q.ID_order_status = :ID_order_status)
-			AND (:a_name IS NULL OR :a_name = '' OR q.a_name LIKE CONCAT('%', :a_name, '%'))
+			AND (:a_name IS NULL OR :a_name = '' OR q.a_name ILIKE ('%' || :a_name || '%'))
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
 			AND (:lot_number IS NULL OR :lot_number = '' OR EXISTS (
 				SELECT 1
@@ -53,7 +53,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 				JOIN t_lot l ON l.ID_lot = ld.ID_lot
 				WHERE ld.ID_order_detail = q.ID_order_detail
 				  AND l.l_delete = 'A'
-				  AND l.l_lot_number LIKE CONCAT('%', :lot_number, '%')
+				  AND l.l_lot_number ILIKE ('%' || :lot_number || '%')
 			))
 			""", nativeQuery = true)
 	List<OrderDetailBean> getDataByFilter(
@@ -69,7 +69,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			WHERE q.ID_Order IS NOT NULL
 			AND (:ID_art IS NULL OR q.ID_art = :ID_art)
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
-			AND (:customer_name IS NULL OR :customer_name = '' OR q.o_customer_name LIKE CONCAT('%', :customer_name, '%'))
+			AND (:customer_name IS NULL OR :customer_name = '' OR q.o_customer_name ILIKE ('%' || :customer_name || '%'))
 			ORDER BY q.ID_order_detail DESC
 			""", nativeQuery = true)
 	List<OrderDetailBean> getDataByAllFilter(

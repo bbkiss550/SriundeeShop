@@ -1,15 +1,21 @@
 function updateImage() {
+	updateImagePreview();
+}
+
+function updateImagePreview() {
     const url = document.getElementById('aPic').value;
     if (url.trim() !== "") {
         document.getElementById('showImage').src = url;
     } else {
-        alert("กรุณาวางลิงก์รูปภาพก่อนครับ");
+        document.getElementById('showImage').src = "/mazer/dist/assets/images/samples/no-photo.png";
     }
 }
 
 function new_data() {
 	document.getElementById('IdArt').value = "";
 	document.getElementById('aName').value = "";
+	document.getElementById('aPic').value = "";
+	document.getElementById('showImage').src = "/mazer/dist/assets/images/samples/no-photo.png";
     document.getElementById('IdGroup').selectedIndex = 0;
 
 	document.getElementById('btn_save').style.display = '';

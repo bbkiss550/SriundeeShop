@@ -1,9 +1,13 @@
 function updateImage() {
+	updateImagePreview();
+}
+
+function updateImagePreview() {
     const url = document.getElementById('pPic').value;
     if (url.trim() !== "") {
         document.getElementById('showImage').src = url;
     } else {
-        alert("กรุณาวางลิงก์รูปภาพก่อนครับ");
+        document.getElementById('showImage').src = "/mazer/dist/assets/images/samples/no-photo.png";
     }
 }
 
@@ -14,6 +18,8 @@ function new_data() {
 	document.getElementById('IdArtist').selectedIndex = 0;
 	document.getElementById('end_date').value = "";
 	document.getElementById('send_date').value = "";
+	setProductScheduleCheckbox('end_date', 'end_date_unscheduled', false);
+	setProductScheduleCheckbox('send_date', 'send_date_unscheduled', false);
 	document.getElementById('IdProductStatus').selectedIndex = 0;
 	document.getElementById('pPic').value = "";
 	document.getElementById('showImage').src = "/mazer/dist/assets/images/samples/no-photo.png";
@@ -29,8 +35,10 @@ function save_new_data() {
 	const pName = document.getElementById('pName').value;
 	const IdType = document.getElementById('IdType').value;
 	const IdArtist = document.getElementById('IdArtist').value;
-	const end_date = document.getElementById('end_date').value;
-	const send_date = document.getElementById('send_date').value;
+	const end_date_unscheduled = document.getElementById('end_date_unscheduled')?.checked;
+	const send_date_unscheduled = document.getElementById('send_date_unscheduled')?.checked;
+	const end_date = end_date_unscheduled ? null : document.getElementById('end_date').value;
+	const send_date = send_date_unscheduled ? null : document.getElementById('send_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
 	const pPic = document.getElementById('pPic').value;
 
@@ -44,7 +52,7 @@ function save_new_data() {
         return;
     }
 
-	if (!end_date) {
+	if (!end_date_unscheduled && !end_date) {
 		Swal.fire({
 		  title: "กรุณากรอกวันที่ปิดรับ",
 		  text: "",
@@ -54,7 +62,7 @@ function save_new_data() {
 	    return;
 	}
 
-	if (!send_date) {
+	if (!send_date_unscheduled && !send_date) {
 		Swal.fire({
 		  title: "กรุณากรอกวันที่หำหนดส่ง",
 		  text: "",
@@ -111,6 +119,8 @@ function edit_data(id) {
 			document.getElementById('IdArtist').value = data.artist;
 			document.getElementById('end_date').value = check_date_null(data.end_date);
 			document.getElementById('send_date').value = check_date_null(data.send_date);
+			setProductScheduleCheckbox('end_date', 'end_date_unscheduled', !document.getElementById('end_date').value);
+			setProductScheduleCheckbox('send_date', 'send_date_unscheduled', !document.getElementById('send_date').value);
 			document.getElementById('IdProductStatus').value = data.product_status;
 			document.getElementById('pPic').value = data.pic;
 			document.getElementById('showImage').src = check_pic_null(data.pic);
@@ -129,8 +139,10 @@ function save_edit_data() {
 	const pName = document.getElementById('pName').value;
 	const IdType = document.getElementById('IdType').value;
 	const IdArtist = document.getElementById('IdArtist').value;
-	const end_date = document.getElementById('end_date').value;
-	const send_date = document.getElementById('send_date').value;
+	const end_date_unscheduled = document.getElementById('end_date_unscheduled')?.checked;
+	const send_date_unscheduled = document.getElementById('send_date_unscheduled')?.checked;
+	const end_date = end_date_unscheduled ? null : document.getElementById('end_date').value;
+	const send_date = send_date_unscheduled ? null : document.getElementById('send_date').value;
 	const IdProductStatus = document.getElementById('IdProductStatus').value;
 	const pPic = document.getElementById('pPic').value;
 
@@ -144,7 +156,7 @@ function save_edit_data() {
 	    return;
 	}
 
-	if (!end_date) {
+	if (!end_date_unscheduled && !end_date) {
 		Swal.fire({
 		  title: "กรุณากรอกวันที่ปิดรับ",
 		  text: "",
@@ -154,7 +166,7 @@ function save_edit_data() {
 	    return;
 	}
 
-	if (!send_date) {
+	if (!send_date_unscheduled && !send_date) {
 		Swal.fire({
 		  title: "กรุณากรอกวันที่หำหนดส่ง",
 		  text: "",
@@ -215,6 +227,56 @@ function check_pic_null(data) {
 		res = data;
 	}
 	return res;
+}
+
+function toggleProductScheduleDate(dateInputId, checkboxId) {
+	const checkbox = document.getElementById(checkboxId);
+	setProductScheduleDateState(dateInputId, checkbox?.checked);
+}
+
+function setProductScheduleCheckbox(dateInputId, checkboxId, checked) {
+	const checkbox = document.getElementById(checkboxId);
+	if (checkbox) {
+		checkbox.checked = checked;
+	}
+	setProductScheduleDateState(dateInputId, checked);
+}
+
+function setProductScheduleDateState(dateInputId, unscheduled) {
+	const dateInput = document.getElementById(dateInputId);
+	const displayInput = document.querySelector(`[data-date-display-for="${dateInputId}"]`);
+	if (!dateInput) {
+		return;
+	}
+	if (unscheduled) {
+		dateInput.value = "";
+	} else if (!dateInput.value) {
+		dateInput.value = getTodayNativeDate();
+	}
+	if (displayInput) {
+		if (unscheduled) {
+			displayInput.value = "";
+			displayInput.placeholder = "ไม่มีกำหนด";
+		} else {
+			displayInput.placeholder = "วว/มม/ปปปป";
+			displayInput.value = toDisplayProductDate(dateInput.value);
+		}
+		displayInput.disabled = !!unscheduled;
+	}
+	dateInput.disabled = !!unscheduled;
+}
+
+function getTodayNativeDate() {
+	const today = new Date();
+	const year = today.getFullYear();
+	const month = String(today.getMonth() + 1).padStart(2, "0");
+	const day = String(today.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
+}
+
+function toDisplayProductDate(value) {
+	const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+	return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
 }
 
 function delete_data(id) {

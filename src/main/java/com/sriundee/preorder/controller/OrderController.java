@@ -100,8 +100,8 @@ public class OrderController {
 			strProduct.append("<td>" + p.getp_name() + "</td>");
 			strProduct.append("<td>" + p.gett_name() + "</td>");
 			strProduct.append("<td>" + p.geta_name() + "</td>");
-			strProduct.append("<td>" + p.getp_end_date() + "</td>");
-			strProduct.append("<td>" + p.getp_send_date() + "</td>");
+			strProduct.append("<td>" + displayScheduleDate(p.getp_end_date()) + "</td>");
+			strProduct.append("<td>" + displayScheduleDate(p.getp_send_date()) + "</td>");
 			strProduct.append("<td>" + p.getp_last_pay_date() + "</td>");
 			strProduct.append("</tr>");
 		}
@@ -115,9 +115,7 @@ public class OrderController {
 	        boolean isOpenPreorder = Integer.valueOf(1).equals(p.getID_pro_status());
 	        strProduct_card.append("<div class='col-md-" + bootstrap_col + " d-flex product-grid-item" + (isOpenPreorder ? "" : " is-hidden-closed") + "' data-product-status='" + p.getID_pro_status() + "' data-artist-id='" + p.getID_art() + "' data-product-name='" + escapeHtml(p.getp_name()) + "'>");
 	        strProduct_card.append("<div class='card card-move product-grid-card w-100 d-flex flex-column " + (isOpenPreorder ? "" : "product-grid-card-closed") + "'");
-	        if (isOpenPreorder) {
-	        	strProduct_card.append(" onclick='modal_order(" + p.getID_product() + ")'");
-	        }
+	        strProduct_card.append(" onclick='modal_order(" + p.getID_product() + ")'");
 	        strProduct_card.append(">");
 	        strProduct_card.append("<div class='product-grid-image-wrap'>");
 	        strProduct_card.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + p.getps_name() + "</span></span>");
@@ -127,8 +125,8 @@ public class OrderController {
 	        strProduct_card.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
 	        strProduct_card.append("<div class='mt-auto d-flex justify-content-between align-items-end'>"); 
 	        strProduct_card.append("<div class='date-info' style='font-size: 0.85rem; color: #555;'>"); 
-	        strProduct_card.append("<p class='mb-0'>ปิดรับ : " + p.getp_end_date() + "</p>");
-	        strProduct_card.append("<p class='mb-0'>วันที่ส่ง : " + p.getp_send_date() + "</p>");
+	        strProduct_card.append("<p class='mb-0'>ปิดรับ : " + displayScheduleDate(p.getp_end_date()) + "</p>");
+	        strProduct_card.append("<p class='mb-0'>วันที่ส่ง : " + displayScheduleDate(p.getp_send_date()) + "</p>");
 	        strProduct_card.append("</div>");
 	        strProduct_card.append("<span class='product-days-left-badge'>" + getDaysLeftLabel(p.getp_end_date()) + "</span>");
 	        strProduct_card.append("</div></div></div></div>");
@@ -149,8 +147,8 @@ public class OrderController {
 	@ResponseBody
 	public Object getData(@PathVariable Integer id) {
     	List<ProductBean> productList = productRepository.getDataAllByID(id);
-    	if (productList.isEmpty() || !Integer.valueOf(1).equals(productList.get(0).getID_pro_status())) {
-    		return ResponseEntity.badRequest().body("Product is closed");
+    	if (productList.isEmpty()) {
+    		return ResponseEntity.badRequest().body("Product not found");
     	}
 
     	StringBuilder Listqty = new StringBuilder();
@@ -214,8 +212,8 @@ public class OrderController {
         	}
 
         	Product product = productRepository.findById(cover.getProduct()).orElse(null);
-        	if (product == null || !Integer.valueOf(1).equals(product.getProduct_status())) {
-        		return ResponseEntity.badRequest().body("Product is closed");
+        	if (product == null) {
+        		return ResponseEntity.badRequest().body("Product not found");
         	}
 
             OrderDetail orderDetail = new OrderDetail();
@@ -599,6 +597,10 @@ public class OrderController {
         return value == null ? "" : value.toString();
     }
 
+    private String displayScheduleDate(String value) {
+        return value == null || value.isBlank() ? "ไม่มีกำหนด" : value;
+    }
+
     private String getProductStatusTagClass(Integer statusId) {
         if (Integer.valueOf(1).equals(statusId)) {
             return "is-open";
@@ -610,6 +612,9 @@ public class OrderController {
     }
 
     private String getDaysLeftLabel(String endDateValue) {
+        if (endDateValue == null || endDateValue.isBlank()) {
+            return "ไม่มีกำหนด";
+        }
         try {
             LocalDate endDate = LocalDate.parse(endDateValue, DISPLAY_DATE_FORMAT);
             long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), endDate);

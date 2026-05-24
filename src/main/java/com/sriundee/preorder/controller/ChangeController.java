@@ -273,13 +273,12 @@ public class ChangeController {
     		return;
     	}
     	String placeholders = orderDetailIds.stream().map(id -> "?").collect(Collectors.joining(","));
-    	List<Object> params = orderDetailIds.stream().map(id -> (Object) id).collect(Collectors.toList());
-    	params.add(arriveDate);
     	jdbcTemplate.update("""
     			UPDATE t_lot l
-    			JOIN t_lot_detail ld ON ld.ID_lot = l.ID_lot
     			SET l.l_arrive_date = ?
+    			FROM t_lot_detail ld
     			WHERE l.l_delete = 'A'
+    			  AND ld.ID_lot = l.ID_lot
     			  AND ld.ID_order_detail IN (%s)
     			""".formatted(placeholders), buildArriveDateParams(orderDetailIds, arriveDate));
     }
@@ -344,7 +343,7 @@ public class ChangeController {
 		Map<Integer, String> lotMap = new HashMap<>();
 		jdbcTemplate.query("""
 				SELECT ld.ID_order_detail,
-				       GROUP_CONCAT(DISTINCT l.l_lot_number ORDER BY l.ID_lot SEPARATOR ', ') AS lot_numbers
+				       STRING_AGG(DISTINCT l.l_lot_number, ', ') AS lot_numbers
 				FROM t_lot_detail ld
 				JOIN t_lot l ON l.ID_lot = ld.ID_lot
 				WHERE l.l_delete = 'A'

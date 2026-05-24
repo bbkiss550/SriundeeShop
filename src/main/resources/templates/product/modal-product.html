@@ -8,18 +8,18 @@
 				<div class="row">
 	                <div class="col-md-12 form-group">
 						<div class="input-group">
-				            <span class="input-group-text" style="width: 120px; justify-content: right;">ชื่อสินค้า</span>
+				            <span class="input-group-text product-field-label">ชื่อสินค้า</span>
 	                    	<input type="text" placeholder="..." class="form-control" id="pName">
 	                    	<input type="hidden" id="IdProduct">
 	                    </div>
 	                </div>
 				</div>
 			    <div class="row">
-			        <div class="col-md-4">
+			        <div class="col-md-5">
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 								<div class="input-group">
-						            <span class="input-group-text" style="width: 120px; justify-content: right;">ประเภท</span>
+						            <span class="input-group-text product-field-label">ประเภท</span>
 			                    	<select class="form-select" th:utext="${ListType}" id="IdType"></select>
 			                    </div>
 			                </div>
@@ -27,7 +27,7 @@
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 								<div class="input-group">
-						            <span class="input-group-text" style="width: 120px; justify-content: right;">ศิลปิน</span>
+						            <span class="input-group-text product-field-label">ศิลปิน</span>
 			                    	<select class="form-select" th:utext="${ListArtist}" id="IdArtist"></select>
 			                	</div>
 			                </div>
@@ -35,41 +35,48 @@
 			            <div class="row">
 		                	<div class="col-md-12 form-group">
 		                		<div class="input-group">
-						            <span class="input-group-text" style="width: 120px; justify-content: right;">วันที่ปิดรับ</span>
+						            <span class="input-group-text product-field-label">วันที่ปิดรับ</span>
 			                    	<input type="date" class="form-control" id="end_date">
+			                    	<span class="input-group-text product-unscheduled-check">
+			                    		<input class="form-check-input mt-0" type="checkbox" id="end_date_unscheduled" onchange="toggleProductScheduleDate('end_date', 'end_date_unscheduled')">
+			                    		<label class="form-check-label" for="end_date_unscheduled">ไม่มีกำหนด</label>
+			                    	</span>
 			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 						        <div class="input-group">
-						        	<span class="input-group-text" style="width: 120px; justify-content: right;">วันที่กำหนดส่ง</span>
+						        	<span class="input-group-text product-field-label">วันที่กำหนดส่ง</span>
 			                    	<input type="date" class="form-control" id="send_date">
+			                    	<span class="input-group-text product-unscheduled-check">
+			                    		<input class="form-check-input mt-0" type="checkbox" id="send_date_unscheduled" onchange="toggleProductScheduleDate('send_date', 'send_date_unscheduled')">
+			                    		<label class="form-check-label" for="send_date_unscheduled">ไม่มีกำหนด</label>
+			                    	</span>
 			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 								<div class="input-group">
-						            <span class="input-group-text" style="width: 120px; justify-content: right;">สถานะ</span>
+						            <span class="input-group-text product-field-label">สถานะ</span>
 			                    	<select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
 			                    </div>
 			                </div>
 			            </div>
 			        </div>
-			        <div class="col-md-8">
+			        <div class="col-md-7">
 			            <div class="row">
 			                <div class="col-md-12 form-group">
 			                    <div class="input-group">
-			                        <input type="text" class="form-control" placeholder="ลิ้งภาพ . . ." id="pPic">
-			                        <button class="btn btn-dark" type="button" onclick="updateImage()">โหลดภาพ</button>
+			                        <input type="text" class="form-control" placeholder="ลิ้งภาพ . . ." id="pPic" oninput="updateImagePreview()">
 			                    </div>
 			                </div>
 			            </div>
 			            <div class="row">
 				            <label class="mb-2  text-center">ตัวอย่างรูปภาพ</label>
-				            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 500px; display: flex; align-items: center; justify-content: center;">
-				                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="showImage" style="height: 490px; width: auto; object-fit: contain;">
+				            <div class="product-image-box">
+				                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="showImage">
 				            </div>
 			            </div>
 			        </div>
