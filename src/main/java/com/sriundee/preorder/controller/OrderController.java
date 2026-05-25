@@ -137,7 +137,7 @@ public class OrderController {
 	    model.addAttribute("showClosedProducts", settingController.getOrderShowClosedProductsValue());
 	    model.addAttribute("artistList", "<option value=''>ทั้งหมด</option>" + artistController.getDataList());
 
-	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
+	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull(settingController.currentUserId());
 	    model.addAttribute("CartCount", orderList.size());
 
         return "order/order";
@@ -224,6 +224,7 @@ public class OrderController {
             orderDetail.setPrice_pledge(orderDetailDto.getPrice_pledge());
             orderDetail.setPrice_balance(orderDetailDto.getPrice_balance());
             orderDetail.setOrder_status(1);
+            orderDetail.setUser(settingController.currentUserId());
 
             orderDetailRepository.save(orderDetail);
 
@@ -238,7 +239,7 @@ public class OrderController {
 	@GetMapping("/order/getcartcount")
 	@ResponseBody
 	public ResponseEntity<Integer> getCartCount() {
-	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull();
+	    List<OrderDetailBean> orderList = orderDetailRepository.getCartIsNull(settingController.currentUserId());
 
 	    return ResponseEntity.ok(orderList.size());
 	}
@@ -247,7 +248,7 @@ public class OrderController {
 	@ResponseBody
 	public Object getLoadcart() {
     	StringBuilder ListDetail = new StringBuilder();
-		List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartIsNull();
+		List<OrderDetailBean> orderdetailList = orderDetailRepository.getCartIsNull(settingController.currentUserId());
 		for (OrderDetailBean o : orderdetailList) {
 			ListDetail.append("<div class='row'>");
 			ListDetail.append("<div class='col-md-7'>");
@@ -287,7 +288,7 @@ public class OrderController {
     	Double sum_price_total = 0.0;
     	Double sum_price_pledge = 0.0;
     	Double sum_price_balance = 0.0;
-		List<OrderSummaryBean> summayList = orderDetailRepository.getCartSummary();
+		List<OrderSummaryBean> summayList = orderDetailRepository.getCartSummary(settingController.currentUserId());
 		if (orderdetailList.size() > 0 ) {
 			for (OrderSummaryBean s : summayList) {
 				sum_price_total = s.getsum_price_total();
@@ -400,7 +401,7 @@ public class OrderController {
             
             Integer newOrderId = order.getId();
 
-            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull();
+            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull(settingController.currentUserId());
             for (OrderDetail o : orderDetail) {
             	o.setOrder(newOrderId);
             }
@@ -418,13 +419,14 @@ public class OrderController {
 
     private synchronized String generateOrderCode(LocalDate orderDate) {
         String prefix = String.format("PR-%02d-", orderDate.getYear() % 100);
+        orderRepository.lockOrderCodeGeneration(prefix);
         Integer maxRunning = orderRepository.getMaxOrderCodeRunning(prefix);
         int nextRunning = (maxRunning == null ? 0 : maxRunning) + 1;
         return prefix + String.format("%06d", nextRunning);
     }
 
     private double getCartProductTotal() {
-        List<OrderSummaryBean> summaryList = orderDetailRepository.getCartSummary();
+        List<OrderSummaryBean> summaryList = orderDetailRepository.getCartSummary(settingController.currentUserId());
         if (summaryList == null || summaryList.isEmpty()) {
             return 0;
         }
@@ -434,7 +436,7 @@ public class OrderController {
     @PostMapping(value = "/order/receipt-preview", produces = "text/html; charset=UTF-8")
     @ResponseBody
     public ResponseEntity<String> receiptPreview(@RequestBody OrderDto orderDto) {
-        List<OrderDetailBean> detailList = orderDetailRepository.getCartIsNull();
+        List<OrderDetailBean> detailList = orderDetailRepository.getCartIsNull(settingController.currentUserId());
         StringBuilder rows = new StringBuilder();
         int rowNumber = 0;
         for (OrderDetailBean detail : detailList) {

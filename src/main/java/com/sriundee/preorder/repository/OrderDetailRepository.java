@@ -14,17 +14,17 @@ import com.sriundee.preorder.entity.OrderDetail;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
 	
-	@Query(value = "SELECT * FROM q_order_detail where ID_order is null", nativeQuery = true)
-    List<OrderDetailBean> getCartIsNull();
+	@Query(value = "SELECT * FROM q_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+    List<OrderDetailBean> getCartIsNull(@Param("ID_user") Integer userId);
 
 	@Query(value = "SELECT * FROM q_order_detail where ID_order_detail = :IDod", nativeQuery = true)
     List<OrderDetailBean> getCartByID(@Param("IDod") Integer IDod);
 	
-	@Query(value = "SELECT COALESCE(sum(od_price_total), 0) as sum_price_total,COALESCE(sum(od_price_pledge), 0) as sum_price_pledge,COALESCE(sum(od_price_balance), 0) as sum_price_balance FROM t_order_detail where ID_order is null", nativeQuery = true)
-	List<OrderSummaryBean> getCartSummary();
+	@Query(value = "SELECT COALESCE(sum(od_price_total), 0) as sum_price_total,COALESCE(sum(od_price_pledge), 0) as sum_price_pledge,COALESCE(sum(od_price_balance), 0) as sum_price_balance FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+	List<OrderSummaryBean> getCartSummary(@Param("ID_user") Integer userId);
 	
-	@Query(value = "SELECT * FROM t_order_detail where ID_order is null", nativeQuery = true)
-    List<OrderDetail> getDataIsNull();
+	@Query(value = "SELECT * FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+    List<OrderDetail> getDataIsNull(@Param("ID_user") Integer userId);
 	
 	@Query(value = "SELECT * FROM q_order_detail where ID_Order IS NOT NULL", nativeQuery = true)
     List<OrderDetailBean> getDataByIDOrderIsNull();

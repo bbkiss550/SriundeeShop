@@ -1193,7 +1193,6 @@ html[data-theme="dark"] .swal2-styled.swal2-deny {
 }
 
 .app-footer-logout-btn {
-    margin-left: auto;
     min-width: 104px;
     height: 36px;
     display: inline-flex;
@@ -1208,6 +1207,15 @@ html[data-theme="dark"] .swal2-styled.swal2-deny {
     border: 1px solid #dc3545;
     border-radius: 0.25rem;
     box-shadow: none;
+}
+
+.app-footer-user {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #607080;
+    font-weight: 800;
 }
 
 .app-footer-logout-btn:hover,
@@ -1231,6 +1239,10 @@ html[data-theme="dark"] .app-footer-logout-btn {
     color: #ffffff;
     background: #dc3545;
     border-color: #dc3545;
+}
+
+html[data-theme="dark"] .app-footer-user {
+    color: #9fb1cc;
 }
 
 html[data-theme="dark"] .app-footer-logout-btn:hover,

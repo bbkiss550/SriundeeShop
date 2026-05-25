@@ -39,6 +39,9 @@ public class OrderDetail {
     @Column(name = "ID_order_status")
     private Integer order_status;
 
+    @Column(name = "ID_user")
+    private Integer user;
+
 	public Integer getId() {
 		return id;
 	}
@@ -101,5 +104,13 @@ public class OrderDetail {
 
 	public void setOrder_status(Integer order_status) {
 		this.order_status = order_status;
+	}
+
+	public Integer getUser() {
+		return user;
+	}
+
+	public void setUser(Integer user) {
+		this.user = user;
 	}
 }

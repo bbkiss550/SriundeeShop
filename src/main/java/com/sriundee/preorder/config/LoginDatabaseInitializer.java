@@ -22,6 +22,30 @@ public class LoginDatabaseInitializer {
                 )
                 """);
         jdbcTemplate.execute("ALTER TABLE t_settings ADD COLUMN IF NOT EXISTS ID_user integer");
+        jdbcTemplate.execute("ALTER TABLE t_order_detail ADD COLUMN IF NOT EXISTS ID_user integer");
+        jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_order_order_code ON t_order (o_order_code)");
+        jdbcTemplate.execute("""
+                CREATE OR REPLACE VIEW q_order_detail AS
+                SELECT od.id_order_detail, od.id_order, o.o_customer_name, c.id_pro, p.p_name, p.id_type, t.t_name,
+                       p.id_art, a.a_name, c.id_web, w.w_name, c.id_ver, v.v_name, od.id_cover, c.c_name,
+                       TO_CHAR(COALESCE(NULLIF(REPLACE(c.c_price_total, ',', ''), '')::numeric, 0), 'FM999G999G990') AS c_price_total,
+                       TO_CHAR(COALESCE(NULLIF(REPLACE(c.c_price_pledge, ',', ''), '')::numeric, 0), 'FM999G999G990') AS c_price_pledge,
+                       TO_CHAR(COALESCE(NULLIF(REPLACE(c.c_price_balance, ',', ''), '')::numeric, 0), 'FM999G999G990') AS c_price_balance,
+                       od.od_qty,
+                       TO_CHAR(COALESCE(od.od_price_total, 0), 'FM999G999G990') AS od_price_total,
+                       TO_CHAR(COALESCE(od.od_price_pledge, 0), 'FM999G999G990') AS od_price_pledge,
+                       TO_CHAR(COALESCE(od.od_price_balance, 0), 'FM999G999G990') AS od_price_balance,
+                       od.id_order_status, os.os_name, od.id_user
+                FROM t_order_detail od
+                JOIN t_cover c ON c.id_cover = od.id_cover
+                JOIN t_product p ON p.id_product = c.id_pro
+                JOIN t_website w ON w.id_web = c.id_web
+                JOIN t_version v ON v.id_ver = c.id_ver
+                JOIN t_type t ON t.id_type = p.id_type
+                JOIN t_artist a ON a.id_art = p.id_art
+                JOIN t_order_status os ON os.id_order_status = od.id_order_status
+                LEFT JOIN t_order o ON o.id_order = od.id_order
+                """);
         jdbcTemplate.execute("ALTER TABLE t_settings DROP CONSTRAINT IF EXISTS uq_t_settings_key");
         jdbcTemplate.execute("DROP INDEX IF EXISTS idx_t_settings_key");
         jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_t_settings_key_user ON t_settings (s_key, ID_user)");
