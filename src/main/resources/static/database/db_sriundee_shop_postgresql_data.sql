@@ -519,6 +519,7 @@ INSERT INTO t_settings (id_setting, s_key, s_value) VALUES (6, 'dashboard_widget
 
 -- t_log_version was not present in the MySQL source; keep footer version available.
 INSERT INTO t_log_version (id_log_version, lv_version, lv_date) VALUES (1, '1.0.0', '2026-05-21');
+INSERT INTO t_log_version (id_log_version, lv_version, lv_date) VALUES (2, '1.0.1', '2026-05-25');
 
 SELECT setval(pg_get_serial_sequence('t_group', 'id_group'), COALESCE((SELECT MAX(id_group) FROM t_group), 1));
 SELECT setval(pg_get_serial_sequence('t_artist', 'id_art'), COALESCE((SELECT MAX(id_art) FROM t_artist), 1));

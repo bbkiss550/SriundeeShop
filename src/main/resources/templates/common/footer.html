@@ -2,13 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <footer th:fragment="footer" class="app-shell-footer">
     <div class="app-version-footer" th:if="${appVersion != null}">
-        <span th:text="${appVersion.version}">1.0.0</span>
-        <span th:text="${appVersion.date}">2026-05-21</span>
+        <span>Version</span>
+        <span th:text="${appVersion.version}">1.0.1</span>
+        <span th:text="${appVersion.date}">2026-05-25</span>
     </div>
-    <a th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" th:href="@{/logout}" class="btn app-footer-logout-btn" title="Log out">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Log out</span>
-    </a>
+    <div th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" class="app-footer-user">
+        <span>User : <span th:text="${appUsername}"></span></span>
+        <span th:if="${appLoginDate != null and !#strings.isEmpty(appLoginDate)}">Login Date : <span th:text="${appLoginDate}"></span></span>
+        <a th:href="@{/logout}" class="btn app-footer-logout-btn" title="Log out">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Log out</span>
+        </a>
+    </div>
     <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>

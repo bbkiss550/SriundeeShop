@@ -1,5 +1,8 @@
 package com.sriundee.preorder.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +20,8 @@ public class LoginController {
 
     public static final String SESSION_USER_ID = "loginUserId";
     public static final String SESSION_USERNAME = "loginUsername";
+    public static final String SESSION_LOGIN_DATE = "loginDate";
+    private static final DateTimeFormatter LOGIN_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @Autowired
     private UserRepository userRepository;
@@ -49,6 +54,7 @@ public class LoginController {
         session.setMaxInactiveInterval(-1);
         session.setAttribute(SESSION_USER_ID, user.getId());
         session.setAttribute(SESSION_USERNAME, user.getUsername());
+        session.setAttribute(SESSION_LOGIN_DATE, LocalDateTime.now().format(LOGIN_DATE_FORMATTER));
         return "redirect:/";
     }
 

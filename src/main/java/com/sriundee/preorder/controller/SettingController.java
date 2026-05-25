@@ -68,6 +68,12 @@ public class SettingController {
         return username == null ? "" : username;
     }
 
+    @ModelAttribute("appLoginDate")
+    public String appLoginDate() {
+        String loginDate = currentLoginDate();
+        return loginDate == null ? "" : loginDate;
+    }
+
     @ModelAttribute("appVersion")
     public LogVersion appVersion() {
         try {
@@ -267,6 +273,16 @@ public class SettingController {
         return username == null ? null : username.toString();
     }
 
+    private String currentLoginDate() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (!(attributes instanceof ServletRequestAttributes servletAttributes)
+                || servletAttributes.getRequest().getSession(false) == null) {
+            return null;
+        }
+        Object loginDate = servletAttributes.getRequest().getSession(false).getAttribute(LoginController.SESSION_LOGIN_DATE);
+        return loginDate == null ? null : loginDate.toString();
+    }
+
     private String normalizeDashboardChartSeries(String series) {
         String selected = Stream.of((series == null ? "" : series).split(","))
                 .map(String::trim)
@@ -282,8 +298,8 @@ public class SettingController {
 
     private LogVersion defaultVersion() {
         LogVersion version = new LogVersion();
-        version.setVersion("1.0.0");
-        version.setDate("2026-05-21");
+        version.setVersion("1.0.1");
+        version.setDate("2026-05-25");
         return version;
     }
 
