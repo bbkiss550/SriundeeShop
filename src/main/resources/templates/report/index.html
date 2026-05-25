@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    .report-filter .input-group-text {
+        min-width: 88px;
+        justify-content: center;
+    }
+
+    .report-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .report-tabs .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-height: 42px;
+        border: 1px solid #dce7f1;
+        border-radius: 6px;
+        color: #435ebe;
+        background: transparent;
+        font-weight: 800;
+    }
+
+    .report-tabs .nav-link.active {
+        color: #ffffff;
+        border-color: #435ebe;
+        background: #435ebe;
+    }
+
+    .report-panel {
+        padding: 1.25rem;
+        border: 1px solid #dce7f1;
+        border-radius: 8px;
+        background: #ffffff;
+    }
+
+    .report-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.9rem;
+        margin: 1rem 0 1.25rem;
+    }
+
+    .report-metric {
+        min-height: 94px;
+        padding: 1rem;
+        border-left: 5px solid #435ebe;
+        border-radius: 6px;
+        background: #f8fafc;
+    }
+
+    .report-metric.income {
+        border-left-color: #198754;
+    }
+
+    .report-metric.outgoing {
+        border-left-color: #ffc107;
+    }
+
+    .report-metric.balance {
+        border-left-color: #dc3545;
+    }
+
+    .report-metric.info {
+        border-left-color: #0dcaf0;
+    }
+
+    .report-metric-label {
+        display: block;
+        color: #7c8db5;
+        font-size: 0.84rem;
+        font-weight: 800;
+    }
+
+    .report-metric-value {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 1.35rem;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    .report-table-wrap {
+        overflow-x: auto;
+    }
+
+    .report-table {
+        min-width: 820px;
+        margin-bottom: 0;
+    }
+
+    .report-table th,
+    .report-table td {
+        vertical-align: middle;
+    }
+
+    .report-table .money,
+    .report-table .qty {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .report-table tfoot th,
+    .report-table tfoot td {
+        font-weight: 800;
+    }
+
+    .report-section-title {
+        margin-bottom: 0.2rem;
+    }
+
+    .report-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 86px;
+        min-height: 28px;
+    }
+
+    html[data-theme="dark"] .report-tabs .nav-link {
+        color: #cbd5e1;
+        border-color: #475569;
+    }
+
+    html[data-theme="dark"] .report-tabs .nav-link.active {
+        color: #ffffff;
+        border-color: #435ebe;
+    }
+
+    html[data-theme="dark"] .report-panel {
+        border-color: #334155;
+        background: #1f2937;
+    }
+
+    html[data-theme="dark"] .report-metric {
+        background: #111827;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>รายงาน</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card report-filter">
+                            <div class="card-body">
+                                <form class="row g-3 align-items-end" method="get" th:action="@{/reports}">
+                                    <div class="col-12 col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">วันที่เริ่มต้น</span>
+                                            <input type="date" class="form-control" name="startDate" th:value="${startDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">ถึง</span>
+                                            <input type="date" class="form-control" name="endDate" th:value="${endDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">ช่วงรายงาน</span>
+                                            <div class="form-control" th:text="${reportPeriod}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-search"></i> ค้นหา
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12">
+                        <ul class="nav report-tabs" id="reportTabs" role="tablist">
+                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#reportFinance" type="button"><i class="bi bi-bar-chart-line"></i> สรุปการเงิน</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportTaxLedger" type="button"><i class="bi bi-journal-text"></i> บัญชีรายรับรายจ่าย</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportIncome" type="button"><i class="bi bi-wallet2"></i> รายรับ</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportReceivable" type="button"><i class="bi bi-hourglass-split"></i> ยอดค้างชำระ</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportExpense" type="button"><i class="bi bi-credit-card"></i> ค่าใช้จ่าย</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProfit" type="button"><i class="bi bi-graph-up-arrow"></i> กำไรขาดทุน</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportOrderProfit" type="button"><i class="bi bi-receipt"></i> กำไรรายคำสั่งซื้อ</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProduct" type="button"><i class="bi bi-box-seam"></i> ยอดขายสินค้า</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProductDetail" type="button"><i class="bi bi-list-check"></i> สินค้าแบบละเอียด</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportLot" type="button"><i class="bi bi-tags"></i> LOT</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportStatus" type="button"><i class="bi bi-check2-circle"></i> สถานะออร์เดอร์</button></li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="reportFinance">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">สรุปการเงิน</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric income"><span class="report-metric-label">รายรับรวม</span><span class="report-metric-value" th:text="${financeIncome}">0.00</span></div>
+                                        <div class="report-metric outgoing"><span class="report-metric-label">ค่าใช้จ่ายรวม</span><span class="report-metric-value" th:text="${financeExpense}">0.00</span></div>
+                                        <div class="report-metric balance"><span class="report-metric-label">ยอดค้างรับ</span><span class="report-metric-value" th:text="${financeReceivable}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">กำไรเบื้องต้น</span><span class="report-metric-value" th:text="${financeProfit}">0.00</span></div>
+                                    </div>
+                                    <div class="report-table-wrap">
+                                        <table class="table table-striped report-table">
+                                            <thead><tr><th>เดือน</th><th class="money">ยอดขาย</th><th class="money">เงินรับเข้า</th><th class="money">ค่าใช้จ่าย</th><th class="money">ยอดค้างรับ</th><th class="money">กำไรเบื้องต้น</th></tr></thead>
+                                            <tbody>
+                                                <tr th:each="row : ${financeRows}"><td th:text="${row.period}"></td><td class="money" th:text="${row.sales}"></td><td class="money" th:text="${row.income}"></td><td class="money" th:text="${row.expense}"></td><td class="money" th:text="${row.receivable}"></td><td class="money" th:text="${row.profit}"></td></tr>
+                                                <tr th:if="${#lists.isEmpty(financeRows)}"><td colspan="6" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                            </tbody>
+                                            <tfoot><tr><th>รวม</th><th class="money">-</th><th class="money" th:text="${financeIncome}">0.00</th><th class="money" th:text="${financeExpense}">0.00</th><th class="money" th:text="${financeReceivable}">0.00</th><th class="money" th:text="${financeProfit}">0.00</th></tr></tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportTaxLedger">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">บัญชีรายรับรายจ่าย</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric income"><span class="report-metric-label">รายรับรวม</span><span class="report-metric-value" th:text="${taxLedgerIncome}">0.00</span></div>
+                                        <div class="report-metric outgoing"><span class="report-metric-label">รายจ่ายรวม</span><span class="report-metric-value" th:text="${taxLedgerExpense}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">คงเหลือสุทธิ</span><span class="report-metric-value" th:text="${taxLedgerNet}">0.00</span></div>
+                                    </div>
+                                    <div class="report-table-wrap">
+                                        <table class="table table-striped report-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>วันที่</th>
+                                                    <th>ประเภท</th>
+                                                    <th>เลขอ้างอิง</th>
+                                                    <th>ลูกค้า/คู่ค้า</th>
+                                                    <th>รายละเอียด</th>
+                                                    <th class="money">รายรับ</th>
+                                                    <th class="money">รายจ่าย</th>
+                                                    <th class="money">คงเหลือ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="row : ${taxLedgerRows}">
+                                                    <td th:text="${row.date}"></td>
+                                                    <td th:text="${row.category}"></td>
+                                                    <td th:text="${row.document}"></td>
+                                                    <td th:text="${row.party}"></td>
+                                                    <td th:text="${row.detail}"></td>
+                                                    <td class="money" th:text="${row.income}"></td>
+                                                    <td class="money" th:text="${row.expense}"></td>
+                                                    <td class="money" th:text="${row.balance}"></td>
+                                                </tr>
+                                                <tr th:if="${#lists.isEmpty(taxLedgerRows)}">
+                                                    <td colspan="8" class="text-center text-muted">ไม่พบข้อมูล</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th colspan="5">รวมตามช่วงรายงาน</th>
+                                                    <th class="money" th:text="${taxLedgerIncome}">0.00</th>
+                                                    <th class="money" th:text="${taxLedgerExpense}">0.00</th>
+                                                    <th class="money" th:text="${taxLedgerNet}">0.00</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportIncome">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานรายรับ</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric income"><span class="report-metric-label">จ่ายเต็ม</span><span class="report-metric-value" th:text="${incomeFull}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">รับมัดจำ</span><span class="report-metric-value" th:text="${incomePledge}">0.00</span></div>
+                                        <div class="report-metric balance"><span class="report-metric-label">รับยอดที่เหลือ</span><span class="report-metric-value" th:text="${incomeBalance}">0.00</span></div>
+                                    </div>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>วันที่รับเงิน</th><th>เลขคำสั่งซื้อ</th><th>ลูกค้า</th><th>ประเภทรายรับ</th><th>หมายเหตุ</th><th class="money">จำนวนเงิน</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${incomeRows}"><td th:text="${row.date}"></td><td th:text="${row.code}"></td><td th:text="${row.customer}"></td><td><span class="badge bg-info report-tag" th:text="${row.type}"></span></td><td th:text="${row.note}"></td><td class="money" th:text="${row.price}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(incomeRows)}"><td colspan="6" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportReceivable">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานยอดค้างชำระ</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric balance"><span class="report-metric-label">ยอดค้างรับรวม</span><span class="report-metric-value" th:text="${receivableTotal}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">คำสั่งซื้อค้างชำระ</span><span class="report-metric-value" th:text="${receivableOrders + ' รายการ'}">0 รายการ</span></div>
+                                    </div>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>เลขคำสั่งซื้อ</th><th>วันที่สั่งซื้อ</th><th>ลูกค้า</th><th>สถานะสินค้า</th><th class="money">ยอดสุทธิ</th><th class="money">มัดจำ</th><th class="money">คงเหลือ</th></tr></thead>
+                                        <tbody><tr th:each="row : ${receivableRows}"><td th:text="${row.code}"></td><td th:text="${row.date}"></td><td th:text="${row.customer}"></td><td th:text="${row.statuses}"></td><td class="money" th:text="${row.net}"></td><td class="money" th:text="${row.pledge}"></td><td class="money" th:text="${row.balance}"></td></tr><tr th:if="${#lists.isEmpty(receivableRows)}"><td colspan="7" class="text-center text-muted">ไม่พบข้อมูล</td></tr></tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportExpense">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานค่าใช้จ่าย</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric outgoing"><span class="report-metric-label">ค่ากดของ</span><span class="report-metric-value" th:text="${expensePress}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">ค่าชิปปิ้ง</span><span class="report-metric-value" th:text="${expenseShipping}">0.00</span></div>
+                                        <div class="report-metric balance"><span class="report-metric-label">ค่าส่งไปรษณีย์</span><span class="report-metric-value" th:text="${expensePostal}">0.00</span></div>
+                                    </div>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>วันที่</th><th>ประเภทค่าใช้จ่าย</th><th>หมายเหตุ</th><th>สถานะ</th><th class="money">จำนวนเงิน</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${expenseRows}"><td th:text="${row.date}"></td><td th:text="${row.type}"></td><td th:text="${row.note}"></td><td><span class="badge bg-success report-tag" th:text="${row.status}"></span></td><td class="money" th:text="${row.price}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(expenseRows)}"><td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportProfit">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานกำไรขาดทุนเบื้องต้น</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric income"><span class="report-metric-label">เงินรับจริง</span><span class="report-metric-value" th:text="${profitIncome}">0.00</span></div>
+                                        <div class="report-metric outgoing"><span class="report-metric-label">ต้นทุนรวม</span><span class="report-metric-value" th:text="${profitExpense}">0.00</span></div>
+                                        <div class="report-metric info"><span class="report-metric-label">กำไร</span><span class="report-metric-value" th:text="${profitValue}">0.00</span></div>
+                                        <div class="report-metric income"><span class="report-metric-label">Margin</span><span class="report-metric-value" th:text="${profitMargin}">0.00%</span></div>
+                                    </div>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>รายการ</th><th class="money">ยอดเงิน</th><th>แนวคิดคำนวณ</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${profitRows}"><td th:text="${row.name}"></td><td class="money" th:text="${row.value}"></td><td th:text="${row.note}"></td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportOrderProfit">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานกำไรของแต่ละคำสั่งซื้อ</h4>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>เลขคำสั่งซื้อ</th><th>วันที่สั่งซื้อ</th><th>ลูกค้า</th><th>สถานะ</th><th class="money">ยอดขายทั้งหมด</th><th class="money">ต้นทุน</th><th class="money">ค่าส่งชิป</th><th class="money">กำไร</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${orderProfitRows}"><td th:text="${row.code}"></td><td th:text="${row.date}"></td><td th:text="${row.customer}"></td><td th:text="${row.statuses}"></td><td class="money" th:text="${row.sales}"></td><td class="money" th:text="${row.pressCost}"></td><td class="money" th:text="${row.shippingCost}"></td><td class="money" th:text="${row.profit}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(orderProfitRows)}"><td colspan="8" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportProduct">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานยอดขายสินค้า</h4>
+                                    <div class="report-summary">
+                                        <div class="report-metric info"><span class="report-metric-label">จำนวนสินค้าที่ขายได้</span><span class="report-metric-value" th:text="${productQty + ' ชิ้น'}">0 ชิ้น</span></div>
+                                        <div class="report-metric income"><span class="report-metric-label">มูลค่าสินค้ารวม</span><span class="report-metric-value" th:text="${productSales}">0.00</span></div>
+                                    </div>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>สินค้า</th><th>ศิลปิน</th><th>ประเภท</th><th class="qty">จำนวนขาย</th><th class="money">ยอดขาย</th><th class="money">มัดจำ</th><th class="money">คงเหลือ</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${productRows}"><td th:text="${row.product}"></td><td th:text="${row.artist}"></td><td th:text="${row.type}"></td><td class="qty" th:text="${row.qty}"></td><td class="money" th:text="${row.sales}"></td><td class="money" th:text="${row.pledge}"></td><td class="money" th:text="${row.balance}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(productRows)}"><td colspan="7" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportProductDetail">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานสินค้าแบบละเอียด</h4>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>สินค้า</th><th>เว็บ</th><th>เวอร์ชัน</th><th>ปก</th><th class="qty">ลูกค้าสั่ง</th><th class="qty">กดของแล้ว</th><th class="qty">อยู่ใน LOT</th><th class="qty">ถึงร้าน</th><th class="qty">ส่งสำเร็จ</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${productDetailRows}"><td th:text="${row.product}"></td><td th:text="${row.website}"></td><td th:text="${row.version}"></td><td th:text="${row.cover}"></td><td class="qty" th:text="${row.ordered}"></td><td class="qty" th:text="${row.pressed}"></td><td class="qty" th:text="${row.lot}"></td><td class="qty" th:text="${row.arrived}"></td><td class="qty" th:text="${row.sent}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(productDetailRows)}"><td colspan="9" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportLot">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงาน LOT</h4>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>เลข LOT</th><th>วันที่สร้าง</th><th>ช่วงคาดว่าจะถึง</th><th>วันที่ถึงจริง</th><th class="qty">รายการ</th><th class="qty">จำนวนชิ้น</th><th class="money">มูลค่าสินค้า</th><th class="money">ต้นทุนกดของ</th><th class="money">ค่าชิปปิ้ง</th></tr></thead>
+                                        <tbody><tr th:each="row : ${lotRows}"><td th:text="${'LOT ' + row.lot}"></td><td th:text="${row.created}"></td><td th:text="${row.range}"></td><td th:text="${row.arrive}"></td><td class="qty" th:text="${row.details}"></td><td class="qty" th:text="${row.qty}"></td><td class="money" th:text="${row.value}"></td><td class="money">-</td><td class="money">-</td></tr><tr th:if="${#lists.isEmpty(lotRows)}"><td colspan="9" class="text-center text-muted">ไม่พบข้อมูล</td></tr></tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportStatus">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานสถานะออร์เดอร์</h4>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>สถานะ</th><th class="qty">จำนวนรายการ</th><th class="qty">จำนวนชิ้น</th><th class="money">มูลค่า</th><th class="money">ยอดค้างรับ</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${statusRows}"><td><span class="badge report-tag" th:classappend="${' bg-' + row.color}" th:text="${row.name}"></span></td><td class="qty" th:text="${row.details}"></td><td class="qty" th:text="${row.qty}"></td><td class="money" th:text="${row.value}"></td><td class="money" th:text="${row.balance}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(statusRows)}"><td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+</body>
+</html>

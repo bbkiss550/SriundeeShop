@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+	.cost-shipping-row {
+		cursor: pointer;
+	}
+
+	.cost-shipping-row:hover > td {
+		background-color: #f1f5ff !important;
+	}
+
+	.cost-status-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 90px;
+		min-height: 32px;
+	}
+
+	.cost-cancel-col {
+		width: 96px;
+		min-width: 96px;
+		white-space: nowrap;
+	}
+
+	.cost-action-col {
+		width: 80px;
+		min-width: 80px;
+		white-space: nowrap;
+	}
+
+	.cost-date-col {
+		width: 120px;
+		min-width: 120px;
+		white-space: nowrap;
+	}
+
+	.cost-price-col {
+		width: 120px;
+		min-width: 120px;
+		white-space: nowrap;
+	}
+
+	.cost-detail-table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.cost-detail-table th,
+	.cost-detail-table td {
+		padding: 0.75rem;
+		border-bottom: 1px solid #dee2e6;
+		vertical-align: top;
+	}
+
+	.cost-detail-table tbody tr:nth-of-type(odd) {
+		background-color: rgba(0, 0, 0, 0.03);
+	}
+
+	.cost-shipping-detail-modal {
+		max-width: calc(100vw - 64px);
+		width: calc(100vw - 64px);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	@media (max-width: 768px) {
+		.cost-shipping-detail-modal {
+			max-width: calc(100vw - 16px);
+			width: calc(100vw - 16px);
+		}
+	}
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>ข้อมูลค่าชิปปิ้ง</h3>
+            </div>
+
+			<div class="page-content">
+				<section class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<form class="row g-3 align-items-end" id="costShippingFilterForm" method="get" th:action="@{/cost/shipping}">
+									<div class="col-md-3">
+										<div class="input-group">
+											<label for="startDate" class="input-group-text">วันที่เริ่มต้น</label>
+											<input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<label for="endDate" class="input-group-text">ถึง</label>
+											<input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<label for="status" class="input-group-text">สถานะ</label>
+											<select id="status" name="status" class="form-select">
+												<option value="" th:selected="${status == ''}">ทั้งหมด</option>
+												<option value="A" th:selected="${status == 'A'}">สำเร็จ</option>
+												<option value="D" th:selected="${status == 'D'}">ยกเลิก</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<button type="submit" class="btn btn-primary">
+											<i data-feather="search"></i> ค้นหา
+										</button>
+										<button type="button" class="btn btn-light-secondary" onclick="clear_cost_shipping_filter()">ล้างค่า</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</section>
+                <section class="row">
+                    <div class="col-12">
+						<div class="card">
+	                        <div class="card-body">
+	                            <table class="table table-striped" id="table1">
+	                                <thead>
+	                                    <tr>
+											<th class="cost-cancel-col">ยกเลิก</th>
+											<th class="cost-action-col">แก้ไข</th>
+	                                        <th class="cost-date-col">วันที่</th>
+	                                        <th class="cost-price-col text-end">ค่าส่ง</th>
+	                                        <th class="auto_width">หมายเหตุ</th>
+	                                        <th class="status_width">สถานะ</th>
+	                                    </tr>
+	                                </thead>
+	                                <tbody id="costShippingRows" th:utext="${mainCostShipping}"></tbody>
+	                            </table>
+	                        </div>
+	                    </div>
+                    </div>
+                </section>
+            </div>
+
+			<div class="modal fade text-left" id="modalCostShippingDetail" tabindex="-1" role="dialog" aria-hidden="true">
+			    <div class="modal-dialog modal-xl modal-dialog-scrollable cost-shipping-detail-modal" role="document">
+			        <div class="modal-content" style="height: calc(100vh - 32px);">
+			            <div class="modal-header bg-primary">
+			                <h4 class="modal-title white">รายละเอียดสินค้า</h4>
+			                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+			                    <i data-feather="x"></i>
+			                </button>
+			            </div>
+			            <div class="modal-body">
+							<table class="cost-detail-table">
+							    <thead>
+							        <tr>
+							            <th>#</th>
+							            <th>ลูกค้า</th>
+							            <th>ศิลปิน</th>
+							            <th>สินค้า</th>
+							            <th>เว็บ</th>
+							            <th>เวอร์ชั่น</th>
+							            <th>ปก</th>
+							            <th class="text-end">จำนวน</th>
+							            <th class="text-end">ราคาเต็ม/ชิ้น</th>
+							            <th class="text-end">มัดจำ/ชิ้น</th>
+							            <th>ชำระ</th>
+							        </tr>
+							    </thead>
+								<tbody id="costShippingDetailRows"></tbody>
+							</table>
+			            </div>
+			            <div class="modal-footer detail-modal-footer">
+							<div id="costShippingDetailSummary" class="detail-summary-footer"></div>
+							<div class="detail-modal-actions">
+				                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+							</div>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+	<script th:src="@{/script/cost/shipping.js}"></script>
+</body>
+</html>

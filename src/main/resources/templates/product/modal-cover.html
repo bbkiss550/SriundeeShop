@@ -1,0 +1,180 @@
+<style>
+	.cov_showImage {
+	    width: 100%;
+	    height: 250px;
+	    overflow: hidden;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    background-color: #f8f9fa;
+	    border-radius: 0.5rem;
+	}
+	
+	.cov_showImage img {
+	    width: 100%;
+	    height: 100%;
+	    object-fit: cover;
+	    object-position: center;
+	}
+</style>
+<div class="modal fade text-left" id="modalCover" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-full" role="document">
+	    <div class="modal-content">
+	        <div class="modal-header">
+	            <h4 class="modal-title" id="myModalLabel18">ข้อมูลปก</h4>
+	        </div>
+			<div class="modal-body">
+				<div class="card">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-12 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">สินค้า</span>
+									    	<input type="text" class="form-control" id="cov_pName" readonly="readonly">
+									    </div>
+										<input type="hidden" id="cov_IdProduct">
+										<input type="hidden" id="IdCover">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ประเภท</span>
+									    	<input type="text" class="form-control" id="cov_tName" readonly="readonly">
+									    </div>
+									</div>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ศิลปิน</span>
+									    	<input type="text" class="form-control" id="cov_aName" readonly="readonly">
+									    </div>
+									</div>
+									<hr>
+								</div>
+								<div class="row">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">เวอร์ชั่น</span>
+									    	<select class="form-select" id="cov_IdVersion"></select>
+									    </div>
+									</div>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">เว็บ</span>
+									    	<select class="form-select" id="cov_IdWebsite"></select>
+									    </div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-8 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ชื่อปก</span>
+									    	<input type="text" placeholder="..." class="form-control" id="cName">
+									    	<div class="input-group-text">
+									            <input type="checkbox" class="form-check-input mt-0 me-2 form-check-danger form-check-glow" 
+									                   name="samecover" id="samecover" onchange="samecover()">
+									            <label class="form-check-label mb-0" for="samecover">ชื่อเดียวกับเวอร์ชั่น</label>
+									        </div>
+									    </div>
+									</div>
+								</div>
+								<div class="divider"><div class="divider-text"> มัดจำ </div></div>
+								<div class="row">
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ราคาเต็ม</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_total" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									    </div>
+									</div>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ราคามัดจำ</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_pledge" style="text-align: right;" oninput="allowOnlyNumber(event)">
+									    </div>
+									</div>
+									<div class="col-md-4 form-group">
+										<div class="input-group">
+								            <span class="input-group-text" style="width: 120px; justify-content: right;">ยอดที่เหลือ</span>
+									    	<input type="text" placeholder="0" class="form-control" id="price_balance" style="text-align: right;" readonly="readonly">
+									    </div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+					            <div class="row">
+						            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; height: 100%; display: flex; align-items: center; justify-content: center;">
+						                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="cov_showImage" style="height: 90%; width: auto; object-fit: contain;">
+						            </div>
+					            </div>
+					        </div>
+						</div>
+						<div class="row">
+							<div class="col-md-6"></div>
+							<div class="col-md-6">
+								<div class="form-check">
+								    <div class="custom-control custom-checkbox">
+								        <input type="checkbox" class="form-check-input form-check-danger form-check-glow" name="copydata" id="copydata">
+								        <label class="form-check-label" for="customColorCheck4">จดจำค่าก่อนบันทึกเอาไว้</label>
+								    </div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<hr>
+						<div class="col-md-6">
+							<div class="col-md-12 form-group d-flex justify-content-end">
+								<button type="button" class="btn btn-success ml-1" onclick="cov_save_new_data()" id="cov_btn_save">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">บันทึก</span>
+								</button>
+								<button type="button" class="btn btn-warning ml-1" onclick="cov_save_edit_data()" id="cov_btn_edit" style="display: none;">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">แก้ไข</span>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="col-md-12 form-group">
+								<button type="button" class="btn btn-danger ml-1" onclick="cov_clr()" id="ver_btn_cancel">
+								    <i class="bx bx-check d-block d-sm-none"></i>
+								    <span class="d-none d-sm-block">ยกเลิก</span>
+								</button>
+							</div>
+						</div>
+						<hr>
+					</div>
+					<div class="card-body">
+						<table class="table table-striped" id="table2">
+							<thead>
+								<tr>
+									<th class="fix_width">แก้ไข</th>
+									<th class="fix_width">ลบ</th>
+									<th class="fix_width">คัดลอก</th>
+									<th class="fix_width">#</th>
+									<th class="auto_width">ปก</th>
+									<th class="auto_width">เว็บ</th>
+									<th class="auto_width">เวอร์ชั่น</th>
+									<th class="status_width">ราคา</th>
+									<th class="status_width">มัดจำ</th>
+									<th class="status_width">เหลือจ่าย</th>
+									<!--th class="status_width">งวดแรก</th>
+									<th class="status_width">งวดสอง</th>
+									<th class="status_width">งวดสุดท้าย</th> -->
+	                          </tr>
+	                      </thead>
+	                      <tbody id="mainCover"></tbody>
+	                  </table>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+					<i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+				</button>
+			</div>
+        </div>
+    </div>
+</div>

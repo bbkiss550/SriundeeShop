@@ -1,0 +1,313 @@
+<style>
+	.choices {
+		width: 90% !important;
+	    margin-left: auto;
+	    margin-right: auto;
+	}
+
+	.choices__inner {
+	    width: 100%;
+	}
+
+	#div_customer_Name .input-group {
+		flex-wrap: nowrap;
+	}
+
+	#div_customer_Name .input-group .choices {
+		flex: 1 1 auto;
+		width: 1% !important;
+		min-width: 0;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	#div_customer_Name .input-group .choices__inner {
+		min-height: 46px;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+	
+	#list_item {
+	    max-height: 350px;
+	    overflow-y: auto;
+	    overflow-x: hidden;
+	    padding-right: 5px;
+	}
+
+	.modal-footer-custom {
+	    position: sticky;
+	    bottom: 0;
+	    background: white;
+	    padding-top: 15px;
+	    border-top: 1px solid #dee2e6;
+	}
+	
+	#pledge_price .input-group-text {
+	    background-color: #EF6C00 !important;
+	    color: #FFFFFF !important;
+	    border-color: #E65100 !important;
+	    font-weight: bold;
+	}
+	#co_sum_price_pledge {
+	    background-color: #FFFFFF !important;
+	    color: #E65100 !important;
+	    border: 2px solid #EF6C00 !important;
+	}
+	
+	#balance_price .input-group-text {
+	    background-color: #C8E6C9 !important;
+	    color: #1B5E20 !important;
+	    border-color: #A5D6A7 !important;
+	}
+	
+	#co_sum_price_balance {
+	    background-color: #F1F8E9 !important;
+	    color: #2E7D32 !important;
+	    border-color: #A5D6A7 !important;
+	}
+	
+	#full_price .input-group-text {
+	    background-color: #BBDEFB !important;
+	    color: #0D47A1 !important;
+	    border-color: #90CAF9 !important;
+	}
+	
+	#co_sum_price_total {
+	    background-color: #E3F2FD !important;
+	    color: #1565C0 !important;
+	    border-color: #90CAF9 !important;
+	}
+	
+	#net_price .input-group-text {
+	    background-color: #FFCDD2 !important;
+	    color: #B71C1C !important;
+	    border-color: #EF9A9A !important;
+	}
+	
+	#net {
+	    background-color: #FFEBEE !important;
+	    color: #C62828 !important;
+	    border-color: #EF9A9A !important;
+	}
+
+	.order-receipt-modal-dialog { max-width: 960px; }
+	.receipt-preview-wrap { background: #f8fafc; padding: 1rem; overflow: auto; }
+	.receipt-preview-wrap .receipt { max-width: 880px; margin: 0 auto; padding: 28px; color: #111827; background: #ffffff; border: 1px solid #e5e7eb; font-family: Arial, Tahoma, sans-serif; }
+	.receipt-preview-wrap .header { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 2px solid #111827; }
+	.receipt-preview-wrap .receipt-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+	.receipt-preview-wrap .receipt-title { min-width: 0; }
+	.receipt-preview-wrap .receipt-logo { display: block; width: 132px; height: auto; margin: 0; object-fit: contain; }
+	.receipt-preview-wrap .receipt h1,
+	html[data-theme="dark"] .receipt-preview-wrap .receipt h1 { margin: 0; color: #111827 !important; font-size: 28px; }
+	.receipt-preview-wrap .shop { margin-top: 6px; font-size: 18px; font-weight: 700; }
+	.receipt-preview-wrap .meta { text-align: right; line-height: 1.7; }
+	.receipt-preview-wrap .info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 18px; line-height: 1.6; }
+	.receipt-preview-wrap .info > div,
+	.receipt-preview-wrap .product-cell,
+	.receipt-preview-wrap .summary-row span:first-child { text-align: left; }
+	.receipt-preview-wrap table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+	.receipt-preview-wrap th,
+	.receipt-preview-wrap td { padding: 10px 8px; color: #111827 !important; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
+	.receipt-preview-wrap th { text-align: left; background: #f1f5f9; }
+	.receipt-preview-wrap .right { text-align: right; white-space: nowrap; }
+	.receipt-preview-wrap .muted { margin-top: 4px; color: #64748b; font-size: 12px; }
+	.receipt-preview-wrap .summary { width: 340px; margin-top: 18px; margin-left: auto; }
+	.receipt-preview-wrap .summary-row { display: grid; grid-template-columns: 1fr 140px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+	.receipt-preview-wrap .summary-row.total { font-size: 20px; font-weight: 800; border-bottom: 2px solid #111827; }
+</style>
+
+<div class="modal fade text-left w-100" id="modalCheckout" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+    <div class="modal-dialog modal-full" role="document">
+        <div class="modal-content" style="height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header bg-success">
+                <h4 class="modal-title white" id="myModalLabel16">ชำระเงิน</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="flex: 0 0 auto;">
+                <div class="card mb-0">
+                    <div class="card-header" style="padding: 0 1.5rem;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="IdProduct">
+                                <div class="row">
+                                	<div class="input-group input-group mb-3">
+										<div class="form-check">
+										    <div class="custom-control custom-checkbox">
+										        <input type="checkbox" class="form-check-input form-check-danger form-check-glow" name="old_customer" id="old_customer" onchange="check_new_cus()">
+										        <label class="form-check-label" for="old_customer">ลูกค้าเก่า</label>
+										    </div>
+										</div>
+                                	</div>
+                                </div>
+                                <div class="row" id="div_customer_Name">
+                                    <div class="input-group input-group mb-3">
+                                        <span class="input-group-text" id="inputGroup-sizing" style="justify-content: right;">ชื่อลูกค้า</span>
+                                        <select class="form-select" id="customer_Name" style="width:100%;"></select>
+                                    </div>
+                                </div>
+                                <div class="row" id="div_customer_Name_new">
+                                    <div class="input-group input-group mb-3">
+                                        <span class="input-group-text" id="inputGroup-sizing" style="height:46px; justify-content: right;">ชื่อลูกค้า</span>
+                                		<input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing" id="customer_Name_new" style="height:46px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div class="row">
+                                            <div class="col-md-1"><div class="fw-bold text-dark">ลบ</div></div>
+                                            <div class="col-md-11"><div class="fw-bold text-dark">รายการ</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1"><div class="fw-bold text-dark">ราคาเต็ม</div></div>
+                                    <div class="col-md-1"><div class="fw-bold text-dark">ราคามัดจำ</div></div>
+                                    <div class="col-md-1"><div class="fw-bold text-dark">จำนวน</div></div>
+                                    <div class="col-md-1"><div class="fw-bold text-dark">ราคาเต็ม รวม</div></div>
+                                    <div class="col-md-1"><div class="fw-bold text-dark">ราคามัดจำ รวม</div></div>
+                                </div>
+								<hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body" style="flex: 1 1 auto; overflow-y: auto; padding-top: 0;">
+                <div class="card">
+                    <div class="card-header" style="padding: 0 1.5rem;">
+                        <div class="row">
+                            <div class="row" id="list_item"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body" style="flex: 0 0 auto; border-top: 1px solid #dee2e6;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">ชำระแบบ</span>
+                                    <select class="form-select" id="IdPayMethod" onchange="payMethod(this.value)"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 160px; justify-content: right;">หมายเหตุ</span>
+                                    <input type="text" placeholder="..." class="form-control" id="remark">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 100px; justify-content: right;">ค่าส่ง</span>
+                                    <input type="text" placeholder="0" class="form-control text-end" id="send_cost" onkeyup="calculateSummary()">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 100px; justify-content: right;">ส่วนลด</span>
+                                    <input type="text" placeholder="0" class="form-control text-end" id="discount" onkeyup="calculateSummary()">
+                                    <span class="input-group-text">บาท</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                    	<div class="row">
+	                    	<div class="col-md-2">
+                                <div class="input-group input-group mb-3" id="div_PayType">
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">เก็บยอดที่เหลือ</span>
+                                    <select class="form-select" id="IdPayType" onchange="payType(this.value)"></select>
+                                </div>
+	                    	</div>
+	                    	<div class="col-md-3">
+                                <div class="input-group input-group mb-3" id="div_last_pay_date">
+                                    <span class="input-group-text" style="width: 160px; justify-content: right;">วันที่เก็บยอดที่เหลือ</span>
+                                    <input type="date" class="form-control" id="last_pay_date">
+                                </div>
+	                    	</div>
+	                    	<div class="col-md-3">
+                                <div class="input-group input-group mb-3">
+                                    <span class="input-group-text" style="width: 130px; justify-content: right;">วันที่บันทึก</span>
+                                    <input type="date" class="form-control" id="order_date">
+                                </div>
+	                    	</div>
+	                    	<div class="col-md-2">
+		                        <div class="row" id="pledge_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ราคามัดจำ</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_pledge" onkeyup="calculateSummary()">
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+	                    	</div>
+		                    <div class="col-md-2">
+		                        <div class="row" id="full_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ราคาเต็ม</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_total" style="background-color: #ededed;" readonly>
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+		                        <div class="row" id="balance_price">
+		                            <div class="input-group mb-3">
+		                                <span class="input-group-text" style="width: 100px; justify-content: right;">ยอดที่เหลือ</span>
+		                                <input type="text" class="form-control fw-bold text-danger text-end" id="co_sum_price_balance" style="background-color: #ededed" readonly>
+		                                <span class="input-group-text">บาท</span>
+		                            </div>
+		                        </div>
+								<div class="row" id="net_price">
+								    <div class="input-group mb-3">
+								        <span class="input-group-text" style="width: 100px; justify-content: right;">สุทธิ</span>
+								        <input type="text" class="form-control fw-bold text-danger text-end" id="net" style="background-color: #ededed" readonly>
+								        <span class="input-group-text">บาท</span>
+								    </div>
+								</div>
+		                    </div>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning ml-1" onclick="alertSelectedRadio()" id="btn_edit" style="display: none;">แก้ไข</button>
+                <button type="button" class="btn btn-primary ml-1" onclick="create_checkout_receipt()" id="btn_checkout_receipt">
+                    <i data-feather="file-text"></i> Preview ใบเสร็จ
+                </button>
+                <button type="button" class="btn btn-success ml-1" onclick="save_new_order()" id="btn_save">บันทึก</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade text-left" id="checkoutReceiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable order-receipt-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-white">ใบเสร็จ</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body receipt-preview-wrap">
+                <div id="checkoutReceiptPreview" class="text-center text-muted">กำลังโหลด...</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="copy_checkout_receipt_image()">
+                    <i data-feather="copy"></i> Copy image
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>

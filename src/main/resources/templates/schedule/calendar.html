@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    #main .page-heading {
+        margin-bottom: 0.75rem;
+    }
+
+    #main .page-content .card {
+        margin-bottom: 2.2rem;
+    }
+
+    #main .page-content .card-body {
+        padding: 1.5rem;
+    }
+
+    .schedule-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .schedule-month-title {
+        font-size: 1.45rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .schedule-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .schedule-filters {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .schedule-completed-switch {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        margin: 0;
+        padding: 0.55rem 0 0.55rem 2.9rem;
+        border: 0;
+        background: transparent;
+        font-weight: 700;
+    }
+
+    .schedule-completed-switch .form-check-input {
+        margin-top: 0.15rem;
+    }
+
+    .schedule-completed-switch .form-check-label {
+        margin-left: 0.45rem;
+    }
+
+    .schedule-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        min-height: 42px;
+    }
+
+    .schedule-legend {
+        display: none;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 1rem;
+    }
+
+    .schedule-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 700;
+        color: #607080;
+    }
+
+    .schedule-legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+    }
+
+    .schedule-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-rows: auto repeat(6, minmax(48px, auto));
+        gap: 1px;
+        margin-top: 1.25rem;
+        overflow: hidden;
+        border: 1px solid #dce7f1;
+        border-radius: 8px;
+        background: #dce7f1;
+    }
+
+    .schedule-weekday,
+    .schedule-day {
+        background: #ffffff;
+    }
+
+    .schedule-weekday {
+        padding: 0.8rem 0.65rem;
+        text-align: center;
+        font-weight: 800;
+        color: #435ebe;
+    }
+
+    .schedule-day {
+        position: relative;
+        min-height: 48px;
+        padding: 0.45rem 0.5rem;
+    }
+
+    .schedule-day.is-muted {
+        background: #e9eef6;
+    }
+
+    .schedule-day.is-muted .schedule-day-number {
+        color: #64748b;
+        opacity: 0.58;
+    }
+
+    .schedule-day.is-today {
+        box-shadow: inset 0 0 0 2px #435ebe;
+    }
+
+    .schedule-day-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        margin-bottom: 0;
+        border-radius: 999px;
+        font-weight: 800;
+        color: #25396f;
+    }
+
+    .schedule-day.is-today .schedule-day-number {
+        color: #ffffff;
+        background: #435ebe;
+    }
+
+    .schedule-weekday.is-sunday,
+    .schedule-day.is-sunday .schedule-day-number {
+        color: #ef4444;
+    }
+
+    .schedule-day.is-sunday.is-today .schedule-day-number {
+        color: #ffffff;
+        background: #ef4444;
+    }
+
+    .schedule-event-list {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 30px 30px;
+        gap: 6px;
+        margin-top: 0.35rem;
+    }
+
+    .schedule-event {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 0.4rem;
+        width: 100%;
+        min-width: 0;
+        padding: 0.35rem 0.45rem;
+        border: 0;
+        border-radius: 6px;
+        text-align: left;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .schedule-event-close {
+        background: #f97316;
+    }
+
+    .schedule-event-send {
+        background: #0ea5e9;
+    }
+
+    .schedule-event-lotArrived {
+        background: #ef4444;
+    }
+
+    .schedule-event-muted {
+        background: #64748b !important;
+    }
+
+    .schedule-event-completed,
+    .schedule-range-completed {
+        background: #111827 !important;
+    }
+
+    .schedule-event-completed.schedule-event-close {
+        color: #f97316;
+    }
+
+    .schedule-event-completed.schedule-event-send {
+        color: #0ea5e9;
+    }
+
+    .schedule-event-completed.schedule-event-lotArrived {
+        color: #ef4444;
+    }
+
+    .schedule-range-completed {
+        color: #22c55e;
+        box-shadow: none;
+    }
+
+    .schedule-event-arrivalRange,
+    .schedule-range-bar {
+        background: #22c55e;
+    }
+
+    .schedule-range-bar {
+        z-index: 3;
+        align-self: start;
+        min-width: 0;
+        height: auto;
+        min-height: 30px;
+        margin-top: 108px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 6px;
+        padding: 0.35rem 0.45rem;
+        border: 0;
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        line-height: 1.2;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
+    }
+
+    .schedule-range-tone-0 {
+        background: #22c55e;
+        box-shadow: 0 8px 18px rgba(34, 197, 94, 0.28);
+    }
+
+    .schedule-range-tone-1 {
+        background: #16a34a;
+        box-shadow: 0 8px 18px rgba(22, 163, 74, 0.28);
+    }
+
+    .schedule-range-tone-2 {
+        background: #15803d;
+        box-shadow: 0 8px 18px rgba(21, 128, 61, 0.28);
+    }
+
+    .schedule-range-tone-3 {
+        background: #166534;
+        box-shadow: 0 8px 18px rgba(22, 101, 52, 0.28);
+    }
+
+    .schedule-range-tone-4 {
+        background: #14532d;
+        box-shadow: 0 8px 18px rgba(20, 83, 45, 0.28);
+    }
+
+    .schedule-range-muted {
+        background: #64748b;
+        box-shadow: 0 8px 18px rgba(100, 116, 139, 0.22);
+    }
+
+    .schedule-range-connect-left {
+        margin-left: -1px !important;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .schedule-range-connect-right {
+        margin-right: -1px !important;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .schedule-event-label {
+        white-space: nowrap;
+        font-size: inherit;
+        opacity: 0.9;
+    }
+
+    .schedule-event-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .schedule-event-close {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .schedule-event-send {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .schedule-event-lotArrived {
+        grid-column: 1;
+    }
+
+    .schedule-empty {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: #7c8db5;
+        font-weight: 800;
+    }
+
+    .schedule-detail-list {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .schedule-detail-item {
+        padding: 0.9rem;
+        border: 1px solid #dce7f1;
+        border-radius: 8px;
+    }
+
+    .schedule-detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.45rem;
+    }
+
+    .schedule-detail-item.is-arrival-range > .schedule-detail-meta {
+        display: none;
+    }
+
+    .schedule-detail-table {
+        width: 100%;
+        margin-top: 0.75rem;
+        border-collapse: collapse;
+    }
+
+    .schedule-detail-table th,
+    .schedule-detail-table td {
+        padding: 0.55rem 0.65rem;
+        border-bottom: 1px solid #dce7f1;
+        vertical-align: middle;
+    }
+
+    .schedule-detail-table th {
+        color: #435ebe;
+        background: #f1f5ff;
+        font-weight: 800;
+    }
+
+    .schedule-detail-table .qty-col {
+        width: 110px;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    html[data-theme="dark"] .schedule-calendar {
+        border-color: #334155;
+        background: #334155;
+    }
+
+    html[data-theme="dark"] .schedule-weekday,
+    html[data-theme="dark"] .schedule-day {
+        background: #1f2937;
+    }
+
+    html[data-theme="dark"] .schedule-day.is-muted {
+        background: #0f172a;
+    }
+
+    html[data-theme="dark"] .schedule-day.is-muted .schedule-day-number {
+        color: #94a3b8;
+        opacity: 0.55;
+    }
+
+    html[data-theme="dark"] .schedule-day-number {
+        color: #f8fafc;
+    }
+
+    html[data-theme="dark"] .schedule-legend-item {
+        color: #cbd5e1;
+    }
+
+    html[data-theme="dark"] .schedule-detail-item {
+        border-color: #334155;
+    }
+
+    html[data-theme="dark"] .schedule-detail-table th,
+    html[data-theme="dark"] .schedule-detail-table td {
+        border-color: #334155;
+    }
+
+    html[data-theme="dark"] .schedule-detail-table th {
+        color: #bfdbfe;
+        background: #111827;
+    }
+
+    html[data-theme="dark"] .schedule-completed-switch {
+        background: transparent;
+    }
+
+    @media (max-width: 992px) {
+        .schedule-calendar {
+            display: block;
+            border: 0;
+            background: transparent;
+        }
+
+        .schedule-weekday {
+            display: none;
+        }
+
+        .schedule-day {
+            min-height: 0;
+            margin-bottom: 0.75rem;
+            border: 1px solid #dce7f1;
+            border-radius: 8px;
+        }
+
+        .schedule-day.is-muted {
+            display: none;
+        }
+
+        html[data-theme="dark"] .schedule-day {
+            border-color: #334155;
+        }
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>ปฏิทินกำหนดการ</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="schedule-toolbar">
+                                    <h4 class="schedule-month-title" id="scheduleMonthTitle">-</h4>
+                                    <div class="schedule-filters">
+                                        <div class="form-check form-switch schedule-completed-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="showCompletedSchedule" th:checked="${showCompletedSchedule}">
+                                            <label class="form-check-label" for="showCompletedSchedule">แสดงรายการที่สำเร็จแล้ว</label>
+                                        </div>
+                                        <div class="schedule-actions">
+                                            <button type="button" class="btn btn-light-secondary" id="schedulePrevMonth" title="เดือนก่อนหน้า">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-primary" id="scheduleToday">วันนี้</button>
+                                            <button type="button" class="btn btn-light-secondary" id="scheduleNextMonth" title="เดือนถัดไป">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="schedule-legend">
+                                    <span class="schedule-legend-item">
+                                        <span class="schedule-legend-dot schedule-event-close"></span>
+                                        วันที่ปิดพรี
+                                    </span>
+                                    <span class="schedule-legend-item">
+                                        <span class="schedule-legend-dot schedule-event-send"></span>
+                                        วันที่กำหนดส่ง
+                                    </span>
+                                    <span class="schedule-legend-item">
+                                        <span class="schedule-legend-dot schedule-event-arrivalRange"></span>
+                                        วันที่คาดว่าจะถึงร้าน
+                                    </span>
+                                </div>
+                                <div class="schedule-calendar" id="scheduleCalendar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="modal fade text-left" id="scheduleDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white" id="scheduleDetailTitle">รายละเอียดกำหนดการ</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="scheduleDetailList" class="schedule-detail-list"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const scheduleEvents = JSON.parse(/*[[${scheduleEvents}]]*/ "[]");
+        const initialMonth = /*[[${initialMonth}]]*/ "2026-01";
+        const thaiMonths = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+        const thaiWeekdays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+        let selectedMonth = parseMonth(initialMonth);
+        let showCompletedSchedule = /*[[${showCompletedSchedule}]]*/ false;
+
+        function parseMonth(value) {
+            const parts = String(value || "").split("-");
+            const year = Number(parts[0]);
+            const month = Number(parts[1]);
+            if (!year || !month) {
+                const today = new Date();
+                return new Date(today.getFullYear(), today.getMonth(), 1);
+            }
+            return new Date(year, month - 1, 1);
+        }
+
+        function dateKey(date) {
+            return date.getFullYear() + "-"
+                + String(date.getMonth() + 1).padStart(2, "0") + "-"
+                + String(date.getDate()).padStart(2, "0");
+        }
+
+        function formatDisplayDate(date) {
+            return String(date.getDate()).padStart(2, "0") + "/"
+                + String(date.getMonth() + 1).padStart(2, "0") + "/"
+                + date.getFullYear();
+        }
+
+        function getVisibleScheduleEvents() {
+            return scheduleEvents.filter(item => showCompletedSchedule || !item.completed);
+        }
+
+        function saveShowCompletedSchedule(value) {
+            fetch("/settings/schedule/show-completed", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ showCompleted: value })
+            }).catch(error => {
+                console.error("Error saving schedule completed setting:", error);
+            });
+        }
+
+        function getEventsByDate() {
+            return getVisibleScheduleEvents().reduce((result, item) => {
+                if (item.type === "arrivalRange") {
+                    return result;
+                }
+                if (!result[item.date]) {
+                    result[item.date] = [];
+                }
+                result[item.date].push(item);
+                return result;
+            }, {});
+        }
+
+        function getRangeEvents() {
+            return getVisibleScheduleEvents().filter(item => item.type === "arrivalRange" && item.startDate && item.endDate);
+        }
+
+        function groupDayEvents(events) {
+            return events.reduce((groups, event) => {
+                if (!groups[event.type]) {
+                    groups[event.type] = [];
+                }
+                groups[event.type].push(event);
+                return groups;
+            }, {});
+        }
+
+        function getWeekEventLayouts(eventsByDate, visibleStart, month) {
+            const layouts = [];
+            for (let week = 0; week < 6; week++) {
+                const types = new Set();
+                for (let day = 0; day < 7; day++) {
+                    const current = new Date(visibleStart);
+                    current.setDate(visibleStart.getDate() + (week * 7) + day);
+                    (eventsByDate[dateKey(current)] || []).forEach(event => types.add(event.type));
+                }
+                const rows = [];
+                if (types.has("close")) {
+                    rows.push("close");
+                }
+                if (types.has("send")) {
+                    rows.push("send");
+                }
+                if (types.has("lotArrived")) {
+                    rows.push("lotArrived");
+                }
+                layouts[week] = rows;
+            }
+            return layouts;
+        }
+
+        function getLotTopOffset(rowCount) {
+            return rowCount <= 0 ? 42 : 42 + (rowCount * 36);
+        }
+
+        function renderScheduleCalendar() {
+            const calendar = document.getElementById("scheduleCalendar");
+            const title = document.getElementById("scheduleMonthTitle");
+            if (!calendar || !title) {
+                return;
+            }
+
+            const eventsByDate = getEventsByDate();
+            const year = selectedMonth.getFullYear();
+            const month = selectedMonth.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(firstDay.getDate() - firstDay.getDay());
+            const todayKey = dateKey(new Date());
+            const weekEventLayouts = getWeekEventLayouts(eventsByDate, startDate, month);
+
+            title.textContent = thaiMonths[month] + " " + year;
+            calendar.innerHTML = "";
+
+            thaiWeekdays.forEach((day, index) => {
+                const node = document.createElement("div");
+                node.className = "schedule-weekday";
+                if (index === 0) {
+                    node.classList.add("is-sunday");
+                }
+                node.textContent = day;
+                calendar.appendChild(node);
+            });
+
+            let hasVisibleEvent = false;
+            for (let index = 0; index < 42; index++) {
+                const current = new Date(startDate);
+                current.setDate(startDate.getDate() + index);
+                const key = dateKey(current);
+                const weekIndex = Math.floor(index / 7);
+                const dayIndex = index % 7;
+                const dayEvents = eventsByDate[key] || [];
+                const dayCell = document.createElement("div");
+                dayCell.className = "schedule-day";
+                dayCell.style.gridColumn = String(dayIndex + 1);
+                dayCell.style.gridRow = String(weekIndex + 2);
+                if (current.getMonth() !== month) {
+                    dayCell.classList.add("is-muted");
+                }
+                if (dayIndex === 0) {
+                    dayCell.classList.add("is-sunday");
+                }
+                if (key === todayKey) {
+                    dayCell.classList.add("is-today");
+                }
+
+                const number = document.createElement("div");
+                number.className = "schedule-day-number";
+                number.textContent = current.getDate();
+                dayCell.appendChild(number);
+
+                if (dayEvents.length > 0) {
+                    const eventList = document.createElement("div");
+                    eventList.className = "schedule-event-list";
+                    const weekRows = weekEventLayouts[weekIndex] || [];
+                    eventList.style.gridTemplateRows = `repeat(${Math.max(weekRows.length, 1)}, 30px)`;
+                    Object.entries(groupDayEvents(dayEvents)).forEach(([type, events]) => {
+                    const rowIndex = weekRows.indexOf(type);
+                    if (rowIndex < 0) {
+                        return;
+                    }
+                    hasVisibleEvent = true;
+                    const firstEvent = events[0];
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "schedule-event schedule-event-" + type;
+                    if (events.every(event => event.completed)) {
+                        button.classList.add("schedule-event-completed");
+                    }
+                    if (current.getMonth() !== month) {
+                        button.classList.add("schedule-event-muted");
+                    }
+                    button.dataset.eventDate = key;
+                    button.dataset.eventType = type;
+                    button.style.gridRow = String(rowIndex + 1);
+                    button.title = firstEvent.label + " " + events.length + " รายการ";
+
+                    const label = document.createElement("span");
+                    label.className = "schedule-event-label";
+                    label.textContent = firstEvent.label;
+                    const name = document.createElement("span");
+                    name.className = "schedule-event-name";
+                    name.textContent = events.length + " รายการ";
+
+                    button.appendChild(label);
+                    button.appendChild(name);
+                    eventList.appendChild(button);
+                    });
+                    dayCell.appendChild(eventList);
+                }
+                calendar.appendChild(dayCell);
+            }
+
+            const visibleRanges = renderScheduleRanges(calendar, startDate, month, weekEventLayouts);
+            if (visibleRanges > 0) {
+                hasVisibleEvent = true;
+            }
+
+            if (!hasVisibleEvent) {
+                const empty = document.createElement("div");
+                empty.className = "schedule-empty";
+                empty.style.gridColumn = "1 / -1";
+                empty.textContent = "ไม่มีรายการกำหนดการในเดือนนี้";
+                calendar.appendChild(empty);
+            }
+        }
+
+        function renderScheduleRanges(calendar, startDate, month, weekEventLayouts) {
+            const rangeEvents = getRangeEvents();
+            const visibleStart = new Date(startDate);
+            const visibleEnd = new Date(startDate);
+            visibleEnd.setDate(visibleStart.getDate() + 41);
+            let visibleCount = 0;
+            const weekStackCount = {};
+
+            rangeEvents.forEach(event => {
+                const start = parseIsoDate(event.startDate);
+                const end = parseIsoDate(event.endDate);
+                if (!start || !end || end < visibleStart || start > visibleEnd) {
+                    return;
+                }
+
+                for (let week = 0; week < 6; week++) {
+                    const weekStart = new Date(visibleStart);
+                    weekStart.setDate(visibleStart.getDate() + (week * 7));
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    const segmentStart = start > weekStart ? start : weekStart;
+                    const segmentEnd = end < weekEnd ? end : weekEnd;
+                    if (segmentEnd < segmentStart) {
+                        continue;
+                    }
+                    const hasCurrentMonthDay = eachDate(segmentStart, segmentEnd)
+                        .some(date => date.getMonth() === month);
+                    if (!hasCurrentMonthDay) {
+                        continue;
+                    }
+
+                    const stack = weekStackCount[week] || 0;
+                    weekStackCount[week] = stack + 1;
+                    visibleCount += 1;
+                    const topOffset = getLotTopOffset((weekEventLayouts[week] || []).length);
+                    const monthSegments = getMonthSegments(segmentStart, segmentEnd, month);
+                    monthSegments.forEach((monthSegment, segmentIndex) => {
+                        const startCol = monthSegment.start.getDay() + 1;
+                        const span = Math.floor((monthSegment.end - monthSegment.start) / 86400000) + 1;
+                        const bar = document.createElement("button");
+                        bar.type = "button";
+                        bar.className = "schedule-range-bar " + (monthSegment.isCurrentMonth ? "schedule-range-tone-" + Math.min(stack, 4) : "schedule-range-muted");
+                        if (event.completed) {
+                            bar.classList.add("schedule-range-completed");
+                        }
+                        if (segmentIndex > 0) {
+                            bar.classList.add("schedule-range-connect-left");
+                        }
+                        if (segmentIndex < monthSegments.length - 1) {
+                            bar.classList.add("schedule-range-connect-right");
+                        }
+                        bar.dataset.eventDate = event.startDate;
+                        bar.dataset.eventType = "arrivalRange";
+                        bar.style.gridColumn = startCol + " / span " + span;
+                        bar.style.gridRow = String(week + 2);
+                        bar.style.marginTop = (topOffset + (stack * 36)) + "px";
+                        bar.textContent = segmentIndex === 0 ? event.label + " : " + event.productName : "";
+                        bar.title = event.label + " " + event.displayDate + " - " + event.displayEndDate;
+                        calendar.appendChild(bar);
+                    });
+                }
+            });
+            return visibleCount;
+        }
+
+        function parseIsoDate(value) {
+            const parts = String(value || "").split("-");
+            if (parts.length !== 3) {
+                return null;
+            }
+            const year = Number(parts[0]);
+            const month = Number(parts[1]);
+            const day = Number(parts[2]);
+            if (!year || !month || !day) {
+                return null;
+            }
+            return new Date(year, month - 1, day);
+        }
+
+        function eachDate(start, end) {
+            const dates = [];
+            const current = new Date(start);
+            while (current <= end) {
+                dates.push(new Date(current));
+                current.setDate(current.getDate() + 1);
+            }
+            return dates;
+        }
+
+        function getMonthSegments(start, end, month) {
+            const segments = [];
+            let currentStart = new Date(start);
+            let currentMonthState = currentStart.getMonth() === month;
+            const current = new Date(start);
+            current.setDate(current.getDate() + 1);
+            while (current <= end) {
+                const monthState = current.getMonth() === month;
+                if (monthState !== currentMonthState) {
+                    const previous = new Date(current);
+                    previous.setDate(previous.getDate() - 1);
+                    segments.push({
+                        start: new Date(currentStart),
+                        end: previous,
+                        isCurrentMonth: currentMonthState
+                    });
+                    currentStart = new Date(current);
+                    currentMonthState = monthState;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            segments.push({
+                start: new Date(currentStart),
+                end: new Date(end),
+                isCurrentMonth: currentMonthState
+            });
+            return segments;
+        }
+
+        function showScheduleDetails(key, events) {
+            const modalElement = document.getElementById("scheduleDetailModal");
+            const title = document.getElementById("scheduleDetailTitle");
+            const list = document.getElementById("scheduleDetailList");
+            if (!modalElement || !title || !list) {
+                return;
+            }
+            applyScheduleModalTone(events[0]?.type);
+            const dateParts = key.split("-");
+            const date = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+            title.textContent = "รายละเอียดกำหนดการ " + formatDisplayDate(date);
+            list.innerHTML = "";
+            events.forEach(event => {
+                const item = document.createElement("div");
+                item.className = event.type === "arrivalRange" || event.type === "lotArrived" ? "schedule-detail-item is-arrival-range" : "schedule-detail-item";
+                const productStatusClass = getScheduleProductStatusClass(event.productStatus);
+                const rangeText = event.type === "arrivalRange"
+                    ? `<span class="badge bg-light-secondary">${escapeHtml(event.displayDate)} - ${escapeHtml(event.displayEndDate)}</span>`
+                    : "";
+                const detailRows = buildScheduleDetailRows(event.details || []);
+                const metaRows = event.type === "arrivalRange" || event.type === "lotArrived" ? "" : `
+                    <div class="schedule-detail-meta">
+                        <span class="badge bg-light-secondary">${escapeHtml(event.artistName || "ไม่ระบุศิลปิน")}</span>
+                        <span class="badge ${productStatusClass}">${escapeHtml(event.productStatus || "ไม่ระบุสถานะ")}</span>
+                    </div>
+                `;
+                item.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        ${rangeText}
+                        <strong>${escapeHtml(event.productName)}</strong>
+                    </div>
+                    <div class="schedule-detail-meta">
+                        <span class="badge bg-light-secondary">${escapeHtml(event.artistName || "ไม่ระบุศิลปิน")}</span>
+                        <span class="badge ${productStatusClass}">${escapeHtml(event.productStatus || "ไม่ระบุสถานะ")}</span>
+                    </div>
+                    ${detailRows}
+                `;
+                list.appendChild(item);
+            });
+            openScheduleModal(modalElement);
+        }
+
+        function applyScheduleModalTone(type) {
+            const header = document.querySelector("#scheduleDetailModal .modal-header");
+            if (!header) {
+                return;
+            }
+            header.classList.remove("bg-primary", "bg-orange", "bg-info", "bg-success", "bg-danger");
+            if (type === "close") {
+                header.classList.add("bg-orange");
+            } else if (type === "lotArrived") {
+                header.classList.add("bg-danger");
+            } else if (type === "arrivalRange") {
+                header.classList.add("bg-success");
+            } else {
+                header.classList.add("bg-info");
+            }
+        }
+
+        function getScheduleProductStatusClass(status) {
+            return String(status || "").trim() === "ปิดพรี" ? "bg-danger" : "bg-success";
+        }
+
+        function buildScheduleDetailRows(details) {
+            if (!Array.isArray(details) || details.length === 0) {
+                return "<div class='mt-3 text-muted fw-bold'>ยังไม่มีรายการสั่งซื้อ</div>";
+            }
+            const hasProductColumn = details.some(detail => detail.product);
+            const rows = details.map(detail => `
+                <tr>
+                    ${hasProductColumn ? `<td>${escapeHtml(detail.product || "ไม่ระบุ")}</td>` : ""}
+                    <td>${escapeHtml(detail.website || "ไม่ระบุ")}</td>
+                    <td>${escapeHtml(detail.version || "ไม่ระบุ")}</td>
+                    <td>${escapeHtml(detail.cover || "ไม่ระบุ")}</td>
+                    <td class="qty-col">${formatQty(detail.qty)}</td>
+                </tr>
+            `).join("");
+            return `
+                <div class="table-responsive">
+                    <table class="schedule-detail-table">
+                        <thead>
+                            <tr>
+                                ${hasProductColumn ? "<th>สินค้า</th>" : ""}
+                                <th>เว็บ</th>
+                                <th>เวอร์ชัน</th>
+                                <th>ปก</th>
+                                <th class="qty-col">จำนวนที่สั่ง</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function formatQty(value) {
+            return new Intl.NumberFormat("th-TH", {
+                maximumFractionDigits: 0
+            }).format(Number(value || 0));
+        }
+
+        function openScheduleModal(modalElement) {
+            if (window.bootstrap && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getOrCreateInstance
+                    ? bootstrap.Modal.getOrCreateInstance(modalElement)
+                    : new bootstrap.Modal(modalElement);
+                modal.show();
+                return;
+            }
+            modalElement.classList.add("show");
+            modalElement.style.display = "block";
+            modalElement.removeAttribute("aria-hidden");
+            modalElement.setAttribute("aria-modal", "true");
+            document.body.classList.add("modal-open");
+            if (!document.querySelector(".modal-backdrop")) {
+                const backdrop = document.createElement("div");
+                backdrop.className = "modal-backdrop fade show";
+                document.body.appendChild(backdrop);
+            }
+        }
+
+        function closeScheduleModalFallback() {
+            const modalElement = document.getElementById("scheduleDetailModal");
+            if (!modalElement || (window.bootstrap && bootstrap.Modal)) {
+                return;
+            }
+            modalElement.classList.remove("show");
+            modalElement.style.display = "none";
+            modalElement.setAttribute("aria-hidden", "true");
+            modalElement.removeAttribute("aria-modal");
+            document.body.classList.remove("modal-open");
+            document.querySelector(".modal-backdrop")?.remove();
+        }
+
+        function getEventsForButton(button) {
+            const eventDate = button.dataset.eventDate;
+            const eventType = button.dataset.eventType;
+            if (!eventDate || !eventType) {
+                return [];
+            }
+            if (eventType === "arrivalRange") {
+                return getVisibleScheduleEvents().filter(item => item.type === "arrivalRange" && item.startDate === eventDate);
+            }
+            return getVisibleScheduleEvents().filter(item => item.date === eventDate && item.type === eventType);
+        }
+
+        function escapeHtml(value) {
+            const div = document.createElement("div");
+            div.textContent = value || "";
+            return div.innerHTML;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderScheduleCalendar();
+            document.getElementById("scheduleCalendar")?.addEventListener("click", function(event) {
+                const button = event.target.closest(".schedule-event, .schedule-range-bar");
+                if (!button) {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                const eventDate = button.dataset.eventDate;
+                const events = getEventsForButton(button);
+                if (eventDate && events.length > 0) {
+                    showScheduleDetails(eventDate, events);
+                }
+            });
+            document.querySelectorAll("#scheduleDetailModal [data-bs-dismiss='modal']").forEach(button => {
+                button.addEventListener("click", closeScheduleModalFallback);
+            });
+            document.getElementById("schedulePrevMonth")?.addEventListener("click", function() {
+                selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1);
+                renderScheduleCalendar();
+            });
+            document.getElementById("scheduleNextMonth")?.addEventListener("click", function() {
+                selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1);
+                renderScheduleCalendar();
+            });
+            document.getElementById("scheduleToday")?.addEventListener("click", function() {
+                const today = new Date();
+                selectedMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                renderScheduleCalendar();
+            });
+            document.getElementById("showCompletedSchedule")?.addEventListener("change", function(event) {
+                showCompletedSchedule = event.target.checked;
+                saveShowCompletedSchedule(showCompletedSchedule);
+                renderScheduleCalendar();
+            });
+        });
+    </script>
+</body>
+</html>

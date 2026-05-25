@@ -2,7 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="header_head">
 	<script src="https://unpkg.com/feather-icons"></script>
-    <script>
+    <script th:inline="javascript">
+        (function() {
+            const theme = localStorage.getItem("theme_mode") || /*[[${appTheme}]]*/ "light";
+            document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+        })();
         document.addEventListener("DOMContentLoaded", function() {
             feather.replace();
         });
@@ -23,13 +27,11 @@
     <link rel="stylesheet" th:href="@{/mazer/dist/assets/vendors/bootstrap-icons/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/mazer/dist/assets/css/app.css}">
 	<link rel="stylesheet" th:href="@{/mazer/dist/assets/css/css-style.css}">
+	<link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 
 <body>
-    <header th:fragment="header_nav" class="mb-3">
-        <a href="#" class="burger-btn d-block d-xl-none">
-            <i class="bi bi-justify fs-3"></i>
-        </a>
+    <header th:fragment="header_nav">
     </header>
 </body>
 </html>

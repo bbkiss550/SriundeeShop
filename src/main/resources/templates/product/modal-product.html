@@ -1,0 +1,100 @@
+<div class="modal fade text-left" id="modalManageData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel18">จัดการข้อมูล</h4>
+            </div>
+			<div class="modal-body">
+				<div class="row">
+	                <div class="col-md-12 form-group">
+						<div class="input-group">
+				            <span class="input-group-text product-field-label">ชื่อสินค้า</span>
+	                    	<input type="text" placeholder="..." class="form-control" id="pName">
+	                    	<input type="hidden" id="IdProduct">
+	                    </div>
+	                </div>
+				</div>
+			    <div class="row">
+			        <div class="col-md-5">
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text product-field-label">ประเภท</span>
+			                    	<select class="form-select" th:utext="${ListType}" id="IdType"></select>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text product-field-label">ศิลปิน</span>
+			                    	<select class="form-select" th:utext="${ListArtist}" id="IdArtist"></select>
+			                	</div>
+			                </div>
+			            </div>
+			            <div class="row">
+		                	<div class="col-md-12 form-group">
+		                		<div class="input-group">
+						            <span class="input-group-text product-field-label">วันที่ปิดรับ</span>
+			                    	<input type="date" class="form-control" id="end_date">
+			                    	<span class="input-group-text product-unscheduled-check">
+			                    		<input class="form-check-input mt-0" type="checkbox" id="end_date_unscheduled" onchange="toggleProductScheduleDate('end_date', 'end_date_unscheduled')">
+			                    		<label class="form-check-label" for="end_date_unscheduled">ไม่มีกำหนด</label>
+			                    	</span>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+						        <div class="input-group">
+						        	<span class="input-group-text product-field-label">วันที่กำหนดส่ง</span>
+			                    	<input type="date" class="form-control" id="send_date">
+			                    	<span class="input-group-text product-unscheduled-check">
+			                    		<input class="form-check-input mt-0" type="checkbox" id="send_date_unscheduled" onchange="toggleProductScheduleDate('send_date', 'send_date_unscheduled')">
+			                    		<label class="form-check-label" for="send_date_unscheduled">ไม่มีกำหนด</label>
+			                    	</span>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+								<div class="input-group">
+						            <span class="input-group-text product-field-label">สถานะ</span>
+			                    	<select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			        <div class="col-md-7">
+			            <div class="row">
+			                <div class="col-md-12 form-group">
+			                    <div class="input-group">
+			                        <input type="text" class="form-control" placeholder="ลิ้งภาพ . . ." id="pPic" oninput="updateImagePreview()">
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="row">
+				            <label class="mb-2  text-center">ตัวอย่างรูปภาพ</label>
+				            <div class="product-image-box">
+				                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="showImage">
+				            </div>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-warning ml-1" onclick="save_edit_data()" id="btn_edit" style="display: none;">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">แก้ไข</span>
+				</button>
+				<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
+				    <i class="bx bx-check d-block d-sm-none"></i>
+				    <span class="d-none d-sm-block">บันทึก</span>
+				</button>
+		        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+		            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
+		        </button>
+            </div>
+        </div>
+    </div>
+</div>

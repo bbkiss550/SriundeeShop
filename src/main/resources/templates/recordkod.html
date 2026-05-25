@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    .search-bar {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 4px;
+    }
+
+    .row-check {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    #draftBtn {
+        position: fixed;
+        bottom: calc(var(--app-shell-footer-height) + 28px);
+        right: 28px;
+        z-index: 1050;
+        border-radius: 50px;
+        padding: 12px 22px;
+        font-size: 1rem;
+        box-shadow: 0 4px 16px rgba(13, 110, 253, 0.35);
+        display: none;
+    }
+
+    #draftBadge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 0.78rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+            <div class="page-heading">
+                <h3>บันทึกกดของ</h3>
+            </div>
+            <div class="page-content">
+
+                <!-- Search Bar -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="search-bar">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <label for="inputCustomer" class="input-group-text">ชื่อลูกค้า</label>
+                                                <input type="text" id="inputCustomer" class="form-control"
+                                                    placeholder="ค้นหาชื่อลูกค้า...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                <label for="selectArtist" class="input-group-text">ศิลปิน</label>
+                                                <select id="selectArtist" class="form-select">
+                                                    <option value="">-- ทั้งหมด --</option>
+                                                    <th:block th:utext="${listArtist}"></th:block>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                <label for="selectWebsite" class="input-group-text">เว็บ</label>
+                                                <select id="selectWebsite" class="form-select">
+                                                    <option value="">-- ทั้งหมด --</option>
+                                                    <th:block th:utext="${listWebsite}"></th:block>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-primary w-100" onclick="search_data()">
+                                                <i class="bi bi-search"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-outline-secondary w-100"
+                                                onclick="reset_search()">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ตารางหลัก -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped" id="tableRecordKod" data-datatable-managed="true">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:40px"></th>
+                                            <th class="auto_width">ชื่อลูกค้า</th>
+                                            <th class="auto_width">ชื่อสินค้า</th>
+                                            <th class="auto_width">เว็บ</th>
+                                            <th class="auto_width">เวอชั่น</th>
+                                            <th class="auto_width">ปก</th>
+                                            <th class="status_width">จำนวน</th>
+                                            <th class="status_width">สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:utext="${listOrderDetail}"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ปุ่ม floating เปิด modal ตารางทด -->
+            <button type="button" id="draftBtn" class="btn btn-primary position-relative" data-bs-toggle="modal"
+                data-bs-target="#modalDraft">
+                <i class="bi bi-cart-check-fill me-1"></i> ตารางทด
+                <span id="draftBadge">0</span>
+            </button>
+
+            <div th:include="./recordkod/modal-draft"></div>
+            <div th:include="./order/modal-checkout"></div>
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+    <script th:src="@{/script/recordkod.js}"></script>
+</body>
+
+</html>

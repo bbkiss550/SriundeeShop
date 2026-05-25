@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+	.order-list-row:hover > td {
+		background-color: #f1f5ff !important;
+	}
+
+	.order-list-row {
+		cursor: pointer;
+	}
+
+	.order-code-col {
+		width: 150px;
+		min-width: 150px;
+		padding-left: 1.25rem !important;
+		padding-right: 1rem !important;
+		white-space: nowrap;
+	}
+
+	.order-date-col {
+		width: 130px;
+		min-width: 130px;
+		padding-left: 1.25rem !important;
+		padding-right: 1rem !important;
+		white-space: nowrap;
+	}
+
+	.order-money-col {
+		width: 130px;
+		min-width: 130px;
+		white-space: nowrap;
+	}
+
+	.order-action-col {
+		width: 112px;
+		min-width: 112px;
+		white-space: nowrap;
+	}
+
+	.order-payment-col {
+		width: 150px;
+		min-width: 150px;
+		white-space: nowrap;
+	}
+
+	.order-list-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 118px;
+		min-height: 30px;
+		white-space: nowrap;
+		line-height: 1.2;
+	}
+
+	.order-status-list .order-list-badge {
+		width: 160px;
+		min-width: 160px;
+	}
+
+	.order-status-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+
+	.order-list-filter {
+		display: grid;
+		grid-template-columns: minmax(280px, 1fr) minmax(250px, 0.9fr) minmax(360px, 1.35fr) minmax(240px, 0.9fr) minmax(300px, 1.05fr) auto;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.order-list-filter .input-group {
+		flex-wrap: nowrap;
+	}
+
+	.order-list-filter-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		white-space: nowrap;
+	}
+
+	@media (max-width: 1599px) {
+		.order-list-filter {
+			grid-template-columns: repeat(3, minmax(280px, 1fr));
+		}
+	}
+
+	@media (max-width: 991px) {
+		.order-list-filter {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.order-detail-modal-dialog {
+		max-width: calc(100vw - 48px);
+		width: calc(100vw - 48px);
+	}
+
+	.order-detail-modal-dialog .modal-content {
+		height: calc(100vh - 32px);
+	}
+
+	.order-receipt-modal-dialog {
+		max-width: 960px;
+	}
+
+	#orderEditModal .input-group > .input-group-text:first-child {
+		width: 112px;
+		flex: 0 0 112px;
+		justify-content: center;
+		font-weight: 700;
+	}
+
+	#orderEditModal .input-group > .form-control,
+	#orderEditModal .input-group > .form-select {
+		min-width: 0;
+	}
+
+	.receipt-preview-wrap {
+		background: #f8fafc;
+		padding: 1rem;
+		overflow: auto;
+	}
+
+	.receipt-preview-wrap .receipt {
+		max-width: 880px;
+		margin: 0 auto;
+		padding: 28px;
+		color: #111827;
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		font-family: Arial, Tahoma, sans-serif;
+	}
+
+	.receipt-preview-wrap .header {
+		display: flex;
+		justify-content: space-between;
+		gap: 24px;
+		padding-bottom: 18px;
+		margin-bottom: 20px;
+		border-bottom: 2px solid #111827;
+	}
+
+	.receipt-preview-wrap .receipt-logo {
+		display: block;
+		width: 132px;
+		height: auto;
+		margin: 0;
+		object-fit: contain;
+	}
+
+	.receipt-preview-wrap .receipt-brand {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		min-width: 0;
+	}
+
+	.receipt-preview-wrap .receipt-title {
+		min-width: 0;
+	}
+
+	.receipt-preview-wrap .receipt h1,
+	html[data-theme="dark"] .receipt-preview-wrap .receipt h1 {
+		margin: 0;
+		color: #111827 !important;
+		font-size: 28px;
+	}
+
+	.receipt-preview-wrap .shop {
+		margin-top: 6px;
+		font-size: 18px;
+		font-weight: 700;
+	}
+
+	.receipt-preview-wrap .meta {
+		text-align: right;
+		line-height: 1.7;
+	}
+
+	.receipt-preview-wrap .info {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px 24px;
+		margin-bottom: 18px;
+		line-height: 1.6;
+	}
+
+	.receipt-preview-wrap .info > div {
+		text-align: left;
+	}
+
+	.receipt-preview-wrap table {
+		width: 100%;
+		margin-top: 12px;
+		border-collapse: collapse;
+	}
+
+	.receipt-preview-wrap th,
+	.receipt-preview-wrap td {
+		padding: 10px 8px;
+		color: #111827 !important;
+		vertical-align: top;
+		border-bottom: 1px solid #e5e7eb;
+	}
+
+	.receipt-preview-wrap th {
+		text-align: left;
+		background: #f1f5f9;
+	}
+
+	.receipt-preview-wrap .right {
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.receipt-preview-wrap .product-cell {
+		text-align: left;
+	}
+
+	.receipt-preview-wrap .muted {
+		margin-top: 4px;
+		color: #64748b;
+		font-size: 12px;
+	}
+
+	.receipt-preview-wrap .summary {
+		width: 340px;
+		margin-top: 18px;
+		margin-left: auto;
+	}
+
+	.receipt-preview-wrap .summary-row {
+		display: grid;
+		grid-template-columns: 1fr 140px;
+		padding: 8px 0;
+		border-bottom: 1px solid #e5e7eb;
+	}
+
+	.receipt-preview-wrap .summary-row span:first-child {
+		text-align: left;
+		padding-right: 0;
+	}
+
+	.receipt-preview-wrap .summary-row.total {
+		font-size: 20px;
+		font-weight: 800;
+		border-bottom: 2px solid #111827;
+	}
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>รายการสั่งซื้อ</h3>
+            </div>
+
+			<div class="page-content">
+				<section class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<form class="order-list-filter" id="orderListFilterForm" method="get" th:action="@{/orders}">
+									<div>
+										<div class="input-group">
+											<label for="startDate" class="input-group-text">วันที่เริ่มต้น</label>
+											<input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
+										</div>
+									</div>
+									<div>
+										<div class="input-group">
+											<label for="endDate" class="input-group-text">ถึง</label>
+											<input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
+										</div>
+									</div>
+									<div>
+										<div class="input-group">
+											<label for="customerName" class="input-group-text">ชื่อลูกค้า</label>
+											<input type="text" id="customerName" name="customerName" class="form-control" th:value="${customerName}" placeholder="ค้นหาชื่อลูกค้า">
+										</div>
+									</div>
+									<div>
+										<div class="input-group">
+											<label for="payMethod" class="input-group-text">ชำระเงิน</label>
+											<select id="payMethod" name="payMethod" class="form-select" th:utext="${paymentMethodList}"></select>
+										</div>
+									</div>
+									<div>
+										<div class="input-group">
+											<label for="orderStatus" class="input-group-text">สถานะสั่งซื้อ</label>
+											<select id="orderStatus" name="orderStatus" class="form-select" th:utext="${orderStatusList}"></select>
+										</div>
+									</div>
+									<div class="order-list-filter-actions">
+										<button type="submit" class="btn btn-primary">
+											<i data-feather="search"></i> ค้นหา
+										</button>
+										<button type="button" class="btn btn-light-secondary" onclick="clear_order_list_filter()">ล้างค่า</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</section>
+
+                <section class="row">
+                    <div class="col-12">
+						<div class="card">
+	                        <div class="card-body">
+	                            <table class="table table-striped" id="table1">
+	                                <thead>
+	                                    <tr>
+	                                        <th class="order-action-col">แก้ไข/ลบ</th>
+	                                        <th class="order-code-col">เลขที่คำสั่งซื้อ</th>
+	                                        <th class="order-date-col">วันที่สั่งซื้อ</th>
+	                                        <th class="auto_width">ชื่อลูกค้า</th>
+	                                        <th class="order-money-col text-end">ราคาเต็ม</th>
+	                                        <th class="order-money-col text-end">มัดจำ</th>
+	                                        <th class="order-money-col text-end">ยอดเหลือ</th>
+	                                        <th class="order-money-col text-end">ค่าส่ง</th>
+	                                        <th class="order-money-col text-end">สุทธิ</th>
+	                                        <th class="order-payment-col">ชำระเงิน</th>
+	                                        <th class="auto_width">สถานะสั่งซื้อ</th>
+	                                    </tr>
+	                                </thead>
+	                                <tbody id="orderListRows" th:utext="${orderRows}"></tbody>
+	                            </table>
+	                        </div>
+	                    </div>
+                    </div>
+                </section>
+			</div>
+
+			<div class="modal fade text-left" id="orderEditModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+					<div class="modal-content">
+						<div class="modal-header bg-warning">
+							<h5 class="modal-title text-white">แก้ไขคำสั่งซื้อ</h5>
+							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+								<i data-feather="x"></i>
+							</button>
+						</div>
+						<div class="modal-body">
+							<input type="hidden" id="editOrderId">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">วันที่สั่งซื้อ</span>
+										<input type="date" class="form-control" id="editOrderDate">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">ชื่อลูกค้า</span>
+										<input type="text" class="form-control" id="editCustomerName">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">ชำระเงิน</span>
+										<select class="form-select" id="editPayMethod" th:utext="${editPaymentMethodList}"></select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">ค่าส่ง</span>
+										<input type="number" class="form-control text-end" id="editSendCost" step="0.01" min="0">
+										<span class="input-group-text">บาท</span>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">ส่วนลด</span>
+										<input type="number" class="form-control text-end" id="editDiscount" step="0.01" min="0">
+										<span class="input-group-text">บาท</span>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">มัดจำ</span>
+										<input type="number" class="form-control text-end" id="editPledge" step="0.01" min="0">
+										<span class="input-group-text">บาท</span>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">ยอดเหลือ</span>
+										<input type="number" class="form-control text-end" id="editBalance" step="0.01" min="0">
+										<span class="input-group-text">บาท</span>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="input-group mb-3">
+										<span class="input-group-text">สุทธิ</span>
+										<input type="number" class="form-control text-end" id="editNet" step="0.01" min="0">
+										<span class="input-group-text">บาท</span>
+									</div>
+								</div>
+								<div class="col-12">
+									<div class="input-group mb-3">
+										<span class="input-group-text">หมายเหตุ</span>
+										<input type="text" class="form-control" id="editRemark">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-success" onclick="save_order_edit()">
+								<i data-feather="save"></i> บันทึก
+							</button>
+							<button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade text-left" id="orderDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-xl modal-dialog-scrollable order-detail-modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title text-white">รายละเอียดสินค้า</h5>
+							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+								<i data-feather="x"></i>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>ลูกค้า</th>
+											<th>ศิลปิน</th>
+											<th>สินค้า</th>
+											<th>เว็บ</th>
+											<th>เวอร์ชั่น</th>
+											<th>ปก</th>
+											<th class="text-end">จำนวน</th>
+											<th class="text-end">ราคาเต็ม/ชิ้น</th>
+											<th class="text-end">มัดจำ/ชิ้น</th>
+											<th class="text-end">ราคาเต็ม รวม</th>
+											<th class="text-end">ราคามัดจำ รวม</th>
+											<th class="text-end">ยอดคงเหลือ</th>
+											<th>สถานะส่งของ</th>
+										</tr>
+									</thead>
+									<tbody id="orderDetailRows"></tbody>
+								</table>
+							</div>
+						</div>
+						<div class="modal-footer detail-modal-footer">
+							<div id="orderDetailSummary" class="detail-summary-footer"></div>
+							<div class="detail-modal-actions">
+								<button type="button" class="btn btn-success" id="btnCreateReceipt" onclick="create_order_receipt()">
+									<i data-feather="file-text"></i> สร้างใบเสร็จ
+								</button>
+								<button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade text-left" id="orderReceiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-scrollable order-receipt-modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header bg-success">
+							<h5 class="modal-title text-white">ใบเสร็จ</h5>
+							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+								<i data-feather="x"></i>
+							</button>
+						</div>
+						<div class="modal-body receipt-preview-wrap">
+							<div id="orderReceiptPreview" class="text-center text-muted">กำลังโหลด...</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary" onclick="copy_order_receipt_image()">
+								<i data-feather="copy"></i> Copy image
+							</button>
+							<button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+	<script th:src="@{/script/order/list.js}"></script>
+</body>
+</html>

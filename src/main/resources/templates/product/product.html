@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<script th:src="@{/script/product/product.js}"></script>
+<script th:src="@{/script/product/version.js}"></script>
+<script th:src="@{/script/product/cover.js}"></script>
+
+<style>
+	.product-table {
+		overflow: visible;
+	}
+
+	.product-table .product-image-col {
+		width: 72px !important;
+	}
+
+	.product-table .product-image-cell {
+		position: relative;
+		overflow: visible;
+		vertical-align: middle;
+	}
+
+	.product-table .product-table-img {
+		display: block;
+		width: 42px !important;
+		height: 42px;
+		border: 1px solid #dce7f1;
+		border-radius: 6px;
+		object-fit: cover;
+		cursor: zoom-in;
+		transition: border-color 180ms ease, box-shadow 180ms ease;
+	}
+
+	html[data-theme="dark"] .product-table .product-table-img {
+		border-color: #314561;
+	}
+
+	.product-table .product-table-img:hover,
+	.product-table .product-table-img:focus {
+		border-color: #435ebe;
+		box-shadow: 0 0 0 3px rgba(67, 94, 190, 0.2);
+	}
+
+	.product-image-hover-preview {
+		position: fixed;
+		z-index: 2055;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: min(720px, calc(100vw - 32px));
+		height: min(920px, calc(100vh - 32px));
+		padding: 8px;
+		border: 1px solid #dce7f1;
+		border-radius: 8px;
+		background: #ffffff;
+		box-shadow: 0 22px 56px rgba(17, 24, 39, 0.42);
+		pointer-events: none;
+	}
+
+	.product-image-hover-preview.is-visible {
+		display: flex;
+	}
+
+	.product-image-hover-preview img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 6px;
+		object-fit: contain;
+	}
+
+	html[data-theme="dark"] .product-image-hover-preview {
+		border-color: #43536d;
+		background: #111827;
+	}
+
+	.product-unscheduled-check {
+		flex: 0 0 112px;
+		gap: .4rem;
+		padding-left: .55rem;
+		padding-right: .55rem;
+		justify-content: center;
+		white-space: nowrap;
+	}
+
+	.product-field-label {
+		flex: 0 0 130px;
+		width: 130px;
+		min-width: 130px;
+		max-width: 130px;
+		box-sizing: border-box;
+		justify-content: right;
+		white-space: nowrap;
+	}
+
+	#modalManageData .input-group {
+		flex-wrap: nowrap;
+	}
+
+	#modalManageData .thai-date-display {
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
+	.product-image-box {
+		border: 1px solid #ddd;
+		padding: 10px;
+		border-radius: 8px;
+		height: 430px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.product-image-box img {
+		display: block;
+		max-width: 100%;
+		max-height: 410px;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+	}
+
+	html[data-theme="dark"] .product-image-box {
+		border-color: #43536d;
+	}
+
+	.product-unscheduled-check .form-check-label {
+		margin-bottom: 0;
+		color: #1f2937;
+	}
+
+	html[data-theme="dark"] .product-unscheduled-check .form-check-label {
+		color: #f8fafc;
+	}
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+		
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+            <div class="page-heading">
+                <h3>ข้อมูลสินค้า</h3>
+            </div>
+			<div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-12">
+								<div class="card">
+									<div class="card-header">
+										<div class="buttons">
+									        <a class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มข้อมูลใหม่</a>
+									    </div>
+										<hr>
+									</div>
+			                        <div class="card-body">
+			                            <table class="table table-striped product-table" id="table1">
+			                                <thead>
+			                                    <tr>
+													<th class="fix_width">แก้ไข</th>
+													<th class="fix_width">ลบ</th>
+													<th class="fix_width">ปก</th>
+													<th class="fix_width">เวอร์ชั่น</th>
+													<th class="fix_width">#</th>
+													<th class="product-image-col">ภาพ</th>
+			                                        <th class="auto_width">ชื่อ</th>
+													<th class="auto_width">ประเภท</th>
+													<th class="auto_width">ศิลปิน</th>
+													<th class="status_width">ปิดรับ</th>
+													<th class="status_width">สถานะ</th>
+			                                    </tr>
+			                                </thead>
+			                                <tbody th:utext="${mainProduct}"></tbody>
+			                            </table>
+			                            <div th:include="./product/modal-product"></div>
+			                            <div th:include="./product/modal-cover"></div>
+			                            <div th:include="./product/modal-version"></div>
+			                        </div>
+			                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+</body>
+</html>

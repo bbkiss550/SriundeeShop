@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.sriundee.preorder.model.ProductStatus;
+import com.sriundee.preorder.entity.ProductStatus;
 import com.sriundee.preorder.repository.ProductStatusRepository;
 
 @Controller

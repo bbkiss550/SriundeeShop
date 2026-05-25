@@ -1,5 +1,7 @@
 .fix_width { width: 60px !important; }
+.logo_width { width: 60px !important; }
 .auto_width { width: auto !important; }
+.status_width { width: 120px !important; }
 
 #table1 { table-layout: fixed !important; width: 100% !important; }
 

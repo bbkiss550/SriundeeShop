@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    .pricing-layout {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+
+    .pricing-form-grid,
+    .pricing-summary-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .pricing-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pricing-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pricing-field-label {
+        min-width: 158px;
+        justify-content: flex-end;
+        font-weight: 800;
+    }
+
+    .pricing-result-hero {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 112px;
+        margin-bottom: 1rem;
+        padding: 1.25rem;
+        border: 1px solid #dce7f1;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .pricing-result-price {
+        font-size: 2.5rem;
+        line-height: 1.05;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .pricing-summary-tile {
+        min-height: 92px;
+        padding: 1rem;
+        border-left: 4px solid #435ebe;
+        border-radius: 6px;
+        background: #f8fafc;
+    }
+
+    .pricing-summary-tile.profit {
+        grid-column: 1 / -1;
+        border-left-color: #198754;
+    }
+
+    .pricing-summary-label {
+        display: block;
+        color: #7c8db5;
+        font-size: 0.85rem;
+        font-weight: 800;
+    }
+
+    .pricing-summary-value {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 1.12rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .pricing-exchange-rate-status {
+        min-height: 1.35rem;
+        margin-top: 0.4rem;
+    }
+
+    html[data-theme="dark"] .pricing-result-hero,
+    html[data-theme="dark"] .pricing-summary-tile {
+        border-color: #314561;
+        background: #111827;
+    }
+
+    @media (max-width: 1199px) {
+        .pricing-layout,
+        .pricing-form-grid,
+        .pricing-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pricing-summary-tile.profit {
+            grid-column: auto;
+        }
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>คำนวณราคาขาย</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="pricing-layout">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="pricingForm" novalidate>
+                                <div class="pricing-form-grid">
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">ราคาสินค้าเกาหลี</span>
+                                            <input id="koreanPriceKRW" name="koreanPriceKRW" type="number" class="form-control text-end" min="1" step="1" value="18000" required>
+                                            <span class="input-group-text">KRW</span>
+                                        </div>
+                                        <div class="invalid-feedback">ราคาสินค้าต้องมากกว่า 0</div>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">ค่าส่งในเกาหลี</span>
+                                            <input id="koreanShippingKRW" name="koreanShippingKRW" type="number" class="form-control text-end" min="0" step="1" value="3000" required>
+                                            <span class="input-group-text">KRW</span>
+                                        </div>
+                                        <div class="invalid-feedback">ค่าส่งในเกาหลีห้ามติดลบ</div>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">เรท KRW เป็น THB</span>
+                                            <input id="exchangeRate" name="exchangeRate" type="number" class="form-control text-end" min="0.0001" step="0.0001" value="0.0218" required>
+                                            <button id="loadExchangeRate" class="btn btn-primary" type="button">
+                                                <i data-feather="refresh-cw"></i> โหลดเรท
+                                            </button>
+                                        </div>
+                                        <div id="exchangeRateStatus" class="form-text pricing-exchange-rate-status">เรทแก้ไขเองได้ และระบบจะลองโหลดค่าใหม่ให้</div>
+                                        <div class="invalid-feedback">เรทต้องมากกว่า 0</div>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">ประเภทสินค้า</span>
+                                            <select id="shippingTier" name="shippingTier" class="form-select" required>
+                                                <option value="">เลือกประเภท</option>
+                                                <option value="S">S - Digipack / Jewel / KiT</option>
+                                                <option value="M" selected>M - Album ปกติ</option>
+                                                <option value="L">L - Box Album / Album หนา</option>
+                                                <option value="XL">XL - Season Greetings / Box Set ใหญ่</option>
+                                                <option value="MAGAZINE">MAGAZINE - Magazine / Photobook / DICON</option>
+                                            </select>
+                                        </div>
+                                        <div class="invalid-feedback">กรุณาเลือกประเภทสินค้า</div>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">ส่งกลับไทย</span>
+                                            <select id="shippingMethod" name="shippingMethod" class="form-select" required>
+                                                <option value="SEA" selected>เรือ - 150 บาท/kg</option>
+                                                <option value="AIR">เครื่องบิน - 400 บาท/kg</option>
+                                            </select>
+                                        </div>
+                                        <div class="invalid-feedback">กรุณาเลือกวิธีส่งกลับไทย</div>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <span class="input-group-text pricing-field-label">การปัดราคา</span>
+                                            <select id="roundMode" name="roundMode" class="form-select" required>
+                                                <option value="ROUND_UP_10">ปัดขึ้นทีละ 10 บาท</option>
+                                                <option value="ROUND_UP_50" selected>ปัดขึ้นทีละ 50 บาท</option>
+                                            </select>
+                                        </div>
+                                        <div class="invalid-feedback">กรุณาเลือกวิธีปัดราคา</div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="pricing-result-hero">
+                                <div>
+                                    <span class="pricing-summary-label">ราคาขายแนะนำหลังปัด</span>
+                                    <div id="recommendedSellingPrice" class="pricing-result-price">-</div>
+                                </div>
+                                <span id="highRiskBadge" class="badge bg-danger d-none">สินค้าเสี่ยงแพ็กสูง</span>
+                            </div>
+
+                            <div id="warningBox" class="alert alert-warning d-none" role="alert"></div>
+                            <div id="apiError" class="alert alert-danger d-none" role="alert"></div>
+
+                            <div class="pricing-summary-grid">
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">ต้นทุนเกาหลีเป็นบาท</span>
+                                    <span id="koreanCostTHB" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">ประเภทที่เลือก</span>
+                                    <span id="tierInfo" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">น้ำหนักประมาณต่อชิ้น</span>
+                                    <span id="estimatedItemWeightKg" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">วิธีส่งกลับไทย</span>
+                                    <span id="shippingMethodInfo" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">เรทส่งกลับไทย / kg</span>
+                                    <span id="returnShippingRatePerKg" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">ค่าส่งกลับไทยเฉลี่ย</span>
+                                    <span id="estimatedReturnShippingTHB" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile">
+                                    <span class="pricing-summary-label">ราคาก่อนปัด</span>
+                                    <span id="priceBeforeRounding" class="pricing-summary-value">-</span>
+                                </div>
+                                <div class="pricing-summary-tile profit">
+                                    <span class="pricing-summary-label">กำไรประมาณ / เปอร์เซ็นต์กำไร</span>
+                                    <span class="pricing-summary-value">
+                                        <span id="estimatedProfit">-</span>
+                                        <span class="text-muted">/</span>
+                                        <span id="estimatedMarginPercent">-</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+    <script th:src="@{/script/pricing/calculator.js}"></script>
+</body>
+</html>

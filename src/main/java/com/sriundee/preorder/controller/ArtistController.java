@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,13 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sriundee.preorder.bean.ArtistBean;
 import com.sriundee.preorder.dto.ArtistDto;
-import com.sriundee.preorder.model.Artist;
-import com.sriundee.preorder.model.Group;
-import com.sriundee.preorder.model.Type;
+import com.sriundee.preorder.entity.Artist;
 import com.sriundee.preorder.repository.ArtistRepository;
-import com.sriundee.preorder.repository.GroupRepository;
-
-import org.springframework.ui.Model;
 
 @Controller
 public class ArtistController {
@@ -44,11 +40,12 @@ public class ArtistController {
 		for (ArtistBean a : artistList) {
 			row_id +=1;
 			strArtist.append("<tr>");
-			strArtist.append("<td>" + row_id + "</td>");
-			strArtist.append("<td>" + a.getA_name() + "</td>");
-			strArtist.append("<td>" + a.getG_name() + "</td>");
 			strArtist.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + a.getID_art() + ")'><i data-feather='edit'></i></a></div></td>");
 			strArtist.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + a.getID_art() + ")'><i data-feather='trash-2'></i></a></div></td>");
+			strArtist.append("<td>" + row_id + "</td>");
+			strArtist.append("<td><img src='" + a.geta_logo() + "' class='table-img'></td>");
+			strArtist.append("<td>" + a.geta_name() + "</td>");
+			strArtist.append("<td>" + a.getg_name() + "</td>");
 			strArtist.append("</tr>");
 		}
 	    model.addAttribute("mainArtist", strArtist);
@@ -66,6 +63,7 @@ public class ArtistController {
             Artist artist = new Artist();
             artist.setName(artistDto.getArtistName());
             artist.setGroup(Integer.parseInt(artistDto.getGroupId()));
+            artist.setLogo(artistDto.getLogo());
             artist.setDelete("A");
 
             artistRepository.save(artist);
@@ -89,6 +87,7 @@ public class ArtistController {
             Artist artist = artistRepository.findById(id).orElseThrow(() -> new RuntimeException("ไม่พบข้อมูลศิลปิน"));
             artist.setName(artistDto.getArtistName());
             artist.setGroup(Integer.parseInt(artistDto.getGroupId()));
+            artist.setLogo(artistDto.getLogo());
             
             artistRepository.save(artist);
             
@@ -114,10 +113,10 @@ public class ArtistController {
     }
 
     public String getDataList() {
-	    List<ArtistBean> mainArtist = artistRepository.getDataAll();
+	    List<ArtistBean> mainArtist = artistRepository.getDropdownData();
 	    StringBuilder strArtist = new StringBuilder();
 	    for (ArtistBean a : mainArtist) {
-	    	strArtist.append("<option value='" + a.getID_art() + "'>" + a.getA_name() + "</option>");
+	    	strArtist.append("<option value='" + a.getID_art() + "'>" + a.geta_name() + "</option>");
 	    }
 	    
 	    return strArtist.toString();

@@ -1,22 +1,93 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<footer th:fragment="footer">
+<footer th:fragment="footer" class="app-shell-footer">
+    <div class="app-version-footer" th:if="${appVersion != null}">
+        <span th:text="${appVersion.version}">1.0.0</span>
+        <span th:text="${appVersion.date}">2026-05-21</span>
+    </div>
+    <a th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" th:href="@{/logout}" class="btn app-footer-logout-btn" title="Log out">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Log out</span>
+    </a>
     <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/fontawesome/all.min.js}"></script>
-    <script th:src="@{/mazer/dist/assets/js/pages/dashboard.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/extensions/sweetalert2.js}"></script>
     <script th:src="@{/mazer/dist/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/choices.js/choices.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/main.js}"></script>
-	<script>
-	    let table1 = document.querySelector('.table');
-	    let dataTable = new simpleDatatables.DataTable(table1);
+    <script th:src="@{/script/date-display.js}"></script>
+    <script th:src="@{/script/theme.js}"></script>
+    <script th:src="@{/script/menu-order.js}"></script>
+    <script th:src="@{/script/submit-guard.js}"></script>
+    <script>
+        (function() {
+            const navigation = document.querySelector(".top-navigation");
+            const footer = document.querySelector(".app-shell-footer");
+            const main = document.getElementById("main");
+            if (!navigation || !footer || !main) {
+                return;
+            }
 
-		dataTable = new simpleDatatables.DataTable(".table", {
-		    fixedColumns: false
-		});
+            const updateShellSize = function() {
+                document.documentElement.style.setProperty("--app-shell-header-height", navigation.offsetHeight + "px");
+                document.documentElement.style.setProperty("--app-shell-footer-height", footer.offsetHeight + "px");
+                document.documentElement.style.setProperty("--app-shell-scrollbar-width", Math.max(0, main.offsetWidth - main.clientWidth) + "px");
+            };
+
+            updateShellSize();
+            window.addEventListener("resize", updateShellSize);
+            if (window.ResizeObserver) {
+                const shellSizeObserver = new ResizeObserver(updateShellSize);
+                shellSizeObserver.observe(navigation);
+                shellSizeObserver.observe(footer);
+                shellSizeObserver.observe(main);
+            }
+        })();
+    </script>
+    <script>
+        window.moveDetailSummaryToFooter = function(rowsId, summaryId) {
+            const rows = document.getElementById(rowsId);
+            const summary = document.getElementById(summaryId);
+            if (!rows || !summary) {
+                return;
+            }
+
+            summary.replaceChildren();
+            const summaryCell = rows.querySelector(".detail-summary-cell");
+            if (!summaryCell) {
+                return;
+            }
+
+            const summaryGrid = summaryCell.querySelector(".detail-summary-grid");
+            if (summaryGrid) {
+                summary.appendChild(summaryGrid);
+            }
+            const summaryRow = summaryCell.closest("tr");
+            if (summaryRow) {
+                summaryRow.remove();
+            }
+        };
+    </script>
+	<script>
+	    const refreshDataTableIcons = function() {
+	        if (window.feather) {
+	            feather.replace();
+	        }
+	    };
+
+	    let table1 = document.querySelector('.table:not([data-datatable-managed])');
+	    if (table1) {
+	        const defaultDataTable = new simpleDatatables.DataTable(table1, {
+	            fixedColumns: false
+	        });
+
+	        defaultDataTable.on("datatable.sort", refreshDataTableIcons);
+	        defaultDataTable.on("datatable.update", refreshDataTableIcons);
+	        defaultDataTable.on("datatable.page", refreshDataTableIcons);
+	        defaultDataTable.on("datatable.search", refreshDataTableIcons);
+	    }
 	</script>
 </footer>
 </html>

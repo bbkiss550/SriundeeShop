@@ -1,22 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="menu">
-    <div id="sidebar" class="active">
-        <div class="sidebar-wrapper active">
-            <div class="sidebar-header">
-                <div class="d-flex justify-content-between">
-                    <div class="logo">
-                        <a th:href="@{/}"><img th:src="@{/mazer/dist/assets/images/logo/logo-web.png}" alt="Logo" style="height:120px"></a>
+    <div id="sidebar" class="active top-navigation">
+        <div class="sidebar-wrapper active top-navigation-wrapper">
+            <div class="sidebar-header top-navigation-header">
+                <a th:href="@{/}" class="top-navigation-logo">
+                    <img th:src="@{/mazer/dist/assets/images/logo/logo-web.png}" alt="Logo">
+                </a>
+                <div class="top-navigation-actions">
+                    <div class="top-navigation-settings-stack">
+                        <div class="top-navigation-settings-row">
+                            <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="ตั้งค่าลำดับเมนู" title="ตั้งค่าลำดับเมนู">
+                                <i class="bi bi-gear-fill"></i>
+                            </button>
+                            <a th:href="@{/dashboard/manage}" class="btn dashboard-manage-toggle-btn" aria-label="จัดการ Dashboard" title="จัดการ Dashboard">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                            </a>
+                        </div>
+                        <button type="button" id="themeToggle" class="btn theme-toggle-btn" aria-label="Toggle dark mode" aria-pressed="false">
+                            <span id="themeToggleIcon" class="theme-toggle-icon" aria-hidden="true">&#9728;</span>
+                            <span id="themeToggleLabel">Light</span>
+                        </button>
                     </div>
-                    <div class="toggler">
-                        <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
-                    </div>
+                    <button type="button" class="btn top-navigation-toggle d-xl-none burger-btn" aria-label="Toggle menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <a href="#" class="sidebar-hide d-xl-none d-none" aria-label="Hide menu"><i class="bi bi-x bi-middle"></i></a>
                 </div>
             </div>
-            <div class="sidebar-menu">
+            <div class="sidebar-menu top-navigation-menu">
                 <ul class="menu" th:utext="${mainMenus}"></ul>
             </div>
             <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+        </div>
+    </div>
+    <div class="modal fade text-left" id="menuOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white">ตั้งค่าลำดับเมนู</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-muted small mb-3">ลากเมนูเพื่อจัดลำดับ</div>
+                    <div id="menuOrderRows" class="menu-order-rows"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="saveMenuOrderButton">
+                        <i data-feather="save"></i> บันทึก
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
