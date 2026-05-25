@@ -71,7 +71,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			         o.o_price_balance,
 			         o.o_net,
 			         o.o_remark
-			ORDER BY o.o_order_date DESC, o.ID_order DESC
+			ORDER BY o.o_order_code DESC, o.ID_order DESC
 			""", nativeQuery = true)
     List<OrderListBean> getOrderList(
     		@Param("startDate") String startDate,
@@ -117,7 +117,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			         o.o_price_balance,
 			         o.o_net,
 			         o.o_remark
-			ORDER BY o.o_order_date DESC, o.ID_order DESC
+			ORDER BY o.o_order_code DESC, o.ID_order DESC
 			""", nativeQuery = true)
     List<OrderListBean> getDepositBalanceList(
     		@Param("startDate") String startDate,

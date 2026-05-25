@@ -4,9 +4,7 @@
 
 <style>
     .dashboard-builder-shell {
-        display: grid;
-        grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
-        gap: 1.25rem;
+        display: block;
     }
 
     .dashboard-builder-panel {
@@ -28,13 +26,44 @@
 
     .dashboard-widget-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
         gap: 0.75rem;
         align-items: center;
         padding: 0.85rem;
         border: 1px solid #dce7f1;
         border-radius: 8px;
         background: #ffffff;
+        cursor: grab;
+        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, opacity 160ms ease;
+    }
+
+    .dashboard-widget-row:active {
+        cursor: grabbing;
+    }
+
+    .dashboard-widget-row.is-dragging {
+        opacity: 0.18;
+        border-color: #435ebe;
+        box-shadow: 0 0.45rem 1rem rgba(67, 94, 190, 0.18);
+    }
+
+    .dashboard-widget-placeholder {
+        min-height: 72px;
+        border: 2px dashed #435ebe;
+        border-radius: 8px;
+        background: rgba(67, 94, 190, 0.08);
+        transition: min-height 160ms ease, background 160ms ease;
+    }
+
+    .dashboard-widget-drag-handle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        color: #7c8db5;
+        background: #f2f5ff;
     }
 
     .dashboard-widget-title {
@@ -103,6 +132,15 @@
         background: #111827;
     }
 
+    html[data-theme="dark"] .dashboard-widget-placeholder {
+        background: rgba(67, 94, 190, 0.18);
+    }
+
+    html[data-theme="dark"] .dashboard-widget-drag-handle {
+        color: #cbd5e1;
+        background: #1f2937;
+    }
+
     @media (max-width: 1199px) {
         .dashboard-builder-shell {
             grid-template-columns: 1fr;
@@ -131,56 +169,18 @@
 
             <div class="page-content">
                 <section class="dashboard-builder-shell">
-                    <div class="card dashboard-builder-panel">
-                        <div class="card-header">
-                            <h4>เพิ่ม Widget</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text dashboard-builder-field-label">หัวข้อ</span>
-                                <input type="text" id="dashboardWidgetTitle" class="form-control" placeholder="ระบุชื่อที่ต้องการแสดง">
-                            </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text dashboard-builder-field-label">รูปแบบ</span>
-                                <select id="dashboardWidgetType" class="form-select">
-                                    <option value="metric">ตัวเลขสรุป</option>
-                                    <option value="line">กราฟเส้น</option>
-                                    <option value="bar">กราฟแท่ง</option>
-                                    <option value="area">กราฟพื้นที่</option>
-                                    <option value="pie">กราฟวงกลม</option>
-                                    <option value="donut">กราฟโดนัท</option>
-                                </select>
-                            </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text dashboard-builder-field-label">ข้อมูล</span>
-                                <select id="dashboardWidgetDataset" class="form-select"></select>
-                            </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text dashboard-builder-field-label">ความกว้าง</span>
-                                <select id="dashboardWidgetWidth" class="form-select">
-                                    <option value="25">25%</option>
-                                    <option value="33">33%</option>
-                                    <option value="50" selected>50%</option>
-                                    <option value="66">66%</option>
-                                    <option value="75">75%</option>
-                                    <option value="100">100%</option>
-                                </select>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary" id="saveDashboardWidgetsButton">
-                                    <i data-feather="save"></i> บันทึก
-                                </button>
-                                <a class="btn btn-light-secondary" th:href="@{/}">ดู Dashboard</a>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center gap-3">
                             <h4 class="mb-0">Widget ที่เลือก</h4>
-                            <button type="button" class="btn btn-danger" id="clearDashboardWidgetsButton">
-                                <i data-feather="trash-2"></i> ล้างทั้งหมด
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary" id="openDashboardWidgetModalButton">
+                                    <i data-feather="plus"></i> เพิ่ม Widget
+                                </button>
+                                <a class="btn btn-light-secondary" th:href="@{/}">ดู Dashboard</a>
+                                <button type="button" class="btn btn-danger" id="clearDashboardWidgetsButton">
+                                    <i data-feather="trash-2"></i> ล้างทั้งหมด
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div id="dashboardWidgetList" class="dashboard-widget-list mb-4"></div>
@@ -188,6 +188,55 @@
                         </div>
                     </div>
                 </section>
+
+                <div class="modal fade" id="dashboardWidgetModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dashboardWidgetModalTitle">เพิ่ม Widget</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text dashboard-builder-field-label">หัวข้อ</span>
+                                    <input type="text" id="dashboardWidgetTitle" class="form-control" placeholder="ระบุชื่อที่ต้องการแสดง">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text dashboard-builder-field-label">รูปแบบ</span>
+                                    <select id="dashboardWidgetType" class="form-select">
+                                        <option value="metric">ตัวเลขสรุป</option>
+                                        <option value="line">กราฟเส้น</option>
+                                        <option value="bar">กราฟแท่ง</option>
+                                        <option value="area">กราฟพื้นที่</option>
+                                        <option value="pie">กราฟวงกลม</option>
+                                        <option value="donut">กราฟโดนัท</option>
+                                    </select>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text dashboard-builder-field-label">ข้อมูล</span>
+                                    <select id="dashboardWidgetDataset" class="form-select"></select>
+                                </div>
+                                <div class="input-group mb-0">
+                                    <span class="input-group-text dashboard-builder-field-label">ความกว้าง</span>
+                                    <select id="dashboardWidgetWidth" class="form-select">
+                                        <option value="25">25%</option>
+                                        <option value="33">33%</option>
+                                        <option value="50" selected>50%</option>
+                                        <option value="66">66%</option>
+                                        <option value="75">75%</option>
+                                        <option value="100">100%</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                <button type="button" class="btn btn-primary" id="saveDashboardWidgetsButton">
+                                    <i data-feather="save"></i> บันทึก
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <footer th:replace="common/footer :: footer"></footer>

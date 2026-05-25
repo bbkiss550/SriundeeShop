@@ -12,6 +12,9 @@ import com.sriundee.preorder.entity.Artist;
 @Repository
 public interface ArtistRepository extends JpaRepository<Artist, Integer> {
 	
-    @Query(value = "SELECT * FROM q_artist WHERE a_delete = 'A'", nativeQuery = true)
+    @Query(value = "SELECT * FROM q_artist WHERE a_delete = 'A' ORDER BY ID_art ASC", nativeQuery = true)
     List<ArtistBean> getDataAll();
+
+    @Query(value = "SELECT * FROM q_artist WHERE a_delete = 'A' ORDER BY a_name ASC, ID_art ASC", nativeQuery = true)
+    List<ArtistBean> getDropdownData();
 }

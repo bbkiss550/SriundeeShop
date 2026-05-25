@@ -104,6 +104,7 @@ public class ReportController {
         model.addAttribute("profitValue", displayMoney(income.subtract(expense)));
         model.addAttribute("profitMargin", displayPercent(income, income.subtract(expense)));
         model.addAttribute("profitRows", profitRows(start, end));
+        model.addAttribute("orderProfitRows", orderProfitRows(start, end));
 
         model.addAttribute("productQty", count("""
                 SELECT COALESCE(SUM(od.od_qty), 0)
@@ -299,6 +300,59 @@ public class ReportController {
                 "sales", displayMoney(row.get("sales")),
                 "pledge", displayMoney(row.get("pledge")),
                 "balance", displayMoney(row.get("balance"))));
+    }
+
+    private List<Map<String, Object>> orderProfitRows(LocalDate start, LocalDate end) {
+        return transform(jdbcTemplate.queryForList("""
+                SELECT o.ID_order,
+                       o.o_order_code,
+                       o.o_order_date,
+                       o.o_customer_name,
+                       COALESCE(STRING_AGG(DISTINCT os.os_name, ', '), '-') AS order_statuses,
+                       COALESCE(o.o_net, 0) AS sales,
+                       COALESCE(c.press_cost, 0) AS press_cost,
+                       COALESCE(c.shipping_cost, 0) AS shipping_cost,
+                       COALESCE(o.o_net, 0) - COALESCE(c.press_cost, 0) - COALESCE(c.shipping_cost, 0) AS profit
+                FROM t_order o
+                LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+                LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
+                LEFT JOIN (
+                    SELECT ID_order,
+                           SUM(CASE WHEN ID_type_cost = 1 THEN allocated_cost ELSE 0 END) AS press_cost,
+                           SUM(CASE WHEN ID_type_cost = 2 THEN allocated_cost ELSE 0 END) AS shipping_cost
+                    FROM (
+                        SELECT qod.ID_order,
+                               qc.ID_type_cost,
+                               CASE
+                                   WHEN SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost) > 0 THEN
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       * CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))
+                                       / SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost)
+                                   ELSE
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       / COUNT(*) OVER (PARTITION BY qc.ID_cost)
+                               END AS allocated_cost
+                        FROM q_cost_detail cd
+                        JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
+                        JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
+                        WHERE qc.c_delete = 'A'
+                          AND qc.ID_type_cost IN (1, 2)
+                    ) allocated
+                    GROUP BY ID_order
+                ) c ON c.ID_order = o.ID_order
+                WHERE o.o_order_date BETWEEN ? AND ?
+                GROUP BY o.ID_order, o.o_order_code, o.o_order_date, o.o_customer_name, o.o_net, o.o_send_cost,
+                         c.press_cost, c.shipping_cost
+                ORDER BY o.o_order_code DESC, o.ID_order DESC
+                """, start, end), row -> map(
+                "code", text(row.get("o_order_code")),
+                "date", displayDate(row.get("o_order_date")),
+                "customer", text(row.get("o_customer_name")),
+                "statuses", text(row.get("order_statuses")),
+                "sales", displayMoney(row.get("sales")),
+                "pressCost", displayMoney(row.get("press_cost")),
+                "shippingCost", displayMoney(row.get("shipping_cost")),
+                "profit", displayMoney(row.get("profit"))));
     }
 
     private List<Map<String, Object>> productDetailRows(LocalDate start, LocalDate end) {

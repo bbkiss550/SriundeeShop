@@ -100,7 +100,7 @@ public class TypeController {
     }
 
     public String getDataList() {
-	    List<Type> mainType = typeRepository.getDataAll();
+	    List<Type> mainType = typeRepository.getDropdownData();
 	    StringBuilder strType = new StringBuilder();
 	    for (Type t : mainType) {
 	    	strType.append("<option value='" + t.getId() + "'>" + t.getName() + "</option>");

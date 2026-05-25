@@ -11,6 +11,6 @@ import com.sriundee.preorder.entity.Website;
 @Repository
 public interface WebsiteRepository extends JpaRepository<Website, Integer> {
 	
-    @Query(value = "SELECT * FROM t_website WHERE w_delete = 'A'", nativeQuery = true)
+    @Query(value = "SELECT * FROM t_website WHERE w_delete = 'A' ORDER BY ID_web ASC", nativeQuery = true)
     List<Website> getDataAll();
 }

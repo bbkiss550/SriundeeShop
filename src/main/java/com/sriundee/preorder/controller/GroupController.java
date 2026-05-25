@@ -15,7 +15,7 @@ public class GroupController {
 	private GroupRepository groupRepository;
 	
     public String getDataList() {
-	    List<Group> mainGroup = groupRepository.getDataAll();
+	    List<Group> mainGroup = groupRepository.getDropdownData();
 	    StringBuilder strGroup = new StringBuilder();
 	    for (Group g : mainGroup) {
 	    	strGroup.append("<option value='" + g.getId() + "'>" + g.getName() + "</option>");

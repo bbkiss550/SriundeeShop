@@ -37,7 +37,8 @@ public class DashboardManageController {
     private static final Set<String> WIDGET_TYPES = Set.of("metric", "line", "bar", "area", "pie", "donut");
     private static final Set<String> DATASETS = Set.of(
             "totalSales", "totalFullPaid", "totalPledgePaid", "totalBalance", "totalCost", "totalOrders", "totalItems",
-            "salesTrend", "artistSalesShare", "typeSalesShare", "orderStatusShare", "costByType");
+            "salesTrend", "artistSalesAmount", "typeSalesAmount", "artistSalesShare", "typeSalesShare",
+            "orderStatusShare", "costByType");
 
     @Autowired
     private MenuController menuService;
@@ -111,6 +112,8 @@ public class DashboardManageController {
                 metric("totalItems", "จำนวนสินค้าที่ขายได้", "count"));
         List<Map<String, String>> charts = List.of(
                 chart("salesTrend", "ยอดขายตามช่วงวันที่", "series"),
+                chart("artistSalesAmount", "ยอดขายตามศิลปิน", "moneyShare"),
+                chart("typeSalesAmount", "ยอดขายตามประเภท", "moneyShare"),
                 chart("artistSalesShare", "สัดส่วนศิลปินที่ขายได้", "share"),
                 chart("typeSalesShare", "สัดส่วนประเภทสินค้าที่ขายได้", "share"),
                 chart("orderStatusShare", "สัดส่วนสถานะออร์เดอร์", "share"),
@@ -194,6 +197,24 @@ public class DashboardManageController {
 
     private Map<String, Object> buildShares(LocalDate start, LocalDate end) {
         Map<String, Object> shares = new LinkedHashMap<>();
+        shares.put("artistSalesAmount", shareRows("""
+                SELECT COALESCE(q.a_name, 'ไม่ระบุศิลปิน') AS label,
+                       COALESCE(SUM(CAST(REPLACE(q.od_price_total, ',', '') AS DECIMAL(14,2))), 0) AS value
+                FROM q_order_detail q
+                JOIN t_order o ON o.ID_order = q.ID_order
+                WHERE o.o_order_date BETWEEN ? AND ?
+                GROUP BY q.ID_art, q.a_name
+                ORDER BY value DESC, label
+                """, start, end));
+        shares.put("typeSalesAmount", shareRows("""
+                SELECT COALESCE(q.t_name, 'ไม่ระบุประเภท') AS label,
+                       COALESCE(SUM(CAST(REPLACE(q.od_price_total, ',', '') AS DECIMAL(14,2))), 0) AS value
+                FROM q_order_detail q
+                JOIN t_order o ON o.ID_order = q.ID_order
+                WHERE o.o_order_date BETWEEN ? AND ?
+                GROUP BY q.ID_type, q.t_name
+                ORDER BY value DESC, label
+                """, start, end));
         shares.put("artistSalesShare", shareRows("""
                 SELECT COALESCE(q.a_name, 'ไม่ระบุศิลปิน') AS label,
                        COALESCE(SUM(q.od_qty), 0) AS value

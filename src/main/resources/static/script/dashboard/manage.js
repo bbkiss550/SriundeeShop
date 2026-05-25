@@ -5,8 +5,12 @@
     let previewCharts = [];
     let autoSaveTimer = null;
     let editingIndex = null;
+    let widgetModal = null;
+    let draggedWidgetIndex = null;
+    let dragPlaceholder = null;
 
-    const chartTypeDatasets = new Set(["salesTrend", "artistSalesShare", "typeSalesShare", "orderStatusShare", "costByType"]);
+    const moneyShareDatasets = new Set(["artistSalesAmount", "typeSalesAmount", "costByType"]);
+    const chartTypeDatasets = new Set(["salesTrend", "artistSalesAmount", "typeSalesAmount", "artistSalesShare", "typeSalesShare", "orderStatusShare", "costByType"]);
     const metricDatasets = new Set(["totalSales", "totalFullPaid", "totalPledgePaid", "totalBalance", "totalCost", "totalOrders", "totalItems"]);
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -16,6 +20,11 @@
     });
 
     function bindEvents() {
+        const modalElement = document.getElementById("dashboardWidgetModal");
+        if (modalElement && window.bootstrap) {
+            widgetModal = new bootstrap.Modal(modalElement);
+        }
+        document.getElementById("openDashboardWidgetModalButton").addEventListener("click", openCreateModal);
         document.getElementById("dashboardWidgetType").addEventListener("change", populateDatasetOptions);
         document.getElementById("saveDashboardWidgetsButton").addEventListener("click", saveWidgets);
         document.getElementById("clearDashboardWidgetsButton").addEventListener("click", function() {
@@ -116,10 +125,8 @@
         clearForm();
         renderAll();
         await persistWidgets();
-        Swal.fire({ title: "บันทึกสำเร็จ", icon: "success", confirmButtonText: "ตกลง" })
-            .then(() => {
-                window.location.href = "/";
-            });
+        hideWidgetModal();
+        Swal.fire({ title: "บันทึกสำเร็จ", icon: "success", confirmButtonText: "ตกลง" });
     }
 
     function renderAll() {
@@ -137,7 +144,8 @@
             return;
         }
         list.innerHTML = widgets.map((widget, index) => `
-            <div class="dashboard-widget-row">
+            <div class="dashboard-widget-row" draggable="true" data-widget-index="${index}">
+                <span class="dashboard-widget-drag-handle" title="ลากเพื่อจัดลำดับ"><i data-feather="move"></i></span>
                 <div>
                     <div class="dashboard-widget-title">${escapeHtml(widget.title)}</div>
                     <div class="dashboard-widget-meta">${escapeHtml(typeLabel(widget.type))} / ${escapeHtml(findDatasetLabel(widget.dataset))} / ${widget.width}%</div>
@@ -150,6 +158,132 @@
                 </div>
             </div>
         `).join("");
+        bindWidgetDragEvents();
+    }
+
+    function bindWidgetDragEvents() {
+        const list = document.getElementById("dashboardWidgetList");
+        list.ondragover = handleWidgetDragOver;
+        list.ondrop = handleWidgetDrop;
+        list.querySelectorAll(".dashboard-widget-row").forEach(row => {
+            row.ondragstart = handleWidgetDragStart;
+            row.ondragend = handleWidgetDragEnd;
+        });
+    }
+
+    function handleWidgetDragStart(event) {
+        const row = event.currentTarget;
+        draggedWidgetIndex = Number(row.dataset.widgetIndex);
+        dragPlaceholder = document.createElement("div");
+        dragPlaceholder.className = "dashboard-widget-placeholder";
+        dragPlaceholder.setAttribute("aria-hidden", "true");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(draggedWidgetIndex));
+        window.setTimeout(() => row.classList.add("is-dragging"), 0);
+    }
+
+    function handleWidgetDragOver(event) {
+        if (draggedWidgetIndex === null || !dragPlaceholder) {
+            return;
+        }
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        const list = document.getElementById("dashboardWidgetList");
+        const afterElement = getDragAfterElement(list, event.clientY);
+        placeDragPlaceholder(list, afterElement);
+    }
+
+    function handleWidgetDrop(event) {
+        if (draggedWidgetIndex === null || !dragPlaceholder) {
+            return;
+        }
+        event.preventDefault();
+        const list = document.getElementById("dashboardWidgetList");
+        const targetIndex = Array.from(list.children)
+            .slice(0, Array.from(list.children).indexOf(dragPlaceholder))
+            .filter(child => child.classList.contains("dashboard-widget-row") && !child.classList.contains("is-dragging"))
+            .length;
+
+        const [movedWidget] = widgets.splice(draggedWidgetIndex, 1);
+        widgets.splice(targetIndex, 0, movedWidget);
+        if (editingIndex === draggedWidgetIndex) {
+            editingIndex = targetIndex;
+        } else if (editingIndex !== null) {
+            if (draggedWidgetIndex < editingIndex && targetIndex >= editingIndex) {
+                editingIndex -= 1;
+            } else if (draggedWidgetIndex > editingIndex && targetIndex <= editingIndex) {
+                editingIndex += 1;
+            }
+        }
+
+        clearDragState();
+        renderAll();
+        scheduleAutoSave();
+    }
+
+    function handleWidgetDragEnd() {
+        clearDragState();
+        renderWidgetList();
+        if (window.feather) {
+            feather.replace();
+        }
+    }
+
+    function clearDragState() {
+        document.querySelectorAll(".dashboard-widget-row.is-dragging").forEach(row => row.classList.remove("is-dragging"));
+        if (dragPlaceholder && dragPlaceholder.parentNode) {
+            dragPlaceholder.parentNode.removeChild(dragPlaceholder);
+        }
+        draggedWidgetIndex = null;
+        dragPlaceholder = null;
+    }
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll(".dashboard-widget-row:not(.is-dragging)")];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset, element: child };
+            }
+            return closest;
+        }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+    }
+
+    function placeDragPlaceholder(list, afterElement) {
+        if (afterElement === dragPlaceholder || dragPlaceholder.nextElementSibling === afterElement) {
+            return;
+        }
+        if (afterElement == null && dragPlaceholder.parentElement === list && dragPlaceholder.nextElementSibling == null) {
+            return;
+        }
+        animateWidgetShift(list, function() {
+            if (afterElement == null) {
+                list.appendChild(dragPlaceholder);
+            } else {
+                list.insertBefore(dragPlaceholder, afterElement);
+            }
+        });
+    }
+
+    function animateWidgetShift(list, mutate) {
+        const rows = [...list.querySelectorAll(".dashboard-widget-row:not(.is-dragging)")];
+        const positions = new Map(rows.map(row => [row, row.getBoundingClientRect().top]));
+        mutate();
+        rows.forEach(row => {
+            const previousTop = positions.get(row);
+            const nextTop = row.getBoundingClientRect().top;
+            const delta = previousTop - nextTop;
+            if (delta && row.animate) {
+                row.animate([
+                    { transform: `translateY(${delta}px)` },
+                    { transform: "translateY(0)" }
+                ], {
+                    duration: 160,
+                    easing: "ease-out"
+                });
+            }
+        });
     }
 
     window.moveDashboardWidget = function(index, direction) {
@@ -190,8 +324,38 @@
         populateDatasetOptions();
         document.getElementById("dashboardWidgetDataset").value = widget.dataset || "";
         document.getElementById("dashboardWidgetWidth").value = widget.width || "50";
-        document.getElementById("dashboardWidgetTitle").focus();
+        setModalTitle("แก้ไข Widget");
+        showWidgetModal();
     };
+
+    function openCreateModal() {
+        editingIndex = null;
+        clearForm();
+        setModalTitle("เพิ่ม Widget");
+        showWidgetModal();
+    }
+
+    function showWidgetModal() {
+        if (widgetModal) {
+            widgetModal.show();
+        }
+        window.setTimeout(function() {
+            document.getElementById("dashboardWidgetTitle").focus();
+        }, 180);
+    }
+
+    function hideWidgetModal() {
+        if (widgetModal) {
+            widgetModal.hide();
+        }
+    }
+
+    function setModalTitle(title) {
+        const modalTitle = document.getElementById("dashboardWidgetModalTitle");
+        if (modalTitle) {
+            modalTitle.textContent = title;
+        }
+    }
 
     function renderPreview() {
         previewCharts.forEach(chart => chart.destroy());
@@ -278,9 +442,16 @@
             colors: ["#435ebe", "#198754", "#ffc107", "#0dcaf0", "#dc3545", "#f97316", "#14b8a6", "#8b5cf6"],
             dataLabels: { enabled: type !== "bar" },
             grid: { borderColor: chartGridColor() },
-            tooltip: { theme: chartThemeMode() },
+            tooltip: { theme: chartThemeMode(), y: { formatter: value => formatShareValue(widget.dataset, value) } },
             legend: { position: "bottom", labels: { colors: chartTextColor() } }
         };
+    }
+
+    function formatShareValue(dataset, value) {
+        if (moneyShareDatasets.has(dataset)) {
+            return moneyFormatter.format(Number(value || 0));
+        }
+        return new Intl.NumberFormat("th-TH").format(Number(value || 0));
     }
 
     function findDatasetLabel(dataset) {

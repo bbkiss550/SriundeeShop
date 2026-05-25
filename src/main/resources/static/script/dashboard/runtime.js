@@ -1,5 +1,6 @@
 (function() {
     const moneyFormatter = new Intl.NumberFormat("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const moneyShareDatasets = new Set(["artistSalesAmount", "typeSalesAmount", "costByType"]);
     let runtimeCharts = [];
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -105,9 +106,16 @@
             colors: ["#435ebe", "#198754", "#ffc107", "#0dcaf0", "#dc3545", "#f97316", "#14b8a6", "#8b5cf6"],
             dataLabels: { enabled: type !== "bar" },
             grid: { borderColor: chartGridColor() },
-            tooltip: { theme: chartThemeMode() },
+            tooltip: { theme: chartThemeMode(), y: { formatter: value => formatShareValue(widget.dataset, value) } },
             legend: { position: "bottom", labels: { colors: chartTextColor() } }
         };
+    }
+
+    function formatShareValue(dataset, value) {
+        if (moneyShareDatasets.has(dataset)) {
+            return moneyFormatter.format(Number(value || 0));
+        }
+        return new Intl.NumberFormat("th-TH").format(Number(value || 0));
     }
 
     function chartThemeMode() {

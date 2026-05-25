@@ -113,7 +113,7 @@ public class ArtistController {
     }
 
     public String getDataList() {
-	    List<ArtistBean> mainArtist = artistRepository.getDataAll();
+	    List<ArtistBean> mainArtist = artistRepository.getDropdownData();
 	    StringBuilder strArtist = new StringBuilder();
 	    for (ArtistBean a : mainArtist) {
 	    	strArtist.append("<option value='" + a.getID_art() + "'>" + a.geta_name() + "</option>");

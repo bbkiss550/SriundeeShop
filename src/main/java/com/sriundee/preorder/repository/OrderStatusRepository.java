@@ -11,6 +11,6 @@ import com.sriundee.preorder.entity.OrderStatus;
 @Repository
 public interface OrderStatusRepository extends JpaRepository<OrderStatus, Integer> {
 	
-    @Query(value = "SELECT * FROM t_order_status", nativeQuery = true)
+    @Query(value = "SELECT * FROM t_order_status ORDER BY ID_order_status ASC", nativeQuery = true)
     List<OrderStatus> getDataAll();
 }

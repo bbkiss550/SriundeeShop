@@ -198,6 +198,7 @@
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportReceivable" type="button"><i class="bi bi-hourglass-split"></i> ยอดค้างชำระ</button></li>
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportExpense" type="button"><i class="bi bi-credit-card"></i> ค่าใช้จ่าย</button></li>
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProfit" type="button"><i class="bi bi-graph-up-arrow"></i> กำไรขาดทุน</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportOrderProfit" type="button"><i class="bi bi-receipt"></i> กำไรรายคำสั่งซื้อ</button></li>
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProduct" type="button"><i class="bi bi-box-seam"></i> ยอดขายสินค้า</button></li>
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportProductDetail" type="button"><i class="bi bi-list-check"></i> สินค้าแบบละเอียด</button></li>
                             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportLot" type="button"><i class="bi bi-tags"></i> LOT</button></li>
@@ -340,6 +341,19 @@
                                         <thead><tr><th>รายการ</th><th class="money">ยอดเงิน</th><th>แนวคิดคำนวณ</th></tr></thead>
                                         <tbody>
                                             <tr th:each="row : ${profitRows}"><td th:text="${row.name}"></td><td class="money" th:text="${row.value}"></td><td th:text="${row.note}"></td></tr>
+                                        </tbody>
+                                    </table></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="reportOrderProfit">
+                                <div class="report-panel">
+                                    <h4 class="report-section-title">รายงานกำไรของแต่ละคำสั่งซื้อ</h4>
+                                    <div class="report-table-wrap"><table class="table table-striped report-table">
+                                        <thead><tr><th>เลขคำสั่งซื้อ</th><th>วันที่สั่งซื้อ</th><th>ลูกค้า</th><th>สถานะ</th><th class="money">ยอดขายทั้งหมด</th><th class="money">ต้นทุน</th><th class="money">ค่าส่งชิป</th><th class="money">กำไร</th></tr></thead>
+                                        <tbody>
+                                            <tr th:each="row : ${orderProfitRows}"><td th:text="${row.code}"></td><td th:text="${row.date}"></td><td th:text="${row.customer}"></td><td th:text="${row.statuses}"></td><td class="money" th:text="${row.sales}"></td><td class="money" th:text="${row.pressCost}"></td><td class="money" th:text="${row.shippingCost}"></td><td class="money" th:text="${row.profit}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(orderProfitRows)}"><td colspan="8" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
                                         </tbody>
                                     </table></div>
                                 </div>
