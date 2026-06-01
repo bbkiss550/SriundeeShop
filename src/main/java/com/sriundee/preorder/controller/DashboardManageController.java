@@ -47,9 +47,6 @@ public class DashboardManageController {
     private SettingRepository settingRepository;
 
     @Autowired
-    private SettingController settingController;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @GetMapping("/dashboard/manage")
@@ -332,23 +329,16 @@ public class DashboardManageController {
     }
 
     private String getSettingValue(String key, String defaultValue) {
-        Integer userId = settingController.currentUserId();
-        Setting setting = userId == null ? null : settingRepository.findFirstByKeyAndUserId(key, userId);
-        if (setting == null) {
-            setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
-        }
+        Setting setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
         return setting == null || setting.getValue() == null ? defaultValue : setting.getValue();
     }
 
     private void saveSetting(String key, String value) {
-        Integer userId = settingController.currentUserId();
-        Setting setting = userId == null
-                ? settingRepository.findFirstByKeyAndUserIdIsNull(key)
-                : settingRepository.findFirstByKeyAndUserId(key, userId);
+        Setting setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
         if (setting == null) {
             setting = new Setting();
             setting.setKey(key);
-            setting.setUserId(userId);
+            setting.setUserId(null);
         }
         setting.setValue(value);
         settingRepository.save(setting);

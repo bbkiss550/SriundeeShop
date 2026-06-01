@@ -139,8 +139,8 @@ public class SettingController {
     public ResponseEntity<Map<String, String>> saveDashboardChartSettings(@RequestBody Map<String, String> payload) {
         String series = normalizeDashboardChartSeries(payload.get("series"));
         String granularity = normalizeDashboardChartGranularity(payload.get("granularity"));
-        saveSetting(DASHBOARD_CHART_SERIES_KEY, series);
-        saveSetting(DASHBOARD_CHART_GRANULARITY_KEY, granularity);
+        saveGlobalSetting(DASHBOARD_CHART_SERIES_KEY, series);
+        saveGlobalSetting(DASHBOARD_CHART_GRANULARITY_KEY, granularity);
         return ResponseEntity.ok(Map.of("series", series, "granularity", granularity));
     }
 
@@ -205,11 +205,11 @@ public class SettingController {
     }
 
     public String getDashboardChartSeriesValue() {
-        return normalizeDashboardChartSeries(getSettingValue(DASHBOARD_CHART_SERIES_KEY, DEFAULT_DASHBOARD_CHART_SERIES));
+        return normalizeDashboardChartSeries(getGlobalSettingValue(DASHBOARD_CHART_SERIES_KEY, DEFAULT_DASHBOARD_CHART_SERIES));
     }
 
     public String getDashboardChartGranularityValue() {
-        return normalizeDashboardChartGranularity(getSettingValue(DASHBOARD_CHART_GRANULARITY_KEY, DEFAULT_DASHBOARD_CHART_GRANULARITY));
+        return normalizeDashboardChartGranularity(getGlobalSettingValue(DASHBOARD_CHART_GRANULARITY_KEY, DEFAULT_DASHBOARD_CHART_GRANULARITY));
     }
 
     private String getSettingValue(String key, String defaultValue) {
@@ -217,6 +217,11 @@ public class SettingController {
         if (setting == null) {
             setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
         }
+        return setting == null || setting.getValue() == null ? defaultValue : setting.getValue();
+    }
+
+    private String getGlobalSettingValue(String key, String defaultValue) {
+        Setting setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
         return setting == null || setting.getValue() == null ? defaultValue : setting.getValue();
     }
 
@@ -229,6 +234,17 @@ public class SettingController {
             setting = new Setting();
             setting.setKey(key);
             setting.setUserId(userId);
+        }
+        setting.setValue(value);
+        settingRepository.save(setting);
+    }
+
+    private void saveGlobalSetting(String key, String value) {
+        Setting setting = settingRepository.findFirstByKeyAndUserIdIsNull(key);
+        if (setting == null) {
+            setting = new Setting();
+            setting.setKey(key);
+            setting.setUserId(null);
         }
         setting.setValue(value);
         settingRepository.save(setting);

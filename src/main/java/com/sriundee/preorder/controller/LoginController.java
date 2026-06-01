@@ -45,10 +45,9 @@ public class LoginController {
 
         User user = userRepository.findFirstByUsernameIgnoreCaseAndDelete(normalizedUsername, "A");
         if (user == null) {
-            user = new User();
-            user.setUsername(normalizedUsername);
-            user.setDelete("A");
-            user = userRepository.save(user);
+            model.addAttribute("error", "ไม่พบ username นี้ในระบบ");
+            model.addAttribute("username", normalizedUsername);
+            return "login";
         }
 
         session.setMaxInactiveInterval(-1);
