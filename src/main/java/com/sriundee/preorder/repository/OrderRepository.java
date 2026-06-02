@@ -23,9 +23,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<CustomerNameBean> getCsutomerList();
 
 	@Query(value = """
-			SELECT pg_advisory_xact_lock(hashtext(:prefix))
+			SELECT pg_try_advisory_xact_lock(hashtext(:prefix))
 			""", nativeQuery = true)
-	Long lockOrderCodeGeneration(@Param("prefix") String prefix);
+	Boolean lockOrderCodeGeneration(@Param("prefix") String prefix);
 
 	@Query(value = """
 			SELECT COALESCE(MAX(CAST(SUBSTRING(o_order_code FROM 7) AS INTEGER)), 0)

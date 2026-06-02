@@ -656,7 +656,9 @@ function save_new_order() {
 		})
 			.then(response => {
 				if (!response.ok) {
-					throw new Error("Save failed");
+					return response.text().then(message => {
+						throw new Error(message || "Save failed");
+					});
 				}
 				return response.json();
 			})
@@ -682,6 +684,7 @@ function save_new_order() {
 				Swal.fire({
 					title: "บันทึกไม่สำเร็จ",
 					text: "เกิดข้อผิดพลาดที่ระบบหลังบ้าน",
+					footer: error.message || "Save failed",
 					icon: "error"
 				});
 			});

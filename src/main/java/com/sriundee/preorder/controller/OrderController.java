@@ -372,6 +372,12 @@ public class OrderController {
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         	
             LocalDate orderDate = parseRequiredOrderDate(orderDto.getOrder_date());
+            Integer currentUserId = settingController.currentUserId();
+            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull(currentUserId);
+            if (orderDetail == null || orderDetail.isEmpty()) {
+                return ResponseEntity.badRequest().body("Cart is empty");
+            }
+
             Order order = new Order();
             order.setOrder_date(java.sql.Date.valueOf(orderDate));
             order.setOrder_code(generateOrderCode(orderDate));
@@ -401,7 +407,6 @@ public class OrderController {
             
             Integer newOrderId = order.getId();
 
-            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull(settingController.currentUserId());
             for (OrderDetail o : orderDetail) {
             	o.setOrder(newOrderId);
             }
@@ -413,13 +418,18 @@ public class OrderController {
             response.put("orderId", newOrderId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 
     private synchronized String generateOrderCode(LocalDate orderDate) {
         String prefix = String.format("PR-%02d-", orderDate.getYear() % 100);
-        orderRepository.lockOrderCodeGeneration(prefix);
+        Boolean locked = orderRepository.lockOrderCodeGeneration(prefix);
+        if (!Boolean.TRUE.equals(locked)) {
+            throw new IllegalStateException("Order code generation is locked. Please try again.");
+        }
         Integer maxRunning = orderRepository.getMaxOrderCodeRunning(prefix);
         int nextRunning = (maxRunning == null ? 0 : maxRunning) + 1;
         return prefix + String.format("%06d", nextRunning);
