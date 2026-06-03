@@ -4,7 +4,7 @@
     <div class="app-version-footer">
         <button type="button" class="app-version-link" id="deployDetailButton">
             <span>Version</span>
-            <span>1.0.2</span>
+            <span>1.0.3</span>
             <span>2026-06-03</span>
         </button>
     </div>
@@ -25,55 +25,23 @@
                 </div>
                 <div class="modal-body">
                     <div class="accordion deploy-detail-accordion" id="deployDetailAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="deployDetailHeading102">
-                                <button class="accordion-button deploy-detail-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse102" aria-expanded="true" aria-controls="deployDetailCollapse102">
+                        <div th:if="${appLogVersions == null or appLogVersions.isEmpty()}" class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail</div>
+                        <div class="accordion-item" th:each="logVersion, iter : ${appLogVersions}">
+                            <h2 class="accordion-header" th:id="${'deployDetailHeading' + logVersion.id}">
+                                <button class="accordion-button deploy-detail-toggle" th:classappend="${iter.first} ? '' : 'collapsed'" type="button" data-bs-toggle="collapse" th:attr="data-bs-target=${'#deployDetailCollapse' + logVersion.id},aria-expanded=${iter.first},aria-controls=${'deployDetailCollapse' + logVersion.id}">
                                     <span class="deploy-detail-title">
-                                        <span class="deploy-detail-kicker">Current Deploy</span>
-                                        <span class="deploy-detail-version">Version 1.0.2</span>
+                                        <span th:if="${iter.first}" class="deploy-detail-kicker">Current Deploy</span>
+                                        <span class="deploy-detail-version" th:text="${'Version ' + logVersion.version}">Version</span>
                                     </span>
-                                    <span class="deploy-detail-date">2026-06-03</span>
+                                    <span class="deploy-detail-date" th:text="${logVersion.date}">Date</span>
                                 </button>
                             </h2>
-                            <div id="deployDetailCollapse102" class="accordion-collapse collapse show deploy-detail-latest" aria-labelledby="deployDetailHeading102" data-bs-parent="#deployDetailAccordion">
+                            <div th:id="${'deployDetailCollapse' + logVersion.id}" class="accordion-collapse collapse" th:classappend="${iter.first} ? 'show deploy-detail-latest' : ''" th:attr="aria-labelledby=${'deployDetailHeading' + logVersion.id}" data-bs-parent="#deployDetailAccordion">
                                 <div class="accordion-body">
-                                    <ul class="deploy-detail-list mb-0">
-                                        <li>เพิ่มเมนูรายงานแบบ PT00, PT01, PT02 ภายใต้เมนูรายงาน</li>
-                                        <li>เพิ่มรายงานบัญชีรายรับรายจ่าย PT01</li>
-                                        <li>เพิ่มรายงานกำไรขาดทุน PT02</li>
-                                        <li>เพิ่มเลขที่ค่าใช้จ่ายรูปแบบ CT-YY-000001</li>
-                                        <li>อัปเดต schema, view และ seed SQL ที่เกี่ยวข้อง</li>
+                                    <ul th:if="${!appLogVersionDescriptionItems[logVersion.id].isEmpty()}" class="deploy-detail-list mb-0">
+                                        <li th:each="item : ${appLogVersionDescriptionItems[logVersion.id]}" th:text="${item}"></li>
                                     </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="deployDetailHeading101">
-                                <button class="accordion-button deploy-detail-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse101" aria-expanded="false" aria-controls="deployDetailCollapse101">
-                                    <span class="deploy-detail-title">
-                                        <span class="deploy-detail-version">Version 1.0.1</span>
-                                    </span>
-                                    <span class="deploy-detail-date">2026-05-25</span>
-                                </button>
-                            </h2>
-                            <div id="deployDetailCollapse101" class="accordion-collapse collapse" aria-labelledby="deployDetailHeading101" data-bs-parent="#deployDetailAccordion">
-                                <div class="accordion-body">
-                                    <div class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail ใน version เดิม</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="deployDetailHeading100">
-                                <button class="accordion-button deploy-detail-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse100" aria-expanded="false" aria-controls="deployDetailCollapse100">
-                                    <span class="deploy-detail-title">
-                                        <span class="deploy-detail-version">Version 1.0.0</span>
-                                    </span>
-                                    <span class="deploy-detail-date">2026-05-21</span>
-                                </button>
-                            </h2>
-                            <div id="deployDetailCollapse100" class="accordion-collapse collapse" aria-labelledby="deployDetailHeading100" data-bs-parent="#deployDetailAccordion">
-                                <div class="accordion-body">
-                                    <div class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail ใน version เดิม</div>
+                                    <div th:if="${appLogVersionDescriptionItems[logVersion.id].isEmpty()}" class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail ใน version เดิม</div>
                                 </div>
                             </div>
                         </div>

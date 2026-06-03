@@ -23,7 +23,6 @@ public class LoginDatabaseInitializer {
                 """);
         jdbcTemplate.execute("ALTER TABLE t_settings ADD COLUMN IF NOT EXISTS ID_user integer");
         jdbcTemplate.execute("ALTER TABLE t_order_detail ADD COLUMN IF NOT EXISTS ID_user integer");
-        jdbcTemplate.execute("ALTER TABLE t_log_version ADD COLUMN IF NOT EXISTS lv_desc text");
         jdbcTemplate.execute("ALTER TABLE t_cost ADD COLUMN IF NOT EXISTS c_cost_code varchar(255)");
         jdbcTemplate.execute("""
                 WITH pending_cost AS (
@@ -69,6 +68,19 @@ public class LoginDatabaseInitializer {
                 WHERE c.id_cost = ranked_cost.id_cost
                 """);
         jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_cost_cost_code ON t_cost (c_cost_code)");
+        jdbcTemplate.execute("""
+                CREATE OR REPLACE VIEW q_cost AS
+                SELECT c.id_cost,
+                       c.c_create_date,
+                       c.id_type_cost,
+                       tc.tc_name,
+                       c.c_price,
+                       c.c_note,
+                       c.c_delete,
+                       c.c_cost_code
+                FROM t_cost c
+                JOIN t_type_cost tc ON c.id_type_cost = tc.id_type_cost
+                """);
         jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_order_order_code ON t_order (o_order_code)");
         jdbcTemplate.execute("""
                 CREATE OR REPLACE VIEW q_order_detail AS
@@ -108,7 +120,7 @@ public class LoginDatabaseInitializer {
                 """);
         jdbcTemplate.execute("""
                 INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
-                VALUES (19, 'PT00', NULL, 15, '/reports/PT00', NULL, 1)
+                VALUES (19, 'PT00 รายงานรวม', NULL, 15, '/reports/PT00', NULL, 1)
                 ON CONFLICT (id_menu) DO UPDATE
                 SET m_name = EXCLUDED.m_name,
                     m_parent = EXCLUDED.m_parent,
@@ -119,7 +131,7 @@ public class LoginDatabaseInitializer {
                 """);
         jdbcTemplate.execute("""
                 INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
-                VALUES (20, 'PT01', NULL, 15, '/reports/PT01', NULL, 2)
+                VALUES (20, 'PT01 รายงานบัญชีรายรับ รายจ่าย', NULL, 15, '/reports/PT01', NULL, 2)
                 ON CONFLICT (id_menu) DO UPDATE
                 SET m_name = EXCLUDED.m_name,
                     m_parent = EXCLUDED.m_parent,
@@ -130,7 +142,7 @@ public class LoginDatabaseInitializer {
                 """);
         jdbcTemplate.execute("""
                 INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
-                VALUES (21, 'PT02', NULL, 15, '/reports/PT02', NULL, 3)
+                VALUES (21, 'PT02 รายงานกำไรขาดทุน', NULL, 15, '/reports/PT02', NULL, 3)
                 ON CONFLICT (id_menu) DO UPDATE
                 SET m_name = EXCLUDED.m_name,
                     m_parent = EXCLUDED.m_parent,
@@ -138,6 +150,20 @@ public class LoginDatabaseInitializer {
                     m_url = EXCLUDED.m_url,
                     m_icon = EXCLUDED.m_icon,
                     m_order = EXCLUDED.m_order
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
+                VALUES (
+                    4,
+                    '1.0.3',
+                    '2026-06-03',
+                    'ปรับรายงาน PT02 ให้คำนวณยอดขายและกำไรไม่รวมค่าส่ง เพิ่มสรุปยอด และแสดงเลขอ้างอิงต้นทุน/ชิปปิ้ง
+ปรับหน้าข้อมูลการกดของ LOT และค่าชิปปิ้งให้แสดงเลขอ้างอิง รวมคอลัมน์จัดการ และป้องกันการแก้ไขรายการที่ยกเลิกแล้ว'
+                )
+                ON CONFLICT (id_log_version) DO UPDATE
+                SET lv_version = EXCLUDED.lv_version,
+                    lv_date = EXCLUDED.lv_date,
+                    lv_desc = EXCLUDED.lv_desc
                 """);
         jdbcTemplate.execute("""
                 INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
@@ -155,7 +181,7 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("""
                 SELECT setval(
                     pg_get_serial_sequence('t_log_version', 'id_log_version'),
-                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 3)
+                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 4)
                 )
                 """);
     }

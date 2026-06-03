@@ -8,52 +8,6 @@
         justify-content: center;
     }
 
-    .pt-report-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.9rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .pt-report-metric {
-        min-height: 92px;
-        padding: 1rem;
-        border-left: 5px solid #435ebe;
-        border-radius: 6px;
-        background: #f8fafc;
-    }
-
-    .pt-report-metric.income {
-        border-left-color: #198754;
-    }
-
-    .pt-report-metric.expense {
-        border-left-color: #dc3545;
-    }
-
-    .pt-report-metric.net {
-        border-left-color: #0dcaf0;
-    }
-
-    .pt-report-metric.margin {
-        border-left-color: #6f42c1;
-    }
-
-    .pt-report-metric-label {
-        display: block;
-        color: #7c8db5;
-        font-size: 0.84rem;
-        font-weight: 800;
-    }
-
-    .pt-report-metric-value {
-        display: block;
-        margin-top: 0.3rem;
-        font-size: 1.35rem;
-        line-height: 1.2;
-        font-weight: 800;
-    }
-
     .pt-report-table-wrap {
         overflow-x: auto;
     }
@@ -73,8 +27,170 @@
         white-space: nowrap;
     }
 
-    html[data-theme="dark"] .pt-report-metric {
+    .pt-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .pt-summary-card {
+        padding: 1rem;
+        border: 1px solid #dce7f1;
+        border-radius: 8px;
+        background: #ffffff;
+    }
+
+    .pt-summary-label {
+        display: block;
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .pt-summary-value {
+        display: block;
+        color: #25396f;
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .pt-order-profit-row {
+        cursor: pointer;
+        transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .pt-order-profit-row:hover > td,
+    .pt-order-profit-row.is-open > td {
+        background: #eef3ff !important;
+    }
+
+    .pt-order-profit-row:hover > td:first-child,
+    .pt-order-profit-row.is-open > td:first-child {
+        box-shadow: inset 4px 0 0 #435ebe;
+    }
+
+    .pt-detail-toggle {
+        width: 36px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        color: #435ebe;
+        background: #eef3ff;
+        border: 1px solid #dce7f1;
+        border-radius: 6px;
+        transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+
+    .pt-detail-toggle:hover,
+    .pt-detail-toggle:focus {
+        color: #ffffff;
+        background: #435ebe;
+    }
+
+    .pt-detail-toggle[aria-expanded="true"] {
+        color: #ffffff;
+        background: #435ebe;
+    }
+
+    .pt-detail-toggle[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+
+    .pt-detail-toggle i {
+        transition: transform 0.2s ease;
+    }
+
+    .pt-order-detail-row > td {
+        padding: 0 !important;
+        background: #f8fafc;
+    }
+
+    .pt-order-detail-collapse {
+        overflow: hidden;
+    }
+
+    .pt-order-detail-panel {
+        padding: 1rem;
+        border-top: 1px solid #dce7f1;
+        animation: ptDetailPanelIn 0.22s ease both;
+    }
+
+    .pt-order-detail-table {
+        min-width: 900px;
+        margin-bottom: 0;
+    }
+
+    html[data-theme="dark"] .pt-detail-toggle {
+        color: #dbeafe;
+        background: #26344d;
+        border-color: #475569;
+    }
+
+    html[data-theme="dark"] .pt-order-profit-row:hover > td,
+    html[data-theme="dark"] .pt-order-profit-row.is-open > td {
+        background: #26344d !important;
+    }
+
+    html[data-theme="dark"] .pt-order-profit-row:hover > td:first-child,
+    html[data-theme="dark"] .pt-order-profit-row.is-open > td:first-child {
+        box-shadow: inset 4px 0 0 #facc15;
+    }
+
+    html[data-theme="dark"] .pt-detail-toggle:hover,
+    html[data-theme="dark"] .pt-detail-toggle:focus,
+    html[data-theme="dark"] .pt-detail-toggle[aria-expanded="true"] {
+        color: #111827;
+        background: #facc15;
+        border-color: #facc15;
+    }
+
+    html[data-theme="dark"] .pt-order-detail-row > td {
         background: #111827;
+    }
+
+    html[data-theme="dark"] .pt-order-detail-panel {
+        border-color: #334155;
+    }
+
+    html[data-theme="dark"] .pt-summary-card {
+        background: #1f2937;
+        border-color: #334155;
+    }
+
+    html[data-theme="dark"] .pt-summary-label {
+        color: #cbd5e1;
+    }
+
+    html[data-theme="dark"] .pt-summary-value {
+        color: #f8fafc;
+    }
+
+    @media (max-width: 992px) {
+        .pt-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 576px) {
+        .pt-summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @keyframes ptDetailPanelIn {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 
@@ -121,22 +237,10 @@
 
                 <section class="row">
                     <div class="col-12">
-                        <div class="pt-report-summary">
-                            <div class="pt-report-metric income">
-                                <span class="pt-report-metric-label">รายได้รวม</span>
-                                <span class="pt-report-metric-value" th:text="${profitLossIncome}">0.00</span>
-                            </div>
-                            <div class="pt-report-metric expense">
-                                <span class="pt-report-metric-label">ค่าใช้จ่ายรวม</span>
-                                <span class="pt-report-metric-value" th:text="${profitLossExpense}">0.00</span>
-                            </div>
-                            <div class="pt-report-metric net">
-                                <span class="pt-report-metric-label">กำไร/ขาดทุนสุทธิ</span>
-                                <span class="pt-report-metric-value" th:text="${profitLossNet}">0.00</span>
-                            </div>
-                            <div class="pt-report-metric margin">
-                                <span class="pt-report-metric-label">อัตรากำไร</span>
-                                <span class="pt-report-metric-value" th:text="${profitLossMargin}">0.00%</span>
+                        <div class="pt-summary-grid mb-3">
+                            <div class="pt-summary-card" th:each="summary : ${orderProfitSummary}">
+                                <span class="pt-summary-label" th:text="${summary.label}">ยอดขาย</span>
+                                <span class="pt-summary-value" th:text="${summary.value}">0.00</span>
                             </div>
                         </div>
                     </div>
@@ -146,82 +250,15 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title mb-0">งบกำไรขาดทุน</h4>
+                                <h4 class="card-title mb-0">รายการกำไรขาดทุนของแต่ละคำสั่งซื้อ</h4>
                                 <small class="text-muted" th:text="${reportPeriod}">01/01/2026 - 31/12/2026</small>
                             </div>
                             <div class="card-body">
                                 <div class="pt-report-table-wrap">
-                                    <table class="table table-striped pt-report-table">
+                                    <table class="table table-striped pt-report-table" data-datatable-managed="true">
                                         <thead>
                                             <tr>
-                                                <th>หมวด</th>
-                                                <th>รายการ</th>
-                                                <th class="money">ยอดเงิน</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="row : ${profitLossRows}" th:class="${row.rowClass}">
-                                                <td th:text="${row.section}"></td>
-                                                <td th:text="${row.item}"></td>
-                                                <td class="money" th:text="${row.amount}"></td>
-                                            </tr>
-                                            <tr th:if="${#lists.isEmpty(profitLossRows)}">
-                                                <td colspan="3" class="text-center text-muted">ไม่พบข้อมูล</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="row">
-                    <div class="col-12 col-xl-5">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title mb-0">สรุปรายเดือน</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="pt-report-table-wrap">
-                                    <table class="table table-striped pt-report-table">
-                                        <thead>
-                                            <tr>
-                                                <th>เดือน</th>
-                                                <th class="money">รายได้</th>
-                                                <th class="money">ค่าใช้จ่าย</th>
-                                                <th class="money">กำไร/ขาดทุน</th>
-                                                <th class="money">Margin</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="row : ${profitLossMonthlyRows}">
-                                                <td th:text="${row.period}"></td>
-                                                <td class="money" th:text="${row.income}"></td>
-                                                <td class="money" th:text="${row.expense}"></td>
-                                                <td class="money" th:text="${row.profit}"></td>
-                                                <td class="money" th:text="${row.margin}"></td>
-                                            </tr>
-                                            <tr th:if="${#lists.isEmpty(profitLossMonthlyRows)}">
-                                                <td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-xl-7">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title mb-0">กำไรของแต่ละคำสั่งซื้อ</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="pt-report-table-wrap">
-                                    <table class="table table-striped pt-report-table">
-                                        <thead>
-                                            <tr>
+                                                <th></th>
                                                 <th>เลขคำสั่งซื้อ</th>
                                                 <th>วันที่สั่งซื้อ</th>
                                                 <th>ลูกค้า</th>
@@ -233,18 +270,74 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="row : ${orderProfitRows}">
-                                                <td th:text="${row.code}"></td>
-                                                <td th:text="${row.date}"></td>
-                                                <td th:text="${row.customer}"></td>
-                                                <td th:text="${row.statuses}"></td>
-                                                <td class="money" th:text="${row.sales}"></td>
-                                                <td class="money" th:text="${row.pressCost}"></td>
-                                                <td class="money" th:text="${row.shippingCost}"></td>
-                                                <td class="money" th:text="${row.profit}"></td>
-                                            </tr>
+                                            <th:block th:each="row : ${orderProfitRows}">
+                                                <tr class="pt-order-profit-row" th:data-detail-target="${'orderProfitDetail' + row.id}">
+                                                    <td>
+                                                        <button type="button" class="pt-detail-toggle" aria-expanded="false" th:aria-controls="${'orderProfitDetail' + row.id}" title="ดูรายละเอียด">
+                                                            <i class="bi bi-chevron-down"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td th:text="${row.code}"></td>
+                                                    <td th:text="${row.date}"></td>
+                                                    <td th:text="${row.customer}"></td>
+                                                    <td th:text="${row.statuses}"></td>
+                                                    <td class="money" th:text="${row.sales}"></td>
+                                                    <td class="money" th:text="${row.pressCost}"></td>
+                                                    <td class="money" th:text="${row.shippingCost}"></td>
+                                                    <td class="money" th:text="${row.profit}"></td>
+                                                </tr>
+                                                <tr class="pt-order-detail-row">
+                                                    <td colspan="9">
+                                                        <div class="collapse pt-order-detail-collapse" th:id="${'orderProfitDetail' + row.id}">
+                                                            <div class="pt-order-detail-panel">
+                                                                <div class="pt-report-table-wrap">
+                                                                    <table class="table table-sm table-bordered pt-order-detail-table" data-datatable-managed="true">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>สินค้า</th>
+                                                                                <th>ศิลปิน</th>
+                                                                                <th>เว็บไซต์</th>
+                                                                                <th>เวอร์ชัน</th>
+                                                                                <th>ปก</th>
+                                                                                <th class="money">จำนวน</th>
+                                                                                <th>สถานะ</th>
+                                                                                <th class="money">ยอดขาย</th>
+                                                                                <th>เลขที่ต้นทุน</th>
+                                                                                <th class="money">ต้นทุน</th>
+                                                                                <th>เลขที่ชิปปิ้ง</th>
+                                                                                <th class="money">ค่าชิปปิ้ง</th>
+                                                                                <th class="money">กำไร</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr th:each="detail : ${row.detailRows}">
+                                                                                <td th:text="${detail.product}"></td>
+                                                                                <td th:text="${detail.artist}"></td>
+                                                                                <td th:text="${detail.website}"></td>
+                                                                                <td th:text="${detail.version}"></td>
+                                                                                <td th:text="${detail.cover}"></td>
+                                                                                <td class="money" th:text="${detail.qty}"></td>
+                                                                                <td th:text="${detail.status}"></td>
+                                                                                <td class="money" th:text="${detail.sales}"></td>
+                                                                                <td th:text="${detail.pressCostCodes}"></td>
+                                                                                <td class="money" th:text="${detail.pressCost}"></td>
+                                                                                <td th:text="${detail.shippingCostCodes}"></td>
+                                                                                <td class="money" th:text="${detail.shippingCost}"></td>
+                                                                                <td class="money" th:text="${detail.profit}"></td>
+                                                                            </tr>
+                                                                            <tr th:if="${#lists.isEmpty(row.detailRows)}">
+                                                                                <td colspan="13" class="text-center text-muted">ไม่พบรายละเอียด</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </th:block>
                                             <tr th:if="${#lists.isEmpty(orderProfitRows)}">
-                                                <td colspan="8" class="text-center text-muted">ไม่พบข้อมูล</td>
+                                                <td colspan="9" class="text-center text-muted">ไม่พบข้อมูล</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -258,5 +351,35 @@
             <footer th:replace="common/footer :: footer"></footer>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".pt-order-profit-row").forEach(function(row) {
+                const detailId = row.getAttribute("data-detail-target");
+                const detailRow = detailId ? document.getElementById(detailId) : null;
+                const toggleButton = row.querySelector(".pt-detail-toggle");
+                if (!detailRow || !toggleButton || !window.bootstrap) {
+                    return;
+                }
+
+                const collapse = bootstrap.Collapse.getOrCreateInstance
+                    ? bootstrap.Collapse.getOrCreateInstance(detailRow, { toggle: false })
+                    : new bootstrap.Collapse(detailRow, { toggle: false });
+
+                row.addEventListener("click", function() {
+                    collapse.toggle();
+                });
+
+                detailRow.addEventListener("shown.bs.collapse", function() {
+                    row.classList.add("is-open");
+                    toggleButton.setAttribute("aria-expanded", "true");
+                });
+
+                detailRow.addEventListener("hidden.bs.collapse", function() {
+                    row.classList.remove("is-open");
+                    toggleButton.setAttribute("aria-expanded", "false");
+                });
+            });
+        });
+    </script>
 </body>
 </html>

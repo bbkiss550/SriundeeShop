@@ -133,6 +133,9 @@ public class CostShippingController {
 			if (!Integer.valueOf(2).equals(cost.getType_cost())) {
 				return ResponseEntity.badRequest().body("Invalid cost type");
 			}
+			if ("D".equals(cost.getDelete())) {
+				return ResponseEntity.badRequest().body("Cannot edit canceled shipping cost");
+			}
 
 			cost.setCreate_date(selectedDate.toString());
 			cost.setPrice(shippingPrice);
@@ -150,8 +153,11 @@ public class CostShippingController {
 		StringBuilder strCost = new StringBuilder();
 		for (CostPressBean cost : costList) {
 			strCost.append("<tr class='cost-shipping-row' onclick='open_cost_shipping_detail(" + cost.getID_cost() + ")'>");
-			strCost.append("<td class='cost-cancel-col'>" + buildCancelButton(cost, canCancelCost(cost.getID_cost())) + "</td>");
-			strCost.append("<td class='cost-action-col'>" + buildEditButton(cost) + "</td>");
+			strCost.append("<td class='cost-action-col'><div class='cost-action-buttons'>"
+					+ buildCancelButton(cost, canCancelCost(cost.getID_cost()))
+					+ buildEditButton(cost)
+					+ "</div></td>");
+			strCost.append("<td class='cost-code-col'>" + toDisplay(cost.getc_cost_code()) + "</td>");
 			strCost.append("<td class='cost-date-col'>" + formatDate(cost.getc_create_date()) + "</td>");
 			strCost.append("<td class='cost-price-col text-end'>" + formatMoney(cost.getc_price()) + "</td>");
 			strCost.append("<td>" + toDisplay(cost.getc_note()) + "</td>");

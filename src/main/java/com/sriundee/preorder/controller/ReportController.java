@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -170,30 +171,11 @@ public class ReportController {
             end = start;
         }
 
-        BigDecimal income = money("""
-                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
-                FROM q_income
-                WHERE c_delete = 'A'
-                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
-                """, start, end);
-        BigDecimal expense = money("""
-                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
-                FROM q_cost
-                WHERE c_delete = 'A'
-                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
-                """, start, end);
-        BigDecimal profit = income.subtract(expense);
-
         model.addAttribute("mainMenus", menuService.getMenuList(PT02_MENU_ID, REPORT_MENU_ID));
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
         model.addAttribute("reportPeriod", displayDate(start) + " - " + displayDate(end));
-        model.addAttribute("profitLossIncome", displayMoney(income));
-        model.addAttribute("profitLossExpense", displayMoney(expense));
-        model.addAttribute("profitLossNet", displayMoney(profit));
-        model.addAttribute("profitLossMargin", displayPercent(income, profit));
-        model.addAttribute("profitLossRows", profitLossRows(start, end));
-        model.addAttribute("profitLossMonthlyRows", profitLossMonthlyRows(start, end));
+        model.addAttribute("orderProfitSummary", orderProfitSummary(start, end));
         model.addAttribute("orderProfitRows", orderProfitRows(start, end));
         return "report/PT02";
     }
@@ -613,16 +595,17 @@ public class ReportController {
     }
 
     private List<Map<String, Object>> orderProfitRows(LocalDate start, LocalDate end) {
+        Map<Integer, List<Map<String, Object>>> detailRows = orderProfitDetailRows(start, end);
         return transform(jdbcTemplate.queryForList("""
                 SELECT o.ID_order,
                        o.o_order_code,
                        o.o_order_date,
                        o.o_customer_name,
                        COALESCE(STRING_AGG(DISTINCT os.os_name, ', '), '-') AS order_statuses,
-                       COALESCE(o.o_net, 0) AS sales,
+                       COALESCE(o.o_price_total, 0) AS sales,
                        COALESCE(c.press_cost, 0) AS press_cost,
                        COALESCE(c.shipping_cost, 0) AS shipping_cost,
-                       COALESCE(o.o_net, 0) - COALESCE(c.press_cost, 0) - COALESCE(c.shipping_cost, 0) AS profit
+                       COALESCE(o.o_price_total, 0) - COALESCE(c.press_cost, 0) - COALESCE(c.shipping_cost, 0) AS profit
                 FROM t_order o
                 LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
                 LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
@@ -651,10 +634,11 @@ public class ReportController {
                     GROUP BY ID_order
                 ) c ON c.ID_order = o.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
-                GROUP BY o.ID_order, o.o_order_code, o.o_order_date, o.o_customer_name, o.o_net, o.o_send_cost,
+                GROUP BY o.ID_order, o.o_order_code, o.o_order_date, o.o_customer_name, o.o_price_total, o.o_send_cost,
                          c.press_cost, c.shipping_cost
                 ORDER BY o.o_order_code DESC, o.ID_order DESC
                 """, start, end), row -> map(
+                "id", text(row.get("ID_order")),
                 "code", text(row.get("o_order_code")),
                 "date", displayDate(row.get("o_order_date")),
                 "customer", text(row.get("o_customer_name")),
@@ -662,7 +646,122 @@ public class ReportController {
                 "sales", displayMoney(row.get("sales")),
                 "pressCost", displayMoney(row.get("press_cost")),
                 "shippingCost", displayMoney(row.get("shipping_cost")),
-                "profit", displayMoney(row.get("profit"))));
+                "profit", displayMoney(row.get("profit")),
+                "detailRows", detailRows.getOrDefault(Integer.parseInt(row.get("ID_order").toString()), List.of())));
+    }
+
+    private List<Map<String, Object>> orderProfitSummary(LocalDate start, LocalDate end) {
+        Map<String, Object> row = jdbcTemplate.queryForMap("""
+                SELECT COALESCE(SUM(o.o_price_total), 0) AS sales,
+                       COALESCE(SUM(c.press_cost), 0) AS press_cost,
+                       COALESCE(SUM(c.shipping_cost), 0) AS shipping_cost,
+                       COALESCE(SUM(o.o_price_total), 0) - COALESCE(SUM(c.press_cost), 0) - COALESCE(SUM(c.shipping_cost), 0) AS profit
+                FROM t_order o
+                LEFT JOIN (
+                    SELECT ID_order,
+                           SUM(CASE WHEN ID_type_cost = 1 THEN allocated_cost ELSE 0 END) AS press_cost,
+                           SUM(CASE WHEN ID_type_cost = 2 THEN allocated_cost ELSE 0 END) AS shipping_cost
+                    FROM (
+                        SELECT qod.ID_order,
+                               qc.ID_type_cost,
+                               CASE
+                                   WHEN SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost) > 0 THEN
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       * CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))
+                                       / SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost)
+                                   ELSE
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       / COUNT(*) OVER (PARTITION BY qc.ID_cost)
+                               END AS allocated_cost
+                        FROM q_cost_detail cd
+                        JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
+                        JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
+                        WHERE qc.c_delete = 'A'
+                          AND qc.ID_type_cost IN (1, 2)
+                    ) allocated
+                    GROUP BY ID_order
+                ) c ON c.ID_order = o.ID_order
+                WHERE o.o_order_date BETWEEN ? AND ?
+                """, start, end);
+
+        return List.of(
+                map("label", "ยอดขาย", "value", displayMoney(row.get("sales")), "type", "sales"),
+                map("label", "ต้นทุน", "value", displayMoney(row.get("press_cost")), "type", "press"),
+                map("label", "ค่าชิปปิ้ง", "value", displayMoney(row.get("shipping_cost")), "type", "shipping"),
+                map("label", "กำไร", "value", displayMoney(row.get("profit")), "type", "profit"));
+    }
+
+    private Map<Integer, List<Map<String, Object>>> orderProfitDetailRows(LocalDate start, LocalDate end) {
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
+                SELECT qod.ID_order,
+                       qod.ID_order_detail,
+                       qod.p_name,
+                       qod.a_name,
+                       qod.w_name,
+                       qod.v_name,
+                       qod.c_name,
+                       qod.od_qty,
+                       qod.os_name,
+                       COALESCE(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2)), 0) AS sales,
+                       COALESCE(c.press_cost, 0) AS press_cost,
+                       COALESCE(c.shipping_cost, 0) AS shipping_cost,
+                       COALESCE(c.press_cost_codes, '-') AS press_cost_codes,
+                       COALESCE(c.shipping_cost_codes, '-') AS shipping_cost_codes,
+                       COALESCE(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2)), 0)
+                           - COALESCE(c.press_cost, 0)
+                           - COALESCE(c.shipping_cost, 0) AS profit
+                FROM q_order_detail qod
+                JOIN t_order o ON o.ID_order = qod.ID_order
+                LEFT JOIN (
+                    SELECT ID_order_detail,
+                           SUM(CASE WHEN ID_type_cost = 1 THEN allocated_cost ELSE 0 END) AS press_cost,
+                           SUM(CASE WHEN ID_type_cost = 2 THEN allocated_cost ELSE 0 END) AS shipping_cost,
+                           COALESCE(STRING_AGG(CASE WHEN ID_type_cost = 1 THEN c_cost_code END, ', '), '-') AS press_cost_codes,
+                           COALESCE(STRING_AGG(CASE WHEN ID_type_cost = 2 THEN c_cost_code END, ', '), '-') AS shipping_cost_codes
+                    FROM (
+                        SELECT qod.ID_order_detail,
+                               qc.ID_type_cost,
+                               qc.c_cost_code,
+                               CASE
+                                   WHEN SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost) > 0 THEN
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       * CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))
+                                       / SUM(CAST(NULLIF(REPLACE(qod.od_price_total, ',', ''), '') AS NUMERIC(14,2))) OVER (PARTITION BY qc.ID_cost)
+                                   ELSE
+                                       CAST(NULLIF(REPLACE(qc.c_price, ',', ''), '') AS NUMERIC(14,2))
+                                       / COUNT(*) OVER (PARTITION BY qc.ID_cost)
+                               END AS allocated_cost
+                        FROM q_cost_detail cd
+                        JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
+                        JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
+                        WHERE qc.c_delete = 'A'
+                          AND qc.ID_type_cost IN (1, 2)
+                    ) allocated
+                    GROUP BY ID_order_detail
+                ) c ON c.ID_order_detail = qod.ID_order_detail
+                WHERE o.o_order_date BETWEEN ? AND ?
+                ORDER BY qod.ID_order, qod.ID_order_detail
+                """, start, end);
+
+        Map<Integer, List<Map<String, Object>>> result = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            Integer orderId = Integer.parseInt(row.get("ID_order").toString());
+            result.computeIfAbsent(orderId, key -> new ArrayList<>()).add(map(
+                    "product", text(row.get("p_name")),
+                    "artist", text(row.get("a_name")),
+                    "website", text(row.get("w_name")),
+                    "version", text(row.get("v_name")),
+                    "cover", text(row.get("c_name")),
+                    "qty", text(row.get("od_qty")),
+                    "status", text(row.get("os_name")),
+                    "sales", displayMoney(row.get("sales")),
+                    "pressCost", displayMoney(row.get("press_cost")),
+                    "shippingCost", displayMoney(row.get("shipping_cost")),
+                    "pressCostCodes", defaultText(row.get("press_cost_codes"), "-"),
+                    "shippingCostCodes", defaultText(row.get("shipping_cost_codes"), "-"),
+                    "profit", displayMoney(row.get("profit"))));
+        }
+        return result;
     }
 
     private List<Map<String, Object>> productDetailRows(LocalDate start, LocalDate end) {

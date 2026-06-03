@@ -6,6 +6,7 @@ import java.beans.JavaBean;
 public interface CostPressBean {
 
     Integer getID_cost();
+    String getc_cost_code();
     String getc_create_date();
     Integer getID_type_cost();
     String gettc_name();

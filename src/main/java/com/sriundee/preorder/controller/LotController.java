@@ -130,6 +130,9 @@ public class LotController {
 			}
 
 			Lot lot = lotRepository.findById(id).orElseThrow(() -> new RuntimeException("Lot not found"));
+			if ("D".equals(lot.getDelete())) {
+				return ResponseEntity.badRequest().body("Cannot edit canceled lot");
+			}
 			lot.setLot_number(lotNumber.trim());
 			lot.setStart_date(blankToNull(startDate));
 			lot.setEnd_date(blankToNull(endDate));
@@ -180,8 +183,10 @@ public class LotController {
 		for (LotBean lot : lotList) {
 			rowId += 1;
 			strLot.append("<tr class='lot-row' onclick='open_lot_detail(" + lot.getID_lot() + ")'>");
-			strLot.append("<td class='lot-cancel-col'>" + buildCancelButton(lot) + "</td>");
-			strLot.append("<td class='lot-action-col'>" + buildEditButton(lot) + "</td>");
+			strLot.append("<td class='lot-action-col'><div class='lot-action-buttons'>"
+					+ buildCancelButton(lot)
+					+ buildEditButton(lot)
+					+ "</div></td>");
 			strLot.append("<td>" + rowId + "</td>");
 			strLot.append("<td class='lot-date-col'>" + formatDate(lot.getl_create_date()) + "</td>");
 			strLot.append("<td>" + toDisplay(lot.getl_lot_number()) + "</td>");
@@ -284,6 +289,9 @@ public class LotController {
 	}
 
 	private String buildEditButton(LotBean lot) {
+		if ("D".equals(lot.getl_delete())) {
+			return "<button type='button' class='btn icon btn-secondary' disabled><i data-feather='edit-2'></i></button>";
+		}
 		String lotNumber = escapeJs(toDisplay(lot.getl_lot_number()));
 		String startDate = escapeJs(toDisplay(lot.getl_start_date()));
 		String endDate = escapeJs(toDisplay(lot.getl_end_date()));

@@ -1,6 +1,7 @@
 package com.sriundee.preorder.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.sriundee.preorder.entity.Menu;
+import com.sriundee.preorder.entity.LogVersion;
 import com.sriundee.preorder.entity.Setting;
+import com.sriundee.preorder.repository.LogVersionRepository;
 import com.sriundee.preorder.repository.MenuRepository;
 import com.sriundee.preorder.repository.SettingRepository;
 
@@ -51,9 +54,41 @@ public class SettingController {
     @Autowired
     private MenuRepository menuRepository;
 
+    @Autowired
+    private LogVersionRepository logVersionRepository;
+
     @ModelAttribute("appTheme")
     public String appTheme() {
         return getThemeMode();
+    }
+
+    @ModelAttribute("appLatestLogVersion")
+    public LogVersion appLatestLogVersion() {
+        return logVersionRepository.findFirstByOrderByIdDesc();
+    }
+
+    @ModelAttribute("appLogVersions")
+    public List<LogVersion> appLogVersions() {
+        return logVersionRepository.findAllByOrderByIdDesc();
+    }
+
+    @ModelAttribute("appLogVersionDescriptionItems")
+    public Map<Integer, List<String>> appLogVersionDescriptionItems() {
+        Map<Integer, List<String>> descriptionItems = new HashMap<>();
+        for (LogVersion logVersion : logVersionRepository.findAllByOrderByIdDesc()) {
+            descriptionItems.put(logVersion.getId(), splitLogVersionDescription(logVersion.getDescription()));
+        }
+        return descriptionItems;
+    }
+
+    private List<String> splitLogVersionDescription(String description) {
+        if (description == null || description.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(description.split("\\R"))
+                .map(String::trim)
+                .filter(item -> !item.isEmpty())
+                .toList();
     }
 
     @ModelAttribute("appUsername")

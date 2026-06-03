@@ -156,8 +156,11 @@ public class CostPressController {
 		for (CostPressBean cost : costList) {
 			row_id += 1;
 			strCost.append("<tr class='cost-press-row' onclick='open_cost_detail(" + cost.getID_cost() + ")'>");
-			strCost.append("<td class='cost-cancel-col'>" + buildCancelButton(cost, canCancelCost(cost.getID_cost())) + "</td>");
-			strCost.append("<td class='cost-action-col'>" + buildEditButton(cost) + "</td>");
+			strCost.append("<td class='cost-action-col'><div class='cost-action-buttons'>"
+					+ buildCancelButton(cost, canCancelCost(cost.getID_cost()))
+					+ buildEditButton(cost)
+					+ "</div></td>");
+			strCost.append("<td class='cost-code-col'>" + toDisplay(cost.getc_cost_code()) + "</td>");
 			strCost.append("<td class='cost-date-col'>" + formatDate(cost.getc_create_date()) + "</td>");
 			strCost.append("<td class='cost-price-col text-end'>" + formatMoney(cost.getc_price()) + "</td>");
 			strCost.append("<td>" + toDisplay(cost.getc_note()) + "</td>");
