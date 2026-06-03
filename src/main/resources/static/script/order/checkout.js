@@ -229,6 +229,25 @@ function buildCheckoutPayload() {
 	};
 }
 
+function setCheckoutSaveBusy(busy) {
+	const saveButton = document.getElementById('btn_save');
+	if (!saveButton) {
+		return;
+	}
+
+	saveButton.disabled = !!busy;
+	if (busy) {
+		saveButton.dataset.submitGuardBusy = "true";
+		saveButton.classList.add("disabled");
+		saveButton.setAttribute("aria-disabled", "true");
+		return;
+	}
+
+	delete saveButton.dataset.submitGuardBusy;
+	saveButton.classList.remove("disabled");
+	saveButton.removeAttribute("aria-disabled");
+}
+
 function get_local_order_record_date() {
 	const today = new Date();
 	const timezoneOffset = today.getTimezoneOffset() * 60000;
@@ -646,9 +665,11 @@ function save_new_order() {
 		cancelButtonText: "ยกเลิก"
 	}).then((result) => {
 		if (!result.isConfirmed) {
+			setCheckoutSaveBusy(false);
 			return;
 		}
 
+		setCheckoutSaveBusy(true);
 		fetch('/order/save', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -687,6 +708,9 @@ function save_new_order() {
 					footer: error.message || "Save failed",
 					icon: "error"
 				});
+			})
+			.finally(() => {
+				setCheckoutSaveBusy(false);
 			});
 	});
 }

@@ -23,6 +23,52 @@ public class LoginDatabaseInitializer {
                 """);
         jdbcTemplate.execute("ALTER TABLE t_settings ADD COLUMN IF NOT EXISTS ID_user integer");
         jdbcTemplate.execute("ALTER TABLE t_order_detail ADD COLUMN IF NOT EXISTS ID_user integer");
+        jdbcTemplate.execute("ALTER TABLE t_log_version ADD COLUMN IF NOT EXISTS lv_desc text");
+        jdbcTemplate.execute("ALTER TABLE t_cost ADD COLUMN IF NOT EXISTS c_cost_code varchar(255)");
+        jdbcTemplate.execute("""
+                WITH pending_cost AS (
+                    SELECT id_cost,
+                           CAST(c_create_date AS DATE) AS cost_date,
+                           EXTRACT(YEAR FROM CAST(c_create_date AS DATE)) AS cost_year
+                    FROM t_cost
+                    WHERE COALESCE(c_cost_code, '') = ''
+                      AND c_create_date IS NOT NULL
+                      AND c_create_date <> ''
+                ),
+                existing_running AS (
+                    SELECT EXTRACT(YEAR FROM CAST(c_create_date AS DATE)) AS cost_year,
+                           COALESCE(MAX(
+                               CASE
+                                   WHEN c_cost_code ~ '^CT-[0-9]{2}-[0-9]{6}$'
+                                       THEN SUBSTRING(c_cost_code FROM 7 FOR 6)::int
+                                   ELSE 0
+                               END
+                           ), 0) AS max_running
+                    FROM t_cost
+                    WHERE COALESCE(c_cost_code, '') <> ''
+                      AND c_create_date IS NOT NULL
+                      AND c_create_date <> ''
+                    GROUP BY EXTRACT(YEAR FROM CAST(c_create_date AS DATE))
+                ),
+                ranked_cost AS (
+                    SELECT pending_cost.id_cost,
+                           'CT-' || TO_CHAR(pending_cost.cost_date, 'YY') || '-' ||
+                           LPAD((
+                               COALESCE(existing_running.max_running, 0)
+                               + ROW_NUMBER() OVER (
+                                   PARTITION BY pending_cost.cost_year
+                                   ORDER BY pending_cost.cost_date, pending_cost.id_cost
+                               )
+                           )::text, 6, '0') AS generated_code
+                    FROM pending_cost
+                    LEFT JOIN existing_running ON existing_running.cost_year = pending_cost.cost_year
+                )
+                UPDATE t_cost c
+                SET c_cost_code = ranked_cost.generated_code
+                FROM ranked_cost
+                WHERE c.id_cost = ranked_cost.id_cost
+                """);
+        jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_cost_cost_code ON t_cost (c_cost_code)");
         jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_order_order_code ON t_order (o_order_code)");
         jdbcTemplate.execute("""
                 CREATE OR REPLACE VIEW q_order_detail AS
@@ -50,5 +96,67 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("DROP INDEX IF EXISTS idx_t_settings_key");
         jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_t_settings_key_user ON t_settings (s_key, ID_user)");
         jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_t_user_username ON t_user (LOWER(u_username))");
+        jdbcTemplate.execute("""
+                UPDATE t_menu
+                SET m_name = 'รายงาน',
+                    m_parent = 'Y',
+                    m_id_menu = NULL,
+                    m_url = NULL,
+                    m_icon = 'bi bi-file-earmark-bar-graph',
+                    m_order = 13
+                WHERE id_menu = 15
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
+                VALUES (19, 'PT00', NULL, 15, '/reports/PT00', NULL, 1)
+                ON CONFLICT (id_menu) DO UPDATE
+                SET m_name = EXCLUDED.m_name,
+                    m_parent = EXCLUDED.m_parent,
+                    m_id_menu = EXCLUDED.m_id_menu,
+                    m_url = EXCLUDED.m_url,
+                    m_icon = EXCLUDED.m_icon,
+                    m_order = EXCLUDED.m_order
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
+                VALUES (20, 'PT01', NULL, 15, '/reports/PT01', NULL, 2)
+                ON CONFLICT (id_menu) DO UPDATE
+                SET m_name = EXCLUDED.m_name,
+                    m_parent = EXCLUDED.m_parent,
+                    m_id_menu = EXCLUDED.m_id_menu,
+                    m_url = EXCLUDED.m_url,
+                    m_icon = EXCLUDED.m_icon,
+                    m_order = EXCLUDED.m_order
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_menu (id_menu, m_name, m_parent, m_id_menu, m_url, m_icon, m_order)
+                VALUES (21, 'PT02', NULL, 15, '/reports/PT02', NULL, 3)
+                ON CONFLICT (id_menu) DO UPDATE
+                SET m_name = EXCLUDED.m_name,
+                    m_parent = EXCLUDED.m_parent,
+                    m_id_menu = EXCLUDED.m_id_menu,
+                    m_url = EXCLUDED.m_url,
+                    m_icon = EXCLUDED.m_icon,
+                    m_order = EXCLUDED.m_order
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
+                VALUES (
+                    3,
+                    '1.0.2',
+                    '2026-06-03',
+                    'เพิ่มเมนูรายงานแบบ PT00/PT01/PT02, เพิ่มรายงานบัญชีรายรับรายจ่าย PT01, เพิ่มรายงานกำไรขาดทุน PT02, เพิ่มเลขที่ค่าใช้จ่าย CT-YY-000001 และอัปเดต schema/view/seed ที่เกี่ยวข้อง'
+                )
+                ON CONFLICT (id_log_version) DO UPDATE
+                SET lv_version = EXCLUDED.lv_version,
+                    lv_date = EXCLUDED.lv_date,
+                    lv_desc = EXCLUDED.lv_desc
+                """);
+        jdbcTemplate.execute("""
+                SELECT setval(
+                    pg_get_serial_sequence('t_log_version', 'id_log_version'),
+                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 3)
+                )
+                """);
     }
 }

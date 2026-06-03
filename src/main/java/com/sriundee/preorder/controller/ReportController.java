@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ReportController {
 
-    private static final int MENU_ID = 15;
+    private static final int REPORT_MENU_ID = 15;
+    private static final int PT00_MENU_ID = 19;
+    private static final int PT01_MENU_ID = 20;
+    private static final int PT02_MENU_ID = 21;
     private static final LocalDate DEFAULT_START_DATE = LocalDate.of(2026, 1, 1);
     private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2026, 12, 31);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -30,7 +33,7 @@ public class ReportController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/reports")
+    @GetMapping({"/reports", "/reports/PT00"})
     public String index(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
@@ -71,7 +74,7 @@ public class ReportController {
                   AND o_order_date BETWEEN ? AND ?
                 """, start, end);
 
-        model.addAttribute("mainMenus", menuService.getMenuList(MENU_ID, null));
+        model.addAttribute("mainMenus", menuService.getMenuList(PT00_MENU_ID, REPORT_MENU_ID));
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
         model.addAttribute("reportPeriod", displayDate(start) + " - " + displayDate(end));
@@ -120,6 +123,214 @@ public class ReportController {
         return "report/index";
     }
 
+    @GetMapping("/reports/PT01")
+    public String pt01(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            Model model) {
+        LocalDate start = parseDate(startDate, DEFAULT_START_DATE);
+        LocalDate end = parseDate(endDate, DEFAULT_END_DATE);
+        if (end.isBefore(start)) {
+            end = start;
+        }
+
+        BigDecimal income = money("""
+                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
+                FROM q_income
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                """, start, end);
+        BigDecimal expense = money("""
+                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
+                FROM q_cost
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                """, start, end);
+
+        model.addAttribute("mainMenus", menuService.getMenuList(PT01_MENU_ID, REPORT_MENU_ID));
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("reportPeriod", displayDate(start) + " - " + displayDate(end));
+        model.addAttribute("ledgerIncome", displayMoney(income));
+        model.addAttribute("ledgerExpense", displayMoney(expense));
+        model.addAttribute("ledgerNet", displayMoney(income.subtract(expense)));
+        model.addAttribute("journalRows", journalRows(start, end));
+        model.addAttribute("cashBookRows", cashBookRows(start, end));
+        return "report/PT01";
+    }
+
+    @GetMapping("/reports/PT02")
+    public String pt02(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            Model model) {
+        LocalDate start = parseDate(startDate, DEFAULT_START_DATE);
+        LocalDate end = parseDate(endDate, DEFAULT_END_DATE);
+        if (end.isBefore(start)) {
+            end = start;
+        }
+
+        BigDecimal income = money("""
+                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
+                FROM q_income
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                """, start, end);
+        BigDecimal expense = money("""
+                SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
+                FROM q_cost
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                """, start, end);
+        BigDecimal profit = income.subtract(expense);
+
+        model.addAttribute("mainMenus", menuService.getMenuList(PT02_MENU_ID, REPORT_MENU_ID));
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+        model.addAttribute("reportPeriod", displayDate(start) + " - " + displayDate(end));
+        model.addAttribute("profitLossIncome", displayMoney(income));
+        model.addAttribute("profitLossExpense", displayMoney(expense));
+        model.addAttribute("profitLossNet", displayMoney(profit));
+        model.addAttribute("profitLossMargin", displayPercent(income, profit));
+        model.addAttribute("profitLossRows", profitLossRows(start, end));
+        model.addAttribute("profitLossMonthlyRows", profitLossMonthlyRows(start, end));
+        model.addAttribute("orderProfitRows", orderProfitRows(start, end));
+        return "report/PT02";
+    }
+
+    private List<Map<String, Object>> journalRows(LocalDate start, LocalDate end) {
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
+                SELECT *
+                FROM (
+                    SELECT CAST(i.c_create_date AS DATE) AS tx_date,
+                           1 AS sort_type,
+                           i.ID_income AS ref_id,
+                           COALESCE(i.ti_name, 'รายรับ') AS category,
+                           COALESCE(o.o_order_code, '-') AS document_no,
+                           COALESCE(i.c_customer_name, '') AS party,
+                           COALESCE(i.c_note, '') AS detail,
+                           COALESCE(CAST(NULLIF(REPLACE(i.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS amount
+                    FROM q_income i
+                    LEFT JOIN t_order o ON o.ID_order = i.ID_order
+                    WHERE i.c_delete = 'A'
+                      AND CAST(i.c_create_date AS DATE) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT CAST(c.c_create_date AS DATE) AS tx_date,
+                           2 AS sort_type,
+                           c.ID_cost AS ref_id,
+                           COALESCE(c.tc_name, 'รายจ่าย') AS category,
+                           '-' AS document_no,
+                           '' AS party,
+                           COALESCE(c.c_note, '') AS detail,
+                           COALESCE(CAST(NULLIF(REPLACE(c.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS amount
+                    FROM q_cost c
+                    WHERE c.c_delete = 'A'
+                      AND CAST(c.c_create_date AS DATE) BETWEEN ? AND ?
+                ) journal
+                ORDER BY tx_date, sort_type, ref_id
+                """, start, end, start, end);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            boolean income = Integer.parseInt(row.get("sort_type").toString()) == 1;
+            String date = displayDate(row.get("tx_date"));
+            String document = defaultText(row.get("document_no"), "-");
+            String party = defaultText(row.get("party"), "-");
+            String category = text(row.get("category"));
+            String detail = defaultText(row.get("detail"), "-");
+            String amount = displayMoney(row.get("amount"));
+            if (income) {
+                result.add(map(
+                        "date", date,
+                        "document", document,
+                        "party", party,
+                        "account", "เงินสด/เงินฝาก",
+                        "detail", detail,
+                        "debit", amount,
+                        "credit", "-"));
+                result.add(map(
+                        "date", "",
+                        "document", "",
+                        "party", "",
+                        "account", "รายรับ - " + category,
+                        "detail", detail,
+                        "debit", "-",
+                        "credit", amount));
+            } else {
+                result.add(map(
+                        "date", date,
+                        "document", document,
+                        "party", party,
+                        "account", "ค่าใช้จ่าย - " + category,
+                        "detail", detail,
+                        "debit", amount,
+                        "credit", "-"));
+                result.add(map(
+                        "date", "",
+                        "document", "",
+                        "party", "",
+                        "account", "เงินสด/เงินฝาก",
+                        "detail", detail,
+                        "debit", "-",
+                        "credit", amount));
+            }
+        }
+        return result;
+    }
+
+    private List<Map<String, Object>> cashBookRows(LocalDate start, LocalDate end) {
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
+                SELECT *
+                FROM (
+                    SELECT CAST(i.c_create_date AS DATE) AS tx_date,
+                           1 AS sort_type,
+                           i.ID_income AS ref_id,
+                           COALESCE(i.ti_name, 'รายรับ') AS category,
+                           COALESCE(o.o_order_code, '-') AS document_no,
+                           COALESCE(i.c_customer_name, '') AS party,
+                           COALESCE(i.c_note, '') AS detail,
+                           COALESCE(CAST(NULLIF(REPLACE(i.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS income_amount,
+                           CAST(0 AS NUMERIC(14,2)) AS expense_amount
+                    FROM q_income i
+                    LEFT JOIN t_order o ON o.ID_order = i.ID_order
+                    WHERE i.c_delete = 'A'
+                      AND CAST(i.c_create_date AS DATE) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT CAST(c.c_create_date AS DATE) AS tx_date,
+                           2 AS sort_type,
+                           c.ID_cost AS ref_id,
+                           COALESCE(c.tc_name, 'รายจ่าย') AS category,
+                           '-' AS document_no,
+                           '' AS party,
+                           COALESCE(c.c_note, '') AS detail,
+                           CAST(0 AS NUMERIC(14,2)) AS income_amount,
+                           COALESCE(CAST(NULLIF(REPLACE(c.c_price, ',', ''), '') AS NUMERIC(14,2)), 0) AS expense_amount
+                    FROM q_cost c
+                    WHERE c.c_delete = 'A'
+                      AND CAST(c.c_create_date AS DATE) BETWEEN ? AND ?
+                ) cash_book
+                ORDER BY tx_date, sort_type, ref_id
+                """, start, end, start, end);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        BigDecimal balance = BigDecimal.ZERO;
+        for (Map<String, Object> row : rows) {
+            BigDecimal income = decimal(row.get("income_amount"));
+            BigDecimal expense = decimal(row.get("expense_amount"));
+            balance = balance.add(income).subtract(expense);
+            result.add(map(
+                    "date", displayDate(row.get("tx_date")),
+                    "document", defaultText(row.get("document_no"), "-"),
+                    "party", defaultText(row.get("party"), "-"),
+                    "category", text(row.get("category")),
+                    "detail", defaultText(row.get("detail"), "-"),
+                    "income", displayMoney(income),
+                    "expense", displayMoney(expense),
+                    "balance", displayMoney(balance)));
+        }
+        return result;
+    }
+
     private List<Map<String, Object>> financeRows(LocalDate start, LocalDate end) {
         return transform(jdbcTemplate.queryForList("""
                 SELECT period,
@@ -157,6 +368,105 @@ public class ReportController {
                 "expense", displayMoney(row.get("expense")),
                 "receivable", displayMoney(row.get("receivable")),
                 "profit", displayMoney(decimal(row.get("income")).subtract(decimal(row.get("expense"))))));
+    }
+
+    private List<Map<String, Object>> profitLossRows(LocalDate start, LocalDate end) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        BigDecimal incomeTotal = BigDecimal.ZERO;
+        BigDecimal expenseTotal = BigDecimal.ZERO;
+
+        List<Map<String, Object>> incomeRows = jdbcTemplate.queryForList("""
+                SELECT COALESCE(ti_name, 'รายรับ') AS category,
+                       COALESCE(SUM(CAST(NULLIF(REPLACE(c_price, ',', ''), '') AS NUMERIC(14,2))), 0) AS amount
+                FROM q_income
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                GROUP BY ti_name
+                ORDER BY category
+                """, start, end);
+        for (Map<String, Object> row : incomeRows) {
+            BigDecimal amount = decimal(row.get("amount"));
+            incomeTotal = incomeTotal.add(amount);
+            result.add(map(
+                    "section", "รายได้",
+                    "item", text(row.get("category")),
+                    "amount", displayMoney(amount),
+                    "rowClass", ""));
+        }
+        result.add(map(
+                "section", "",
+                "item", "รวมรายได้",
+                "amount", displayMoney(incomeTotal),
+                "rowClass", "table-success fw-bold"));
+
+        List<Map<String, Object>> expenseRows = jdbcTemplate.queryForList("""
+                SELECT COALESCE(tc_name, 'รายจ่าย') AS category,
+                       COALESCE(SUM(CAST(NULLIF(REPLACE(c_price, ',', ''), '') AS NUMERIC(14,2))), 0) AS amount
+                FROM q_cost
+                WHERE c_delete = 'A'
+                  AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                GROUP BY tc_name
+                ORDER BY category
+                """, start, end);
+        for (Map<String, Object> row : expenseRows) {
+            BigDecimal amount = decimal(row.get("amount"));
+            expenseTotal = expenseTotal.add(amount);
+            result.add(map(
+                    "section", "ค่าใช้จ่าย",
+                    "item", text(row.get("category")),
+                    "amount", displayMoney(amount),
+                    "rowClass", ""));
+        }
+        result.add(map(
+                "section", "",
+                "item", "รวมค่าใช้จ่าย",
+                "amount", displayMoney(expenseTotal),
+                "rowClass", "table-danger fw-bold"));
+        result.add(map(
+                "section", "",
+                "item", incomeTotal.subtract(expenseTotal).compareTo(BigDecimal.ZERO) >= 0 ? "กำไรสุทธิ" : "ขาดทุนสุทธิ",
+                "amount", displayMoney(incomeTotal.subtract(expenseTotal)),
+                "rowClass", "table-primary fw-bold"));
+        return result;
+    }
+
+    private List<Map<String, Object>> profitLossMonthlyRows(LocalDate start, LocalDate end) {
+        return transform(jdbcTemplate.queryForList("""
+                SELECT period,
+                       SUM(income) AS income,
+                       SUM(expense) AS expense
+                FROM (
+                    SELECT TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY') AS period,
+                           TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM') AS sort_period,
+                           SUM(CAST(REPLACE(c_price, ',', '') AS NUMERIC(14,2))) AS income,
+                           0 AS expense
+                    FROM q_income
+                    WHERE c_delete = 'A'
+                      AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                    GROUP BY TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM')
+                    UNION ALL
+                    SELECT TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY') AS period,
+                           TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM') AS sort_period,
+                           0 AS income,
+                           SUM(CAST(REPLACE(c_price, ',', '') AS NUMERIC(14,2))) AS expense
+                    FROM q_cost
+                    WHERE c_delete = 'A'
+                      AND CAST(c_create_date AS DATE) BETWEEN ? AND ?
+                    GROUP BY TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM')
+                ) profit_month
+                GROUP BY period, sort_period
+                ORDER BY sort_period
+                """, start, end, start, end), row -> {
+            BigDecimal income = decimal(row.get("income"));
+            BigDecimal expense = decimal(row.get("expense"));
+            BigDecimal profit = income.subtract(expense);
+            return map(
+                    "period", text(row.get("period")),
+                    "income", displayMoney(income),
+                    "expense", displayMoney(expense),
+                    "profit", displayMoney(profit),
+                    "margin", displayPercent(income, profit));
+        });
     }
 
     private List<Map<String, Object>> taxLedgerRows(LocalDate start, LocalDate end) {

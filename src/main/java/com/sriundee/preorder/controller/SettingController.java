@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,10 +22,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.sriundee.preorder.entity.LogVersion;
 import com.sriundee.preorder.entity.Menu;
 import com.sriundee.preorder.entity.Setting;
-import com.sriundee.preorder.repository.LogVersionRepository;
 import com.sriundee.preorder.repository.MenuRepository;
 import com.sriundee.preorder.repository.SettingRepository;
 
@@ -52,9 +49,6 @@ public class SettingController {
     private SettingRepository settingRepository;
 
     @Autowired
-    private LogVersionRepository logVersionRepository;
-
-    @Autowired
     private MenuRepository menuRepository;
 
     @ModelAttribute("appTheme")
@@ -72,16 +66,6 @@ public class SettingController {
     public String appLoginDate() {
         String loginDate = currentLoginDate();
         return loginDate == null ? "" : loginDate;
-    }
-
-    @ModelAttribute("appVersion")
-    public LogVersion appVersion() {
-        try {
-            LogVersion version = logVersionRepository.findFirstByOrderByIdDesc();
-            return version == null ? defaultVersion() : version;
-        } catch (DataAccessException exception) {
-            return defaultVersion();
-        }
     }
 
     @GetMapping("/settings/theme")
@@ -310,13 +294,6 @@ public class SettingController {
 
     private String normalizeDashboardChartGranularity(String granularity) {
         return Set.of("month", "week", "day").contains(granularity) ? granularity : DEFAULT_DASHBOARD_CHART_GRANULARITY;
-    }
-
-    private LogVersion defaultVersion() {
-        LogVersion version = new LogVersion();
-        version.setVersion("1.0.1");
-        version.setDate("2026-05-25");
-        return version;
     }
 
     private record MenuOrderValue(Integer id, Integer order) {

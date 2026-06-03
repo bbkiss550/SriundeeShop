@@ -21,6 +21,9 @@ public class Cost {
     @Column(name = "c_create_date")
     private String create_date;
 
+    @Column(name = "c_cost_code")
+    private String cost_code;
+
     @Column(name = "ID_type_cost")
     private Integer type_cost;
 
@@ -47,6 +50,14 @@ public class Cost {
 
     public void setCreate_date(String create_date) {
         this.create_date = create_date;
+    }
+
+    public String getCost_code() {
+        return cost_code;
+    }
+
+    public void setCost_code(String cost_code) {
+        this.cost_code = cost_code;
     }
 
     public Integer getType_cost() {

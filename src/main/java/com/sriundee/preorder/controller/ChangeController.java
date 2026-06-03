@@ -29,6 +29,7 @@ import com.sriundee.preorder.repository.CostRepository;
 import com.sriundee.preorder.repository.LotDetailRepository;
 import com.sriundee.preorder.repository.LotRepository;
 import com.sriundee.preorder.repository.OrderDetailRepository;
+import com.sriundee.preorder.service.CostCodeService;
 
 import jakarta.transaction.Transactional;
 
@@ -49,6 +50,9 @@ public class ChangeController {
 
 	@Autowired
 	private CostRepository costRepository;
+
+	@Autowired
+	private CostCodeService costCodeService;
 
 	@Autowired
 	private CostDetailRepository costDetailRepository;
@@ -174,6 +178,7 @@ public class ChangeController {
             if (waitingPress) {
             	Cost cost = new Cost();
             	cost.setCreate_date(recordDate.toString());
+            	cost.setCost_code(costCodeService.nextCode(recordDate));
             	cost.setType_cost(1);
             	cost.setPrice(costPrice);
             	cost.setNote(toStringValue(payload.get("costNote")));
@@ -255,6 +260,7 @@ public class ChangeController {
     private void saveCost(List<OrderDetail> orderDetails, Integer typeCost, String price, String note, LocalDate recordDate) {
     	Cost cost = new Cost();
     	cost.setCreate_date(recordDate.toString());
+    	cost.setCost_code(costCodeService.nextCode(recordDate));
     	cost.setType_cost(typeCost);
     	cost.setPrice(price);
     	cost.setNote(note);

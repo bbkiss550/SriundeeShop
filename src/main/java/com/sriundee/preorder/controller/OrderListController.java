@@ -25,6 +25,7 @@ import com.sriundee.preorder.bean.OrderListBean;
 import com.sriundee.preorder.dto.OrderDto;
 import com.sriundee.preorder.entity.Income;
 import com.sriundee.preorder.entity.Order;
+import com.sriundee.preorder.entity.OrderDetail;
 import com.sriundee.preorder.entity.OrderStatus;
 import com.sriundee.preorder.entity.PaymentMethod;
 import com.sriundee.preorder.repository.IncomeRepository;
@@ -125,9 +126,15 @@ public class OrderListController {
 			order.setLast_pay_date(parseOptionalSqlDate(orderDto.getLast_pay_date()));
 			order.setSend_cost(orderDto.getSend_cost());
 			order.setDiscount(orderDto.getDiscount());
-			order.setPrice_pledge(orderDto.getPrice_pledge());
-			order.setPrice_balance(Integer.valueOf(1).equals(orderDto.getPay_method()) ? 0 : orderDto.getPrice_balance());
-			order.setNet(orderDto.getNet());
+			double net = Math.max(order.getPrice_total() + orderDto.getSend_cost() - orderDto.getDiscount(), 0);
+			order.setNet(net);
+			if (Integer.valueOf(1).equals(orderDto.getPay_method())) {
+				order.setPrice_pledge(0);
+				order.setPrice_balance(0);
+			} else {
+				order.setPrice_pledge(orderDto.getPrice_pledge());
+				order.setPrice_balance(Math.max(net - orderDto.getPrice_pledge(), 0));
+			}
 			order.setRemark(orderDto.getRemark());
 			orderRepository.save(order);
 			refreshOrderIncome(order, orderDate);
@@ -153,6 +160,29 @@ public class OrderListController {
 		incomeRepository.deleteByOrderId(id);
 		jdbcTemplate.update("DELETE FROM t_order_detail WHERE ID_order = ?", id);
 		orderRepository.deleteById(id);
+		return ResponseEntity.ok("Success");
+	}
+
+	@PostMapping("/orders/{orderId}/details/{detailId}/delete")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> deleteOrderDetail(@PathVariable("orderId") Integer orderId, @PathVariable("detailId") Integer detailId) {
+		Order order = orderRepository.findById(orderId).orElse(null);
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		OrderDetail detail = orderDetailRepository.findById(detailId).orElse(null);
+		if (detail == null || !orderId.equals(detail.getOrder())) {
+			return ResponseEntity.notFound().build();
+		}
+		if (!Integer.valueOf(1).equals(detail.getOrder_status())) {
+			return ResponseEntity.badRequest().body("Can delete only waiting press items");
+		}
+
+		orderDetailRepository.delete(detail);
+		refreshOrderTotals(order);
+		LocalDate incomeDate = new java.sql.Date(order.getOrder_date().getTime()).toLocalDate();
+		refreshOrderIncome(order, incomeDate);
 		return ResponseEntity.ok("Success");
 	}
 
@@ -267,6 +297,28 @@ public class OrderListController {
 		incomeRepository.save(income);
 	}
 
+	private void refreshOrderTotals(Order order) {
+		List<OrderDetail> details = orderDetailRepository.findByOrder(order.getId());
+		double total = 0;
+		double pledge = 0;
+		for (OrderDetail detail : details) {
+			total += detail.getPrice_total();
+			pledge += detail.getPrice_pledge();
+		}
+
+		double net = total + order.getSend_cost() - order.getDiscount();
+		order.setPrice_total(total);
+		order.setNet(net);
+		if (Integer.valueOf(1).equals(order.getPay_method())) {
+			order.setPrice_pledge(0);
+			order.setPrice_balance(0);
+		} else {
+			order.setPrice_pledge(pledge);
+			order.setPrice_balance(net - pledge);
+		}
+		orderRepository.save(order);
+	}
+
 	private String buildDetailRows(Integer orderId) {
 		List<OrderDetailBean> detailList = orderDetailRepository.getDataByOrder(orderId);
 		StringBuilder rows = new StringBuilder();
@@ -276,6 +328,7 @@ public class OrderListController {
 			rowNumber++;
 			summary.add(detail.getID_pay_method(), detail.getod_price_total(), detail.getod_price_pledge(), detail.getod_price_balance());
 			rows.append("<tr>");
+			rows.append("<td>" + buildDetailDeleteButton(orderId, detail) + "</td>");
 			rows.append("<td>" + rowNumber + "</td>");
 			rows.append("<td>" + toDisplay(detail.geto_customer_name()) + "</td>");
 			rows.append("<td>" + toDisplay(detail.geta_name()) + "</td>");
@@ -293,11 +346,18 @@ public class OrderListController {
 			rows.append("</tr>");
 		}
 		if (detailList.isEmpty()) {
-			rows.append("<tr><td colspan='14' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			rows.append("<tr><td colspan='15' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
 		} else {
 			rows.append(buildSummaryRow(summary));
 		}
 		return rows.toString();
+	}
+
+	private String buildDetailDeleteButton(Integer orderId, OrderDetailBean detail) {
+		if (!Integer.valueOf(1).equals(detail.getID_order_status())) {
+			return "<button type='button' class='btn icon btn-secondary' disabled><i data-feather='trash-2'></i></button>";
+		}
+		return "<button type='button' class='btn icon btn-danger' onclick='delete_order_detail(" + orderId + ", " + detail.getID_order_detail() + ")'><i data-feather='trash-2'></i></button>";
 	}
 
 	private String buildPaymentMethodOptions(Integer selectedId, boolean includeAllOption) {
@@ -333,7 +393,7 @@ public class OrderListController {
 
 	private String buildSummaryRow(DetailSummary summary) {
 		StringBuilder row = new StringBuilder();
-		row.append("<tr><td colspan='14' class='detail-summary-cell'>");
+		row.append("<tr><td colspan='15' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
 		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
 		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));

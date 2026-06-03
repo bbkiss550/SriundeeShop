@@ -23,4 +23,7 @@ public class LogVersion {
 
     @Column(name = "lv_date")
     private String date;
+
+    @Column(name = "lv_desc")
+    private String description;
 }

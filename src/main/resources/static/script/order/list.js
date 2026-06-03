@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     setDefaultOrderListDates(false);
+    initOrderEditCalculation();
 
     filterForm.addEventListener("submit", function(event) {
         event.preventDefault();
@@ -112,6 +113,7 @@ function edit_order(orderId, event) {
         })
         .then(order => {
             document.getElementById("editOrderId").value = order.id || "";
+            document.getElementById("editPriceTotal").value = normalizeNumber(order.price_total);
             document.getElementById("editOrderDate").value = order.order_date || "";
             document.getElementById("editCustomerName").value = order.customer_name || "";
             document.getElementById("editPayMethod").value = order.pay_method || "";
@@ -121,6 +123,7 @@ function edit_order(orderId, event) {
             document.getElementById("editBalance").value = normalizeNumber(order.price_balance);
             document.getElementById("editNet").value = normalizeNumber(order.net);
             document.getElementById("editRemark").value = order.remark || "";
+            calculate_order_edit_summary();
 
             const modalElement = document.getElementById("orderEditModal");
             let modal = bootstrap.Modal.getInstance(modalElement);
@@ -140,6 +143,7 @@ function save_order_edit() {
     if (!orderId) {
         return;
     }
+    calculate_order_edit_summary();
     const payload = {
         order_date: document.getElementById("editOrderDate").value,
         customer_name: document.getElementById("editCustomerName").value.trim(),
@@ -181,6 +185,47 @@ function save_order_edit() {
         });
 }
 
+function initOrderEditCalculation() {
+    ["editPayMethod", "editSendCost", "editDiscount", "editPledge"].forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) {
+            return;
+        }
+        element.addEventListener("input", calculate_order_edit_summary);
+        element.addEventListener("change", calculate_order_edit_summary);
+    });
+}
+
+function calculate_order_edit_summary() {
+    const total = parseEditNumber("editPriceTotal");
+    const send = parseEditNumber("editSendCost");
+    const discount = parseEditNumber("editDiscount");
+    const payMethod = parseInt(document.getElementById("editPayMethod").value || "0", 10);
+    const net = Math.max(total + send - discount, 0);
+    let pledge = parseEditNumber("editPledge");
+    let balance = 0;
+
+    if (payMethod === 1) {
+        pledge = 0;
+        document.getElementById("editPledge").value = normalizeNumber(0);
+    } else {
+        balance = Math.max(net - pledge, 0);
+    }
+
+    document.getElementById("editBalance").value = normalizeNumber(balance);
+    document.getElementById("editNet").value = normalizeNumber(net);
+}
+
+function parseEditNumber(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        return 0;
+    }
+    const value = String(element.value || "0").replace(/,/g, "");
+    const numberValue = Number(value);
+    return Number.isFinite(numberValue) ? numberValue : 0;
+}
+
 function delete_order(orderId, event) {
     if (event) {
         event.preventDefault();
@@ -209,6 +254,38 @@ function delete_order(orderId, event) {
             .catch(error => {
                 console.error("Error deleting order:", error);
                 Swal.fire({ title: "ลบไม่สำเร็จ", icon: "error", confirmButtonText: "ตกลง" });
+            });
+    });
+}
+
+function delete_order_detail(orderId, detailId) {
+    Swal.fire({
+        title: "ลบรายการสินค้านี้?",
+        text: "ลบได้เฉพาะรายการที่อยู่สถานะรอกดของเท่านั้น",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "ลบ",
+        cancelButtonText: "ยกเลิก",
+        confirmButtonColor: "#dc3545"
+    }).then(result => {
+        if (!result.isConfirmed) {
+            return;
+        }
+        fetch("/orders/" + orderId + "/details/" + detailId + "/delete", { method: "POST" })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Delete detail failed");
+                }
+                return response.text();
+            })
+            .then(() => {
+                open_order_detail(orderId);
+                load_order_list_data();
+                Swal.fire({ title: "ลบสำเร็จ", icon: "success", confirmButtonText: "ตกลง" });
+            })
+            .catch(error => {
+                console.error("Error deleting order detail:", error);
+                Swal.fire({ title: "ลบไม่สำเร็จ", text: "รายการนี้อาจไม่ได้อยู่สถานะรอกดของ", icon: "error", confirmButtonText: "ตกลง" });
             });
     });
 }

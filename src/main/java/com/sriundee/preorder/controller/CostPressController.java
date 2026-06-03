@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -107,6 +109,46 @@ public class CostPressController {
 		}
 	}
 
+	@PostMapping("/cost/press/update/{id}")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> updatePressCost(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
+		try {
+			String recordDate = toDisplay(payload.get("recordDate")).trim();
+			LocalDate selectedDate = parseDate(recordDate);
+			if (selectedDate == null) {
+				return ResponseEntity.badRequest().body("Record date is required");
+			}
+
+			String pressPrice = toDisplay(payload.get("pressPrice")).replace(",", "").trim();
+			if (pressPrice.isBlank()) {
+				return ResponseEntity.badRequest().body("Press price is required");
+			}
+			try {
+				new BigDecimal(pressPrice);
+			} catch (Exception e) {
+				return ResponseEntity.badRequest().body("Invalid press price");
+			}
+
+			Cost cost = costRepository.findById(id).orElseThrow(() -> new RuntimeException("Cost not found"));
+			if (!Integer.valueOf(1).equals(cost.getType_cost())) {
+				return ResponseEntity.badRequest().body("Invalid cost type");
+			}
+			if ("D".equals(cost.getDelete())) {
+				return ResponseEntity.badRequest().body("Cannot edit canceled cost press");
+			}
+
+			cost.setCreate_date(selectedDate.toString());
+			cost.setPrice(pressPrice);
+			cost.setNote(toDisplay(payload.get("pressNote")).trim());
+			costRepository.save(cost);
+
+			return ResponseEntity.ok("Success");
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Error: " + e.getMessage());
+		}
+	}
+
 	private String buildCostRows(String startDate, String endDate, String status) {
 		List<CostPressBean> costList = costRepository.getPressCostAll(startDate, endDate, status);
 		StringBuilder strCost = new StringBuilder();
@@ -115,6 +157,7 @@ public class CostPressController {
 			row_id += 1;
 			strCost.append("<tr class='cost-press-row' onclick='open_cost_detail(" + cost.getID_cost() + ")'>");
 			strCost.append("<td class='cost-cancel-col'>" + buildCancelButton(cost, canCancelCost(cost.getID_cost())) + "</td>");
+			strCost.append("<td class='cost-action-col'>" + buildEditButton(cost) + "</td>");
 			strCost.append("<td class='cost-date-col'>" + formatDate(cost.getc_create_date()) + "</td>");
 			strCost.append("<td class='cost-price-col text-end'>" + formatMoney(cost.getc_price()) + "</td>");
 			strCost.append("<td>" + toDisplay(cost.getc_note()) + "</td>");
@@ -143,6 +186,7 @@ public class CostPressController {
 			summary.add(detail.getID_pay_method(), detail.getod_price_total(), detail.getod_price_pledge(), detail.getod_price_balance());
 			strDetail.append("<tr>");
 			strDetail.append("<td>" + row_id + "</td>");
+			strDetail.append("<td>" + formatDate(detail.getc_create_date()) + "</td>");
 			strDetail.append("<td>" + toDisplay(detail.geto_customer_name()) + "</td>");
 			strDetail.append("<td>" + toDisplay(detail.geta_name()) + "</td>");
 			strDetail.append("<td>" + toDisplay(detail.getp_name()) + "</td>");
@@ -157,7 +201,7 @@ public class CostPressController {
 		}
 
 		if (detailList.isEmpty()) {
-			strDetail.append("<tr><td colspan='11' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			strDetail.append("<tr><td colspan='12' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
 		} else {
 			strDetail.append(buildSummaryRow(summary));
 		}
@@ -176,7 +220,7 @@ public class CostPressController {
 
 	private String buildSummaryRow(DetailSummary summary) {
 		StringBuilder row = new StringBuilder();
-		row.append("<tr><td colspan='11' class='detail-summary-cell'>");
+		row.append("<tr><td colspan='12' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
 		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
 		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));
@@ -212,10 +256,39 @@ public class CostPressController {
 		return "<button type='button' class='btn icon btn-danger' onclick='cancel_cost_press(" + cost.getID_cost() + ", event)'><i data-feather='x-circle'></i></button>";
 	}
 
+	private String buildEditButton(CostPressBean cost) {
+		if ("D".equals(cost.getc_delete())) {
+			return "<button type='button' class='btn icon btn-secondary' disabled><i data-feather='edit-2'></i></button>";
+		}
+		String price = escapeJs(formatMoney(cost.getc_price()));
+		String note = escapeJs(toDisplay(cost.getc_note()));
+		String recordDate = escapeJs(toDisplay(cost.getc_create_date()));
+		return "<button type='button' class='btn icon btn-warning' onclick=\"edit_cost_press(" + cost.getID_cost() + ", '" + price + "', '" + note + "', '" + recordDate + "', event)\"><i data-feather='edit-2'></i></button>";
+	}
+
+	private String escapeJs(String value) {
+		return value.replace("\\", "\\\\")
+				.replace("'", "\\'")
+				.replace("\"", "\\\"")
+				.replace("\r", "")
+				.replace("\n", "");
+	}
+
 	private boolean canCancelCost(Integer costId) {
 		Integer detailCount = costDetailRepository.countDataByCost(costId);
 		Integer notPressedCount = costDetailRepository.countNotPressedByCost(costId);
 		return detailCount != null && detailCount > 0 && (notPressedCount == null || notPressedCount == 0);
+	}
+
+	private LocalDate parseDate(String date) {
+		if (date == null || date.isBlank()) {
+			return null;
+		}
+		try {
+			return LocalDate.parse(date);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private String formatDate(String date) {

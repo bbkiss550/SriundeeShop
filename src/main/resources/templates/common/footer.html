@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <footer th:fragment="footer" class="app-shell-footer">
-    <div class="app-version-footer" th:if="${appVersion != null}">
-        <span>Version</span>
-        <span th:text="${appVersion.version}">1.0.1</span>
-        <span th:text="${appVersion.date}">2026-05-25</span>
+    <div class="app-version-footer">
+        <button type="button" class="app-version-link" id="deployDetailButton">
+            <span>Version</span>
+            <span>1.0.2</span>
+            <span>2026-06-03</span>
+        </button>
     </div>
     <div th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" class="app-footer-user">
         <span>User : <span th:text="${appUsername}"></span></span>
@@ -14,8 +16,125 @@
             <span>Log out</span>
         </a>
     </div>
+    <div class="modal fade" id="deployDetailModal" tabindex="-1" aria-labelledby="deployDetailModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="deployDetailModalTitle">Deploy Detail</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion deploy-detail-accordion" id="deployDetailAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="deployDetailHeading102">
+                                <button class="accordion-button deploy-detail-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse102" aria-expanded="true" aria-controls="deployDetailCollapse102">
+                                    <span class="deploy-detail-title">
+                                        <span class="deploy-detail-kicker">Current Deploy</span>
+                                        <span class="deploy-detail-version">Version 1.0.2</span>
+                                    </span>
+                                    <span class="deploy-detail-date">2026-06-03</span>
+                                </button>
+                            </h2>
+                            <div id="deployDetailCollapse102" class="accordion-collapse collapse show deploy-detail-latest" aria-labelledby="deployDetailHeading102" data-bs-parent="#deployDetailAccordion">
+                                <div class="accordion-body">
+                                    <ul class="deploy-detail-list mb-0">
+                                        <li>เพิ่มเมนูรายงานแบบ PT00, PT01, PT02 ภายใต้เมนูรายงาน</li>
+                                        <li>เพิ่มรายงานบัญชีรายรับรายจ่าย PT01</li>
+                                        <li>เพิ่มรายงานกำไรขาดทุน PT02</li>
+                                        <li>เพิ่มเลขที่ค่าใช้จ่ายรูปแบบ CT-YY-000001</li>
+                                        <li>อัปเดต schema, view และ seed SQL ที่เกี่ยวข้อง</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="deployDetailHeading101">
+                                <button class="accordion-button deploy-detail-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse101" aria-expanded="false" aria-controls="deployDetailCollapse101">
+                                    <span class="deploy-detail-title">
+                                        <span class="deploy-detail-version">Version 1.0.1</span>
+                                    </span>
+                                    <span class="deploy-detail-date">2026-05-25</span>
+                                </button>
+                            </h2>
+                            <div id="deployDetailCollapse101" class="accordion-collapse collapse" aria-labelledby="deployDetailHeading101" data-bs-parent="#deployDetailAccordion">
+                                <div class="accordion-body">
+                                    <div class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail ใน version เดิม</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="deployDetailHeading100">
+                                <button class="accordion-button deploy-detail-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#deployDetailCollapse100" aria-expanded="false" aria-controls="deployDetailCollapse100">
+                                    <span class="deploy-detail-title">
+                                        <span class="deploy-detail-version">Version 1.0.0</span>
+                                    </span>
+                                    <span class="deploy-detail-date">2026-05-21</span>
+                                </button>
+                            </h2>
+                            <div id="deployDetailCollapse100" class="accordion-collapse collapse" aria-labelledby="deployDetailHeading100" data-bs-parent="#deployDetailAccordion">
+                                <div class="accordion-body">
+                                    <div class="deploy-detail-empty">ไม่มีรายละเอียด deploy detail ใน version เดิม</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script th:src="@{/mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        (function() {
+            const deployDetailModal = document.getElementById("deployDetailModal");
+            const deployDetailButton = document.getElementById("deployDetailButton");
+            if (!deployDetailModal || !deployDetailButton || !window.bootstrap) {
+                return;
+            }
+
+            if (deployDetailModal.parentElement !== document.body) {
+                document.body.appendChild(deployDetailModal);
+            }
+
+            deployDetailButton.addEventListener("click", function() {
+                const latestDeployDetail = deployDetailModal.querySelector(".deploy-detail-latest");
+                if (latestDeployDetail && window.bootstrap.Collapse) {
+                    deployDetailModal.querySelectorAll(".accordion-collapse.show").forEach(function(openCollapse) {
+                        if (openCollapse !== latestDeployDetail) {
+                            const collapse = bootstrap.Collapse.getOrCreateInstance
+                                ? bootstrap.Collapse.getOrCreateInstance(openCollapse, { toggle: false })
+                                : new bootstrap.Collapse(openCollapse, { toggle: false });
+                            collapse.hide();
+                        }
+                    });
+                    const latestCollapse = bootstrap.Collapse.getOrCreateInstance
+                        ? bootstrap.Collapse.getOrCreateInstance(latestDeployDetail, { toggle: false })
+                        : new bootstrap.Collapse(latestDeployDetail, { toggle: false });
+                    latestCollapse.show();
+                }
+                const modal = bootstrap.Modal.getOrCreateInstance
+                    ? bootstrap.Modal.getOrCreateInstance(deployDetailModal)
+                    : new bootstrap.Modal(deployDetailModal);
+                modal.show();
+            });
+
+            deployDetailModal.querySelectorAll(".accordion-collapse").forEach(function(collapseElement) {
+                collapseElement.addEventListener("show.bs.collapse", function() {
+                    deployDetailModal.querySelectorAll(".accordion-collapse.show").forEach(function(openCollapse) {
+                        if (openCollapse !== collapseElement) {
+                            const collapse = bootstrap.Collapse.getOrCreateInstance
+                                ? bootstrap.Collapse.getOrCreateInstance(openCollapse, { toggle: false })
+                                : new bootstrap.Collapse(openCollapse, { toggle: false });
+                            collapse.hide();
+                        }
+                    });
+                });
+            });
+        })();
+    </script>
 	<script th:src="@{/mazer/dist/assets/vendors/simple-datatables/simple-datatables.js}"></script>
 	<script th:src="@{/mazer/dist/assets/vendors/fontawesome/all.min.js}"></script>
     <script th:src="@{/mazer/dist/assets/js/extensions/sweetalert2.js}"></script>

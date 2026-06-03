@@ -1,6 +1,7 @@
 package com.sriundee.preorder.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class MenuController {
 	    for (Menu m : mainMenus) {
 	    	if ("N".equals(m.getParent())) {
 	    		String mActive = "";
-	    		if(IDmenu == m.getId()) {
+	    		if(Objects.equals(IDmenu, m.getId())) {
 	    			mActive = "active";
 	    		}
 	    		strMenu.append("<li class='sidebar-item " + mActive + "'>");
@@ -33,7 +34,7 @@ public class MenuController {
 	    	} else if ("Y".equals(m.getParent())) {
 	    		String mActive = "";
 	    		String mStyle = "style='display: none;'";
-	    		if(mIDmenu == m.getId()) {
+	    		if(Objects.equals(mIDmenu, m.getId())) {
 	    			mActive = "active";
 	    		}
 	    		strMenu.append("<li class='sidebar-item has-sub " + mActive + "'>");
@@ -42,7 +43,7 @@ public class MenuController {
 		    	List<Menu> subMenus = menuRepository.getMenuParent(m.getId());
 		    	for (Menu s : subMenus) {
 		    		String sActive = "";
-		    		if(IDmenu == s.getIdmenu()) {
+		    		if(Objects.equals(IDmenu, s.getId()) || Objects.equals(IDmenu, s.getIdmenu())) {
 		    			sActive = "active";
 		    		}
 		    		strMenu.append("<li class='submenu-item " + sActive + "'><a href='" + s.getUrl() + "'>" + s.getName() + "</a></li>");

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+
+<style>
+    .pt-report-filter .input-group-text {
+        min-width: 96px;
+        justify-content: center;
+    }
+
+    .pt-report-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.9rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .pt-report-metric {
+        min-height: 92px;
+        padding: 1rem;
+        border-left: 5px solid #435ebe;
+        border-radius: 6px;
+        background: #f8fafc;
+    }
+
+    .pt-report-metric.income {
+        border-left-color: #198754;
+    }
+
+    .pt-report-metric.expense {
+        border-left-color: #dc3545;
+    }
+
+    .pt-report-metric.net {
+        border-left-color: #0dcaf0;
+    }
+
+    .pt-report-metric.margin {
+        border-left-color: #6f42c1;
+    }
+
+    .pt-report-metric-label {
+        display: block;
+        color: #7c8db5;
+        font-size: 0.84rem;
+        font-weight: 800;
+    }
+
+    .pt-report-metric-value {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 1.35rem;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    .pt-report-table-wrap {
+        overflow-x: auto;
+    }
+
+    .pt-report-table {
+        min-width: 820px;
+        margin-bottom: 0;
+    }
+
+    .pt-report-table th,
+    .pt-report-table td {
+        vertical-align: middle;
+    }
+
+    .pt-report-table .money {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    html[data-theme="dark"] .pt-report-metric {
+        background: #111827;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div th:replace="common/menu :: menu"></div>
+
+        <div id="main">
+            <header th:replace="common/header :: header_nav"></header>
+
+            <div class="page-heading">
+                <h3>PT02 รายงานกำไรขาดทุน</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card pt-report-filter">
+                            <div class="card-body">
+                                <form class="row g-3 align-items-end" method="get" th:action="@{/reports/PT02}">
+                                    <div class="col-12 col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">วันที่เริ่มต้น</span>
+                                            <input type="date" class="form-control" name="startDate" th:value="${startDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">ถึง</span>
+                                            <input type="date" class="form-control" name="endDate" th:value="${endDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-auto">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-search"></i>
+                                            แสดงรายงาน
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12">
+                        <div class="pt-report-summary">
+                            <div class="pt-report-metric income">
+                                <span class="pt-report-metric-label">รายได้รวม</span>
+                                <span class="pt-report-metric-value" th:text="${profitLossIncome}">0.00</span>
+                            </div>
+                            <div class="pt-report-metric expense">
+                                <span class="pt-report-metric-label">ค่าใช้จ่ายรวม</span>
+                                <span class="pt-report-metric-value" th:text="${profitLossExpense}">0.00</span>
+                            </div>
+                            <div class="pt-report-metric net">
+                                <span class="pt-report-metric-label">กำไร/ขาดทุนสุทธิ</span>
+                                <span class="pt-report-metric-value" th:text="${profitLossNet}">0.00</span>
+                            </div>
+                            <div class="pt-report-metric margin">
+                                <span class="pt-report-metric-label">อัตรากำไร</span>
+                                <span class="pt-report-metric-value" th:text="${profitLossMargin}">0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0">งบกำไรขาดทุน</h4>
+                                <small class="text-muted" th:text="${reportPeriod}">01/01/2026 - 31/12/2026</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-report-table-wrap">
+                                    <table class="table table-striped pt-report-table">
+                                        <thead>
+                                            <tr>
+                                                <th>หมวด</th>
+                                                <th>รายการ</th>
+                                                <th class="money">ยอดเงิน</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="row : ${profitLossRows}" th:class="${row.rowClass}">
+                                                <td th:text="${row.section}"></td>
+                                                <td th:text="${row.item}"></td>
+                                                <td class="money" th:text="${row.amount}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(profitLossRows)}">
+                                                <td colspan="3" class="text-center text-muted">ไม่พบข้อมูล</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row">
+                    <div class="col-12 col-xl-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0">สรุปรายเดือน</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-report-table-wrap">
+                                    <table class="table table-striped pt-report-table">
+                                        <thead>
+                                            <tr>
+                                                <th>เดือน</th>
+                                                <th class="money">รายได้</th>
+                                                <th class="money">ค่าใช้จ่าย</th>
+                                                <th class="money">กำไร/ขาดทุน</th>
+                                                <th class="money">Margin</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="row : ${profitLossMonthlyRows}">
+                                                <td th:text="${row.period}"></td>
+                                                <td class="money" th:text="${row.income}"></td>
+                                                <td class="money" th:text="${row.expense}"></td>
+                                                <td class="money" th:text="${row.profit}"></td>
+                                                <td class="money" th:text="${row.margin}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(profitLossMonthlyRows)}">
+                                                <td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-xl-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0">กำไรของแต่ละคำสั่งซื้อ</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-report-table-wrap">
+                                    <table class="table table-striped pt-report-table">
+                                        <thead>
+                                            <tr>
+                                                <th>เลขคำสั่งซื้อ</th>
+                                                <th>วันที่สั่งซื้อ</th>
+                                                <th>ลูกค้า</th>
+                                                <th>สถานะ</th>
+                                                <th class="money">ยอดขาย</th>
+                                                <th class="money">ต้นทุน</th>
+                                                <th class="money">ค่าชิปปิ้ง</th>
+                                                <th class="money">กำไร</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="row : ${orderProfitRows}">
+                                                <td th:text="${row.code}"></td>
+                                                <td th:text="${row.date}"></td>
+                                                <td th:text="${row.customer}"></td>
+                                                <td th:text="${row.statuses}"></td>
+                                                <td class="money" th:text="${row.sales}"></td>
+                                                <td class="money" th:text="${row.pressCost}"></td>
+                                                <td class="money" th:text="${row.shippingCost}"></td>
+                                                <td class="money" th:text="${row.profit}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(orderProfitRows)}">
+                                                <td colspan="8" class="text-center text-muted">ไม่พบข้อมูล</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer th:replace="common/footer :: footer"></footer>
+        </div>
+    </div>
+</body>
+</html>

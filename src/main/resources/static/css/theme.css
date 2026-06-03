@@ -1192,6 +1192,158 @@ html[data-theme="dark"] .swal2-styled.swal2-deny {
     font-size: 0.875rem;
 }
 
+.app-version-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    font-weight: 800;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.app-version-link:hover,
+.app-version-link:focus {
+    color: #435ebe;
+    text-decoration: underline;
+}
+
+.deploy-detail-accordion {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.deploy-detail-accordion .accordion-item {
+    overflow: hidden;
+    color: #f8fafc;
+    background: #162235;
+    border: 1px solid #30435f;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.deploy-detail-accordion .accordion-button.deploy-detail-toggle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+    min-height: 78px;
+    padding: 1rem 1.15rem;
+    color: #f8fafc;
+    background: #162235;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none !important;
+    font-weight: 800;
+    transition: color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.deploy-detail-accordion .accordion-button::after {
+    margin-left: 0;
+    filter: brightness(0) invert(1);
+    transition: transform 0.28s ease;
+}
+
+.deploy-detail-accordion .accordion-button:not(.collapsed)::after {
+    transform: rotate(-180deg);
+}
+
+.deploy-detail-accordion .accordion-button:hover,
+.deploy-detail-accordion .accordion-button:focus {
+    color: #ffffff;
+    background: #1d2d45;
+    box-shadow: none !important;
+}
+
+.deploy-detail-accordion .accordion-button:not(.collapsed) {
+    color: #ffffff;
+    background: #162235;
+    box-shadow: none !important;
+}
+
+.deploy-detail-accordion .accordion-collapse {
+    transition: height 0.32s ease;
+}
+
+.deploy-detail-accordion .accordion-body {
+    padding: 1rem 1.25rem 1.2rem;
+    color: #d8dee9;
+    background: #111827;
+    border-top: 0;
+    animation: deployDetailBodyIn 0.24s ease both;
+}
+
+.deploy-detail-title {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.deploy-detail-kicker {
+    color: #9fc5ff;
+    font-size: 0.76rem;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.deploy-detail-version {
+    color: #ffffff;
+    font-size: 1.08rem;
+    font-weight: 900;
+    transition: color 0.2s ease;
+}
+
+.deploy-detail-date {
+    flex: 0 0 auto;
+    padding: 0;
+    color: #cfe0ff;
+    font-size: 0.9rem;
+    font-weight: 900;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    transition: color 0.2s ease;
+}
+
+.deploy-detail-list {
+    display: grid;
+    gap: 0.35rem;
+    padding-left: 1.1rem;
+}
+
+.deploy-detail-empty {
+    color: #607080;
+    font-weight: 700;
+}
+
+#deployDetailModal .modal-dialog {
+    transform: translateY(18px) scale(0.98);
+    transition: transform 0.28s ease;
+}
+
+#deployDetailModal.show .modal-dialog {
+    transform: translateY(0) scale(1);
+}
+
+@keyframes deployDetailBodyIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .app-footer-logout-btn {
     min-width: 104px;
     height: 36px;
@@ -1232,6 +1384,41 @@ html[data-theme="dark"] .app-shell-footer {
 }
 
 html[data-theme="dark"] .app-version-footer {
+    color: #9fb1cc;
+}
+
+html[data-theme="dark"] .app-version-link:hover,
+html[data-theme="dark"] .app-version-link:focus {
+    color: #a5b4fc;
+}
+
+html[data-theme="dark"] .deploy-detail-accordion .accordion-item,
+html[data-theme="dark"] .deploy-detail-accordion .accordion-button {
+    color: #f8fafc;
+    background: #162235;
+    border-color: #30435f;
+}
+
+html[data-theme="dark"] .deploy-detail-accordion .accordion-button:not(.collapsed) {
+    color: #ffffff;
+    background: #162235;
+}
+
+html[data-theme="dark"] .deploy-detail-accordion .accordion-button:hover,
+html[data-theme="dark"] .deploy-detail-accordion .accordion-button:focus {
+    background: #1d2d45;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .deploy-detail-version {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] .deploy-detail-date {
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .deploy-detail-empty {
     color: #9fb1cc;
 }
 

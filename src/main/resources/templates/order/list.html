@@ -351,6 +351,7 @@
 						</div>
 						<div class="modal-body">
 							<input type="hidden" id="editOrderId">
+							<input type="hidden" id="editPriceTotal">
 							<div class="row">
 								<div class="col-md-6">
 									<div class="input-group mb-3">
@@ -394,14 +395,14 @@
 								<div class="col-md-6">
 									<div class="input-group mb-3">
 										<span class="input-group-text">ยอดเหลือ</span>
-										<input type="number" class="form-control text-end" id="editBalance" step="0.01" min="0">
+										<input type="number" class="form-control text-end" id="editBalance" step="0.01" min="0" readonly>
 										<span class="input-group-text">บาท</span>
 									</div>
 								</div>
 								<div class="col-md-6">
 									<div class="input-group mb-3">
 										<span class="input-group-text">สุทธิ</span>
-										<input type="number" class="form-control text-end" id="editNet" step="0.01" min="0">
+										<input type="number" class="form-control text-end" id="editNet" step="0.01" min="0" readonly>
 										<span class="input-group-text">บาท</span>
 									</div>
 								</div>
@@ -437,6 +438,7 @@
 								<table class="table">
 									<thead>
 										<tr>
+											<th class="order-action-col">ลบ</th>
 											<th>#</th>
 											<th>ลูกค้า</th>
 											<th>ศิลปิน</th>

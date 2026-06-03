@@ -20,6 +20,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.sriundee.preorder.bean.CostPressBean;
 import com.sriundee.preorder.entity.Cost;
 import com.sriundee.preorder.repository.CostRepository;
+import com.sriundee.preorder.service.CostCodeService;
+
+import jakarta.transaction.Transactional;
 
 @Controller
 public class CostExpenseController {
@@ -42,6 +45,9 @@ public class CostExpenseController {
     @Autowired
     private CostRepository costRepository;
 
+    @Autowired
+    private CostCodeService costCodeService;
+
     @GetMapping("/cost/expense")
     public String index(
             @RequestParam(value = "startDate", required = false) String startDate,
@@ -61,7 +67,8 @@ public class CostExpenseController {
     }
 
     @PostMapping("/cost/expense")
-    public String save(
+    @Transactional
+    public synchronized String save(
             @RequestParam("recordDate") String recordDate,
             @RequestParam("typeCost") Integer typeCost,
             @RequestParam("price") String price,
@@ -85,6 +92,7 @@ public class CostExpenseController {
 
         Cost cost = new Cost();
         cost.setCreate_date(selectedDate.toString());
+        cost.setCost_code(costCodeService.nextCode(selectedDate));
         cost.setType_cost(typeCost);
         cost.setPrice(selectedPrice.stripTrailingZeros().toPlainString());
         cost.setNote(trimToEmpty(note));

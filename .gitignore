@@ -33,3 +33,5 @@ build/
 ### VS Code ###
 .vscode/
 bin
+logs
+src/main/resources/static/database

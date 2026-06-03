@@ -112,6 +112,9 @@
 
     document.addEventListener("click", function(event) {
         const target = event.target.closest("button, input[type='button'], input[type='submit'], a.btn");
+        if (target && target.closest(".swal2-container")) {
+            return;
+        }
         rememberAction(target);
     }, true);
 
