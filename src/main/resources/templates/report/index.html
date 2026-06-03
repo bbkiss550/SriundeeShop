@@ -106,6 +106,24 @@
         white-space: nowrap;
     }
 
+    .report-product-cell {
+        min-width: 360px;
+    }
+
+    .report-product-title {
+        display: block;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .report-product-meta {
+        display: block;
+        margin-top: 0.25rem;
+        color: #6c757d;
+        font-size: 0.875rem;
+        line-height: 1.35;
+    }
+
     .report-table tfoot th,
     .report-table tfoot td {
         font-weight: 800;
@@ -140,6 +158,10 @@
 
     html[data-theme="dark"] .report-metric {
         background: #111827;
+    }
+
+    html[data-theme="dark"] .report-product-meta {
+        color: #94a3b8;
     }
 </style>
 
@@ -369,10 +391,10 @@
                                 <div class="report-panel">
                                     <h4 class="report-section-title">รายงานสินค้าแบบละเอียด</h4>
                                     <div class="report-table-wrap"><table class="table table-striped report-table">
-                                        <thead><tr><th>สินค้า</th><th>เว็บ</th><th>เวอร์ชัน</th><th>ปก</th><th class="qty">ลูกค้าสั่ง</th><th class="qty">กดของแล้ว</th><th class="qty">อยู่ใน LOT</th><th class="qty">ถึงร้าน</th><th class="qty">ส่งสำเร็จ</th></tr></thead>
+                                        <thead><tr><th class="report-product-cell">สินค้า</th><th class="qty">ลูกค้าสั่ง</th><th class="qty">กดของแล้ว</th><th class="qty">อยู่ใน LOT</th><th class="qty">ถึงร้าน</th><th class="qty">ส่งสำเร็จ</th></tr></thead>
                                         <tbody>
-                                            <tr th:each="row : ${productDetailRows}"><td th:text="${row.product}"></td><td th:text="${row.website}"></td><td th:text="${row.version}"></td><td th:text="${row.cover}"></td><td class="qty" th:text="${row.ordered}"></td><td class="qty" th:text="${row.pressed}"></td><td class="qty" th:text="${row.lot}"></td><td class="qty" th:text="${row.arrived}"></td><td class="qty" th:text="${row.sent}"></td></tr>
-                                            <tr th:if="${#lists.isEmpty(productDetailRows)}"><td colspan="9" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
+                                            <tr th:each="row : ${productDetailRows}"><td class="report-product-cell"><span class="report-product-title" th:text="${row.product}"></span><span class="report-product-meta" th:text="${'เว็บ : ' + row.website + ' เวอร์ชั่น : ' + row.version + ' ปก : ' + row.cover}"></span></td><td class="qty" th:text="${row.ordered}"></td><td class="qty" th:text="${row.pressed}"></td><td class="qty" th:text="${row.lot}"></td><td class="qty" th:text="${row.arrived}"></td><td class="qty" th:text="${row.sent}"></td></tr>
+                                            <tr th:if="${#lists.isEmpty(productDetailRows)}"><td colspan="6" class="text-center text-muted">ไม่พบข้อมูล</td></tr>
                                         </tbody>
                                     </table></div>
                                 </div>
