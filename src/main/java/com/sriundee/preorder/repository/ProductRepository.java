@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sriundee.preorder.bean.ProductBean;
+import com.sriundee.preorder.bean.ProductOrderSummaryBean;
 import com.sriundee.preorder.entity.Product;
 
 @Repository
@@ -39,4 +40,25 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 			    ID_product DESC
 			""", nativeQuery = true)
 	List<ProductBean> getScheduleProducts();
+
+	@Query(value = """
+			SELECT p.ID_product,
+			       w.w_name,
+			       v.v_name,
+			       c.c_name,
+			       COALESCE(SUM(od.od_qty), 0) AS product_qty
+			FROM t_product p
+			JOIN t_cover c ON c.ID_pro = p.ID_product
+			JOIN t_website w ON w.ID_web = c.ID_web
+			JOIN t_version v ON v.ID_ver = c.ID_ver
+			JOIN t_order_detail od ON od.ID_cover = c.ID_cover
+			JOIN t_order o ON o.ID_order = od.ID_order
+			WHERE p.p_delete = 'A'
+			  AND p.ID_product = :ID_product
+			  AND COALESCE(c.c_delete, 'A') = 'A'
+			  AND COALESCE(o.id_active_status, 'A') = 'A'
+			GROUP BY p.ID_product, w.w_name, v.v_name, c.c_name
+			ORDER BY w.w_name, v.v_name, c.c_name
+			""", nativeQuery = true)
+	List<ProductOrderSummaryBean> getOrderSummaryByProduct(@Param("ID_product") Integer ID_product);
 }

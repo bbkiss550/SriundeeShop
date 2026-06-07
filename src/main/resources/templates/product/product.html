@@ -135,6 +135,45 @@
 	html[data-theme="dark"] .product-unscheduled-check .form-check-label {
 		color: #f8fafc;
 	}
+
+	.product-order-summary-qty {
+		font-weight: 700;
+	}
+
+	.product-order-summary-table td {
+		vertical-align: middle;
+	}
+
+	.product-order-summary-table th,
+	.product-order-summary-table td {
+		padding-left: 1rem;
+		padding-right: 1rem;
+		border-left: 1px solid #dce7f1;
+		border-right: 1px solid #dce7f1;
+	}
+
+	.product-order-summary-table .product-order-summary-group td {
+		border-top: 3px solid currentColor;
+	}
+
+	html[data-theme="dark"] .product-order-summary-table th,
+	html[data-theme="dark"] .product-order-summary-table td {
+		border-left-color: #43536d;
+		border-right-color: #43536d;
+	}
+
+	.product-order-summary-merged {
+		text-align: center;
+	}
+
+	.product-order-summary-product {
+		font-weight: 600;
+		word-break: break-word;
+	}
+
+	.product-order-summary-dialog {
+		max-width: min(1180px, calc(100vw - 32px));
+	}
 </style>
 
 <body>
@@ -173,6 +212,7 @@
 													<th class="auto_width">ศิลปิน</th>
 													<th class="status_width">ปิดรับ</th>
 													<th class="status_width">สถานะ</th>
+                                                    <th class="auto_width">&#3626;&#3619;&#3640;&#3611;&#3592;&#3635;&#3609;&#3623;&#3609;&#3626;&#3633;&#3656;&#3591;&#3595;&#3639;&#3657;&#3629;</th>
 			                                    </tr>
 			                                </thead>
 			                                <tbody th:utext="${mainProduct}"></tbody>
@@ -180,6 +220,7 @@
 			                            <div th:include="./product/modal-product"></div>
 			                            <div th:include="./product/modal-cover"></div>
 			                            <div th:include="./product/modal-version"></div>
+			                            <div th:include="./product/modal-order-summary"></div>
 			                        </div>
 			                    </div>
                             </div>

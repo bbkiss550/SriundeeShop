@@ -74,6 +74,10 @@ public class DepositBalanceController {
 	@GetMapping("/deposit-balance/{id}/details")
 	@ResponseBody
 	public ResponseEntity<String> details(@PathVariable("id") Integer id) {
+		OrderListBean order = orderRepository.getOrderReceipt(id);
+		if (order == null || !"A".equalsIgnoreCase(order.getid_active_status())) {
+			return ResponseEntity.notFound().build();
+		}
 		return ResponseEntity.ok(buildDetailRows(id));
 	}
 
@@ -88,7 +92,7 @@ public class DepositBalanceController {
 			return ResponseEntity.badRequest().body("Record date is required");
 		}
 		OrderListBean order = orderRepository.getOrderReceipt(id);
-		if (order == null || !Integer.valueOf(2).equals(order.getID_pay_method())) {
+		if (order == null || !"A".equalsIgnoreCase(order.getid_active_status()) || !Integer.valueOf(2).equals(order.getID_pay_method())) {
 			return ResponseEntity.badRequest().body("Order is not a deposit payment or already received");
 		}
 		BigDecimal balance = parseMoney(order.geto_price_balance());
@@ -112,6 +116,7 @@ public class DepositBalanceController {
 		income.setNote("จ่ายมัดจำที่เหลือ");
 		income.setDelete("A");
 		income.setOrder(orderId);
+		income.setActiveStatus("A");
 		incomeRepository.save(income);
 	}
 

@@ -87,6 +87,8 @@ function open_order_detail(orderId) {
                 feather.replace();
             }
 
+            refresh_order_detail_actions(orderId);
+
             const modalElement = document.getElementById("orderDetailModal");
             let modal = bootstrap.Modal.getInstance(modalElement);
             if (!modal) {
@@ -97,6 +99,67 @@ function open_order_detail(orderId) {
         .catch(error => {
             console.error("Error loading order detail:", error);
         });
+}
+
+function refresh_order_detail_actions(orderId) {
+    fetch("/orders/" + orderId)
+        .then(response => response.ok ? response.json() : null)
+        .then(order => {
+            const activeStatus = String(order?.active_status || "A").toUpperCase();
+            const isOrderFormRequest = activeStatus === "R";
+            const approveButton = document.getElementById("btnApproveOrderForm");
+            const rejectButton = document.getElementById("btnRejectOrderForm");
+            const receiptButton = document.getElementById("btnCreateReceipt");
+            approveButton?.classList.toggle("d-none", !isOrderFormRequest);
+            rejectButton?.classList.toggle("d-none", !isOrderFormRequest);
+            receiptButton?.classList.toggle("d-none", activeStatus !== "A");
+        })
+        .catch(error => {
+            console.error("Error loading order active status:", error);
+        });
+}
+
+function approve_order_form_request() {
+    update_order_form_request_status("approve");
+}
+
+function reject_order_form_request() {
+    update_order_form_request_status("reject");
+}
+
+function update_order_form_request_status(action) {
+    if (!currentOrderDetailId) {
+        return;
+    }
+    const isApprove = action === "approve";
+    Swal.fire({
+        title: isApprove ? "\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34" : "\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: isApprove ? "\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34" : "\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18",
+        cancelButtonText: "\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01"
+    }).then(result => {
+        if (!result.isConfirmed) {
+            return;
+        }
+        fetch("/orders/" + currentOrderDetailId + "/" + action, { method: "POST" })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Update failed");
+                }
+                load_order_list_data();
+                refresh_order_detail_actions(currentOrderDetailId);
+                Swal.fire({
+                    title: "\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08",
+                    icon: "success",
+                    confirmButtonText: "\u0e15\u0e01\u0e25\u0e07"
+                });
+            })
+            .catch(error => {
+                console.error("Error updating order form request:", error);
+                Swal.fire({ title: "\u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08", icon: "error" });
+            });
+    });
 }
 
 function edit_order(orderId, event) {
@@ -233,10 +296,10 @@ function delete_order(orderId, event) {
     }
     Swal.fire({
         title: "ลบคำสั่งซื้อนี้?",
-        text: "รายการสินค้าและรายรับของคำสั่งซื้อนี้จะถูกลบไปด้วย",
+        text: "ระบบจะเปลี่ยนสถานะคำสั่งซื้อเป็นยกเลิก",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "ลบ",
+        confirmButtonText: "ยกเลิกคำสั่งซื้อ",
         cancelButtonText: "ยกเลิก",
         confirmButtonColor: "#dc3545"
     }).then(result => {
@@ -249,7 +312,7 @@ function delete_order(orderId, event) {
                     throw new Error("Delete failed");
                 }
                 load_order_list_data();
-                Swal.fire({ title: "ลบสำเร็จ", icon: "success", confirmButtonText: "ตกลง" });
+                Swal.fire({ title: "ยกเลิกคำสั่งซื้อสำเร็จ", icon: "success", confirmButtonText: "ตกลง" });
             })
             .catch(error => {
                 console.error("Error deleting order:", error);

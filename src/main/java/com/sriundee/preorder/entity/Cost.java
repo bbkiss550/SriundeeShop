@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -35,6 +36,9 @@ public class Cost {
 
     @Column(name = "c_delete")
     private String delete;
+
+    @Column(name = "id_active_status")
+    private String active_status;
 
     public Integer getId() {
         return id;
@@ -90,5 +94,20 @@ public class Cost {
 
     public void setDelete(String delete) {
         this.delete = delete;
+    }
+
+    public String getActive_status() {
+        return active_status;
+    }
+
+    public void setActive_status(String active_status) {
+        this.active_status = active_status;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (active_status == null || active_status.isBlank()) {
+            active_status = "A";
+        }
     }
 }

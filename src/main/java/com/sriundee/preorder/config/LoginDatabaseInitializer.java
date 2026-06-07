@@ -22,8 +22,17 @@ public class LoginDatabaseInitializer {
                 )
                 """);
         jdbcTemplate.execute("ALTER TABLE t_settings ADD COLUMN IF NOT EXISTS ID_user integer");
+        jdbcTemplate.execute("ALTER TABLE t_order ADD COLUMN IF NOT EXISTS id_active_status varchar(255)");
+        jdbcTemplate.execute("ALTER TABLE t_order ALTER COLUMN id_active_status SET DEFAULT 'A'");
+        jdbcTemplate.execute("UPDATE t_order SET id_active_status = 'A' WHERE id_active_status IS NULL");
         jdbcTemplate.execute("ALTER TABLE t_order_detail ADD COLUMN IF NOT EXISTS ID_user integer");
         jdbcTemplate.execute("ALTER TABLE t_cost ADD COLUMN IF NOT EXISTS c_cost_code varchar(255)");
+        jdbcTemplate.execute("ALTER TABLE t_income ADD COLUMN IF NOT EXISTS id_active_status varchar(255)");
+        jdbcTemplate.execute("ALTER TABLE t_income ALTER COLUMN id_active_status SET DEFAULT 'A'");
+        jdbcTemplate.execute("UPDATE t_income SET id_active_status = 'A' WHERE id_active_status IS NULL");
+        jdbcTemplate.execute("ALTER TABLE t_cost ADD COLUMN IF NOT EXISTS id_active_status varchar(255)");
+        jdbcTemplate.execute("ALTER TABLE t_cost ALTER COLUMN id_active_status SET DEFAULT 'A'");
+        jdbcTemplate.execute("UPDATE t_cost SET id_active_status = 'A' WHERE id_active_status IS NULL");
         jdbcTemplate.execute("""
                 WITH pending_cost AS (
                     SELECT id_cost,
@@ -77,11 +86,38 @@ public class LoginDatabaseInitializer {
                        c.c_price,
                        c.c_note,
                        c.c_delete,
-                       c.c_cost_code
+                       c.c_cost_code,
+                       c.id_active_status
                 FROM t_cost c
                 JOIN t_type_cost tc ON c.id_type_cost = tc.id_type_cost
                 """);
+        jdbcTemplate.execute("""
+                CREATE OR REPLACE VIEW q_income AS
+                SELECT i.id_income,
+                       i.c_create_date,
+                       i.c_customer_name,
+                       i.id_type_income,
+                       ti.ti_name,
+                       i.c_price,
+                       i.c_note,
+                       i.c_delete,
+                       i.id_order,
+                       i.id_active_status
+                FROM t_income i
+                JOIN t_type_income ti ON ti.id_type_income = i.id_type_income
+                WHERE COALESCE(i.id_active_status, 'A') = 'A'
+                """);
         jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_t_order_order_code ON t_order (o_order_code)");
+        jdbcTemplate.execute("""
+                CREATE OR REPLACE VIEW q_order AS
+                SELECT o.id_order, o.o_order_date, o.o_order_code, o.o_customer_name, o.id_pay_method,
+                       pm.pm_name, o.o_send_cost, o.o_discount, o.o_price_total, o.id_pay_type, pt.pt_name,
+                       o.o_price_pledge, o.o_price_balance, o.o_last_pay_date, o.o_net, o.o_remark,
+                       o.id_active_status
+                FROM t_order o
+                JOIN t_payment_method pm ON pm.id_pay_method = o.id_pay_method
+                LEFT JOIN t_payment_type pt ON pt.id_pay_type = o.id_pay_type
+                """);
         jdbcTemplate.execute("""
                 CREATE OR REPLACE VIEW q_order_detail AS
                 SELECT od.id_order_detail, od.id_order, o.o_customer_name, c.id_pro, p.p_name, p.id_type, t.t_name,
@@ -154,6 +190,21 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("""
                 INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
                 VALUES (
+                    5,
+                    '1.0.4',
+                    '2026-06-07',
+                    '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e23\u0e30\u0e1a\u0e1a\u0e41\u0e22\u0e01\u0e42\u0e1b\u0e23\u0e44\u0e1f\u0e25\u0e4c local/prod \u0e41\u0e25\u0e30\u0e41\u0e2a\u0e14\u0e07 profile/database \u0e15\u0e2d\u0e19\u0e40\u0e23\u0e34\u0e48\u0e21\u0e23\u0e30\u0e1a\u0e1a
+\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2a\u0e16\u0e32\u0e19\u0e30\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e0b\u0e37\u0e49\u0e2d A/R/D/C \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e0b\u0e37\u0e49\u0e2d\u0e08\u0e32\u0e01 Order Form \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34/\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18/\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01 \u0e41\u0e25\u0e30\u0e0b\u0e48\u0e2d\u0e19\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e08\u0e32\u0e01 workflow/report
+\u0e40\u0e1e\u0e34\u0e48\u0e21 modal \u0e2a\u0e23\u0e38\u0e1b\u0e08\u0e33\u0e19\u0e27\u0e19\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32\u0e1a\u0e19\u0e2b\u0e19\u0e49\u0e32 Product \u0e41\u0e22\u0e01\u0e15\u0e32\u0e21\u0e40\u0e27\u0e47\u0e1a/\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e48\u0e19/\u0e1b\u0e01 \u0e42\u0e14\u0e22\u0e19\u0e31\u0e1a\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e0b\u0e37\u0e49\u0e2d\u0e17\u0e35\u0e48\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e41\u0e25\u0e49\u0e27'
+                )
+                ON CONFLICT (id_log_version) DO UPDATE
+                SET lv_version = EXCLUDED.lv_version,
+                    lv_date = EXCLUDED.lv_date,
+                    lv_desc = EXCLUDED.lv_desc
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
+                VALUES (
                     4,
                     '1.0.3',
                     '2026-06-03',
@@ -181,7 +232,7 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("""
                 SELECT setval(
                     pg_get_serial_sequence('t_log_version', 'id_log_version'),
-                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 4)
+                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 5)
                 )
                 """);
     }

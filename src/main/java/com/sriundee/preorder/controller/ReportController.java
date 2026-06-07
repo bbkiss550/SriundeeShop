@@ -61,16 +61,19 @@ public class ReportController {
                 SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end);
         BigDecimal sales = money("""
                 SELECT COALESCE(SUM(o_net), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end);
         long receivableOrders = count("""
                 SELECT COUNT(*)
                 FROM q_order
                 WHERE ID_pay_method = 2
+                  AND COALESCE(id_active_status, 'A') = 'A'
                   AND COALESCE(o_price_balance, 0) > 0
                   AND o_order_date BETWEEN ? AND ?
                 """, start, end);
@@ -115,6 +118,7 @@ public class ReportController {
                 FROM t_order_detail od
                 JOIN t_order o ON o.ID_order = od.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 """, start, end));
         model.addAttribute("productSales", displayMoney(sales));
         model.addAttribute("productRows", productRows(start, end));
@@ -327,6 +331,7 @@ public class ReportController {
                            SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END) AS receivable
                     FROM q_order
                     WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                     GROUP BY TO_CHAR(o_order_date, 'MM/YYYY'), TO_CHAR(o_order_date, 'YYYY-MM')
                     UNION ALL
                     SELECT TO_CHAR(CAST(c_create_date AS DATE), 'MM/YYYY'), TO_CHAR(CAST(c_create_date AS DATE), 'YYYY-MM'),
@@ -530,6 +535,7 @@ public class ReportController {
                 LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
                 LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
                 WHERE o.ID_pay_method = 2
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                   AND COALESCE(o.o_price_balance, 0) > 0
                   AND o.o_order_date BETWEEN ? AND ?
                 GROUP BY o.ID_order, o.o_order_code, o.o_order_date, o.o_customer_name,
@@ -582,6 +588,7 @@ public class ReportController {
                 JOIN t_artist a ON a.ID_art = p.ID_art
                 JOIN t_type ty ON ty.ID_type = p.ID_type
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY p.ID_product, p.p_name, a.a_name, ty.t_name
                 ORDER BY qty DESC, p.p_name
                 """, start, end), row -> map(
@@ -634,6 +641,7 @@ public class ReportController {
                     GROUP BY ID_order
                 ) c ON c.ID_order = o.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY o.ID_order, o.o_order_code, o.o_order_date, o.o_customer_name, o.o_price_total, o.o_send_cost,
                          c.press_cost, c.shipping_cost
                 ORDER BY o.o_order_code DESC, o.ID_order DESC
@@ -682,6 +690,7 @@ public class ReportController {
                     GROUP BY ID_order
                 ) c ON c.ID_order = o.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 """, start, end);
 
         return List.of(
@@ -740,6 +749,7 @@ public class ReportController {
                     GROUP BY ID_order_detail
                 ) c ON c.ID_order_detail = qod.ID_order_detail
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 ORDER BY qod.ID_order, qod.ID_order_detail
                 """, start, end);
 
@@ -779,6 +789,7 @@ public class ReportController {
                 JOIN t_website w ON w.ID_web = c.ID_web
                 JOIN t_version v ON v.ID_ver = c.ID_ver
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY c.ID_cover, p.p_name, w.w_name, v.v_name, c.c_name
                 ORDER BY p.p_name, w.w_name, v.v_name, c.c_name
                 """, start, end), row -> map(
@@ -827,6 +838,7 @@ public class ReportController {
                 JOIN t_order o ON o.ID_order = od.ID_order
                 JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY os.ID_order_status, os.os_name, os.os_color
                 ORDER BY os.ID_order_status
                 """, start, end), row -> map(

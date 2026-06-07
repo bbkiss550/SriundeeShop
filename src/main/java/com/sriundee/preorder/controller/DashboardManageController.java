@@ -132,21 +132,25 @@ public class DashboardManageController {
                 SELECT COALESCE(SUM(o_net), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end));
         putMoneyMetric(metrics, "totalFullPaid", "ยอดจ่ายเต็ม", getBigDecimal("""
                 SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 1 THEN o_net ELSE 0 END), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end));
         putMoneyMetric(metrics, "totalPledgePaid", "ยอดมัดจำที่จ่ายแล้ว", getBigDecimal("""
                 SELECT COALESCE(SUM(CASE WHEN ID_pay_method IN (2, 3) THEN o_price_pledge ELSE 0 END), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end));
         putMoneyMetric(metrics, "totalBalance", "ยอดคงเหลือ", getBigDecimal("""
                 SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end));
         putMoneyMetric(metrics, "totalCost", "ค่าใช้จ่ายรวม", getBigDecimal("""
                 SELECT COALESCE(SUM(CAST(REPLACE(c_price, ',', '') AS DECIMAL(14,2))), 0)
@@ -158,12 +162,14 @@ public class DashboardManageController {
                 SELECT COUNT(*)
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 """, start, end));
         putCountMetric(metrics, "totalItems", "จำนวนสินค้าที่ขายได้", getLong("""
                 SELECT COALESCE(SUM(od.od_qty), 0)
                 FROM t_order_detail od
                 JOIN t_order o ON o.ID_order = od.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 """, start, end));
         return metrics;
     }
@@ -186,6 +192,7 @@ public class DashboardManageController {
                        COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0) AS balance
                 FROM q_order
                 WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
                 GROUP BY o_order_date
                 ORDER BY o_order_date
                 """, start, end));
@@ -200,6 +207,7 @@ public class DashboardManageController {
                 FROM q_order_detail q
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY q.ID_art, q.a_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -209,6 +217,7 @@ public class DashboardManageController {
                 FROM q_order_detail q
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY q.ID_type, q.t_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -218,6 +227,7 @@ public class DashboardManageController {
                 FROM q_order_detail q
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY q.ID_art, q.a_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -227,6 +237,7 @@ public class DashboardManageController {
                 FROM q_order_detail q
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY q.ID_type, q.t_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -236,6 +247,7 @@ public class DashboardManageController {
                 FROM q_order_detail q
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
                 GROUP BY ID_order_status, os_name
                 ORDER BY value DESC, label
                 """, start, end));

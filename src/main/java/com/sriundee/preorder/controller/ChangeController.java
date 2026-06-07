@@ -106,6 +106,9 @@ public class ChangeController {
             }
 
             List<OrderDetail> orderDetails = orderDetailRepository.findAllById(ids);
+            if (hasInactiveOrderDetails(ids)) {
+                return ResponseEntity.badRequest().body("Order is not approved");
+            }
             boolean sent = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(5).equals(orderDetail.getOrder_status()));
             if (sent) {
                 return ResponseEntity.badRequest().body("Sent status cannot be changed");
@@ -361,6 +364,18 @@ public class ChangeController {
 			lotMap.put(rs.getInt("ID_order_detail"), rs.getString("lot_numbers"));
 		}, params.toArray());
 		return lotMap;
+	}
+
+	private boolean hasInactiveOrderDetails(List<Integer> ids) {
+		String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
+		Integer count = jdbcTemplate.queryForObject("""
+				SELECT COUNT(*)
+				FROM t_order_detail od
+				JOIN t_order o ON o.ID_order = od.ID_order
+				WHERE od.ID_order_detail IN (%s)
+				  AND COALESCE(o.id_active_status, 'A') <> 'A'
+				""".formatted(placeholders), Integer.class, ids.toArray());
+		return count != null && count > 0;
 	}
 
 	private String buildLotBadge(String lotNumbers) {

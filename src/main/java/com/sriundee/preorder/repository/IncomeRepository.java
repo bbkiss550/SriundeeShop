@@ -13,4 +13,8 @@ public interface IncomeRepository extends JpaRepository<Income, Integer> {
     @Modifying
     @Query(value = "DELETE FROM t_income WHERE ID_order = :ID_order", nativeQuery = true)
     int deleteByOrderId(@Param("ID_order") Integer orderId);
+
+    @Modifying
+    @Query(value = "UPDATE t_income SET id_active_status = :activeStatus WHERE ID_order = :ID_order", nativeQuery = true)
+    int updateActiveStatusByOrderId(@Param("ID_order") Integer orderId, @Param("activeStatus") String activeStatus);
 }

@@ -146,20 +146,48 @@ public class OrderListController {
 	@ResponseBody
 	@Transactional
 	public ResponseEntity<String> deleteOrder(@PathVariable("id") Integer id) {
-		if (!orderRepository.existsById(id)) {
+		Order order = orderRepository.findById(id).orElse(null);
+		if (order == null) {
 			return ResponseEntity.notFound().build();
 		}
-		jdbcTemplate.update("""
-				DELETE FROM t_cost_detail
-				WHERE ID_order_detail IN (SELECT ID_order_detail FROM t_order_detail WHERE ID_order = ?)
-				""", id);
-		jdbcTemplate.update("""
-				DELETE FROM t_lot_detail
-				WHERE ID_order_detail IN (SELECT ID_order_detail FROM t_order_detail WHERE ID_order = ?)
-				""", id);
+		order.setActive_status("C");
+		orderRepository.save(order);
+		incomeRepository.updateActiveStatusByOrderId(id, "C");
+		return ResponseEntity.ok("Success");
+	}
+
+	@PostMapping("/orders/{id}/approve")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> approveOrder(@PathVariable("id") Integer id) {
+		Order order = orderRepository.findById(id).orElse(null);
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		if (!"R".equalsIgnoreCase(order.getActive_status())) {
+			return ResponseEntity.badRequest().body("Can approve only Order Form requests");
+		}
+		order.setActive_status("A");
+		orderRepository.save(order);
+		LocalDate incomeDate = new java.sql.Date(order.getOrder_date().getTime()).toLocalDate();
+		refreshOrderIncome(order, incomeDate);
+		return ResponseEntity.ok("Success");
+	}
+
+	@PostMapping("/orders/{id}/reject")
+	@ResponseBody
+	@Transactional
+	public ResponseEntity<String> rejectOrder(@PathVariable("id") Integer id) {
+		Order order = orderRepository.findById(id).orElse(null);
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		if (!"R".equalsIgnoreCase(order.getActive_status())) {
+			return ResponseEntity.badRequest().body("Can reject only Order Form requests");
+		}
+		order.setActive_status("D");
+		orderRepository.save(order);
 		incomeRepository.deleteByOrderId(id);
-		jdbcTemplate.update("DELETE FROM t_order_detail WHERE ID_order = ?", id);
-		orderRepository.deleteById(id);
 		return ResponseEntity.ok("Success");
 	}
 
@@ -193,6 +221,9 @@ public class OrderListController {
 		if (order == null) {
 			return ResponseEntity.notFound().build();
 		}
+		if (!"A".equalsIgnoreCase(order.getid_active_status())) {
+			return ResponseEntity.badRequest().body("Order is not approved");
+		}
 		return ResponseEntity.ok(buildReceiptHtml(order, orderDetailRepository.getDataByOrder(id)));
 	}
 
@@ -202,6 +233,9 @@ public class OrderListController {
 		OrderListBean order = orderRepository.getOrderReceipt(id);
 		if (order == null) {
 			return ResponseEntity.notFound().build();
+		}
+		if (!"A".equalsIgnoreCase(order.getid_active_status())) {
+			return ResponseEntity.badRequest().body("Order is not approved");
 		}
 		return ResponseEntity.ok(buildReceiptContent(order, orderDetailRepository.getDataByOrder(id)));
 	}
@@ -225,6 +259,7 @@ public class OrderListController {
 			rows.append("<td class='text-end order-money-col'>" + formatMoney(order.geto_net()) + "</td>");
 			rows.append("<td class='order-payment-col'>" + buildPaymentBadge(order.getID_pay_method(), order.getpm_name()) + "</td>");
 			rows.append("<td>" + buildOrderStatusBadges(order.getorder_status_names(), order.getorder_status_colors()) + "</td>");
+			rows.append("<td class='order-active-status-col'>" + buildActiveStatusBadge(order.getid_active_status()) + "</td>");
 			rows.append("</tr>");
 		}
 		return rows.toString();
@@ -251,6 +286,7 @@ public class OrderListController {
 		data.put("price_balance", order.getPrice_balance());
 		data.put("net", order.getNet());
 		data.put("remark", toDisplay(order.getRemark()));
+		data.put("active_status", toDisplay(order.getActive_status()));
 		return data;
 	}
 
@@ -274,14 +310,17 @@ public class OrderListController {
 
 	private void refreshOrderIncome(Order order, LocalDate incomeDate) {
 		incomeRepository.deleteByOrderId(order.getId());
+		if (!"A".equalsIgnoreCase(order.getActive_status())) {
+			return;
+		}
 		Integer payMethod = order.getPay_method();
 		if (Integer.valueOf(1).equals(payMethod)) {
-			saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "จ่ายเต็ม", order.getId());
+			saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "\u0e08\u0e48\u0e32\u0e22\u0e40\u0e15\u0e47\u0e21", order.getId());
 		} else if (Integer.valueOf(2).equals(payMethod)) {
-			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
+			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "\u0e08\u0e48\u0e32\u0e22\u0e21\u0e31\u0e14\u0e08\u0e33", order.getId());
 		} else if (Integer.valueOf(3).equals(payMethod)) {
-			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
-			saveIncome(incomeDate, order.getCustomer_name(), 3, order.getPrice_balance(), "จ่ายมัดจำที่เหลือ", order.getId());
+			saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "\u0e08\u0e48\u0e32\u0e22\u0e21\u0e31\u0e14\u0e08\u0e33", order.getId());
+			saveIncome(incomeDate, order.getCustomer_name(), 3, order.getPrice_balance(), "\u0e08\u0e48\u0e32\u0e22\u0e21\u0e31\u0e14\u0e08\u0e33\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e37\u0e2d", order.getId());
 		}
 	}
 
@@ -294,6 +333,7 @@ public class OrderListController {
 		income.setNote(note);
 		income.setDelete("A");
 		income.setOrder(orderId);
+		income.setActiveStatus("A");
 		incomeRepository.save(income);
 	}
 
@@ -346,7 +386,7 @@ public class OrderListController {
 			rows.append("</tr>");
 		}
 		if (detailList.isEmpty()) {
-			rows.append("<tr><td colspan='15' class='text-center text-muted'>ไม่พบรายละเอียดสินค้า</td></tr>");
+			rows.append("<tr><td colspan='15' class='text-center text-muted'>&#3652;&#3617;&#3656;&#3614;&#3610;&#3619;&#3634;&#3618;&#3621;&#3632;&#3648;&#3629;&#3637;&#3618;&#3604;&#3626;&#3636;&#3609;&#3588;&#3657;&#3634;</td></tr>");
 		} else {
 			rows.append(buildSummaryRow(summary));
 		}
@@ -363,7 +403,7 @@ public class OrderListController {
 	private String buildPaymentMethodOptions(Integer selectedId, boolean includeAllOption) {
 		StringBuilder options = new StringBuilder();
 		if (includeAllOption) {
-			options.append("<option value=''>ทั้งหมด</option>");
+            options.append("<option value=''>&#3607;&#3633;&#3657;&#3591;&#3627;&#3617;&#3604;</option>");
 		}
 		for (PaymentMethod paymentMethod : paymentMethodRepository.getDataAll()) {
 			String selected = paymentMethod.getId().equals(selectedId) ? " selected" : "";
@@ -373,7 +413,7 @@ public class OrderListController {
 	}
 
 	private String buildOrderStatusOptions(Integer selectedId) {
-		StringBuilder options = new StringBuilder("<option value=''>ทั้งหมด</option>");
+        StringBuilder options = new StringBuilder("<option value=''>&#3607;&#3633;&#3657;&#3591;&#3627;&#3617;&#3604;</option>");
 		for (OrderStatus orderStatus : orderStatusRepository.getDataAll()) {
 			String selected = orderStatus.getId().equals(selectedId) ? " selected" : "";
 			options.append("<option value='" + orderStatus.getId() + "'" + selected + ">" + orderStatus.getName() + "</option>");
@@ -395,10 +435,10 @@ public class OrderListController {
 		StringBuilder row = new StringBuilder();
 		row.append("<tr><td colspan='15' class='detail-summary-cell'>");
 		row.append("<div class='detail-summary-grid'>");
-		row.append(buildSummaryBox("มูลค่าสินค้ารวม", summary.totalProduct, "summary-total"));
-		row.append(buildSummaryBox("มูลค่าที่จ่ายเต็ม", summary.fullPaid, "summary-full"));
-		row.append(buildSummaryBox("มูลค่าที่จ่ายมัดจำ", summary.pledgePaid, "summary-pledge"));
-		row.append(buildSummaryBox("ยอดที่เหลือ", summary.balance, "summary-balance"));
+        row.append(buildSummaryBox("&#3617;&#3641;&#3621;&#3588;&#3656;&#3634;&#3626;&#3636;&#3609;&#3588;&#3657;&#3634;&#3619;&#3623;&#3617;", summary.totalProduct, "summary-total"));
+        row.append(buildSummaryBox("&#3617;&#3641;&#3621;&#3588;&#3656;&#3634;&#3607;&#3637;&#3656;&#3592;&#3656;&#3634;&#3618;&#3648;&#3605;&#3655;&#3617;", summary.fullPaid, "summary-full"));
+        row.append(buildSummaryBox("&#3617;&#3641;&#3621;&#3588;&#3656;&#3634;&#3607;&#3637;&#3656;&#3592;&#3656;&#3634;&#3618;&#3617;&#3633;&#3604;&#3592;&#3635;", summary.pledgePaid, "summary-pledge"));
+        row.append(buildSummaryBox("&#3618;&#3629;&#3604;&#3607;&#3637;&#3656;&#3648;&#3627;&#3621;&#3639;&#3629;", summary.balance, "summary-balance"));
 		row.append("</div>");
 		row.append("</td></tr>");
 		return row.toString();
@@ -408,13 +448,13 @@ public class OrderListController {
 		return "<div class='detail-summary-box " + cssClass + "'>"
 				+ "<span class='detail-summary-label'>" + label + "</span>"
 				+ "<span class='detail-summary-value'>" + MONEY_FORMAT.format(value) + "</span>"
-				+ "<span class='detail-summary-unit'>บาท</span>"
+                + "<span class='detail-summary-unit'>&#3610;&#3634;&#3607;</span>"
 				+ "</div>";
 	}
 
 	private String buildOrderStatusBadges(String namesValue, String colorsValue) {
 		if (namesValue == null || namesValue.isBlank()) {
-			return "<span class='badge bg-secondary order-list-badge'>ไม่ระบุ</span>";
+			return "<span class='badge bg-secondary order-list-badge'>&#3652;&#3617;&#3656;&#3619;&#3632;&#3610;&#3640;</span>";
 		}
 		String[] names = namesValue.split("\\|\\|", -1);
 		String[] colors = colorsValue == null ? new String[0] : colorsValue.split("\\|\\|", -1);
@@ -425,6 +465,19 @@ public class OrderListController {
 		}
 		badges.append("</div>");
 		return badges.toString();
+	}
+
+	private String buildActiveStatusBadge(String activeStatus) {
+		if ("C".equalsIgnoreCase(activeStatus)) {
+			return "<span class='badge bg-danger order-list-badge'>&#3618;&#3585;&#3648;&#3621;&#3636;&#3585;</span>";
+		}
+		if ("R".equalsIgnoreCase(activeStatus)) {
+			return "<span class='badge bg-warning text-dark order-list-badge'>&#3619;&#3629;&#3619;&#3633;&#3610;&#3588;&#3635;&#3626;&#3633;&#3656;&#3591;&#3595;&#3639;&#3657;&#3629;</span>";
+		}
+		if ("D".equalsIgnoreCase(activeStatus)) {
+			return "<span class='badge bg-secondary order-list-badge'>&#3611;&#3599;&#3636;&#3648;&#3626;&#3608;</span>";
+		}
+		return "<span class='badge bg-success order-list-badge'>&#3651;&#3594;&#3657;&#3591;&#3634;&#3609;</span>";
 	}
 
 	private String buildReceiptContent(OrderListBean order, List<OrderDetailBean> detailList) {
@@ -448,7 +501,7 @@ public class OrderListController {
 		String discountRow = "";
 		if (toBigDecimal(order.geto_discount()).compareTo(BigDecimal.ZERO) > 0) {
 			discountRow = """
-						<div class="summary-row"><span>ส่วนลด</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>à¸ªà¹ˆà¸§à¸™à¸¥à¸”</span><strong class="right">%s</strong></div>
 					""".formatted(formatMoney(order.geto_discount()));
 		}
 		return """
@@ -457,40 +510,40 @@ public class OrderListController {
 						<div class="receipt-brand">
 							<img class="receipt-logo" src="/mazer/dist/assets/images/logo/logo-web.png" alt="Sriundee Shop">
 							<div class="receipt-title">
-								<h1>ใบเสร็จรับเงิน</h1>
+								<h1>à¹ƒà¸šà¹€à¸ªà¸£à¹‡à¸ˆà¸£à¸±à¸šà¹€à¸‡à¸´à¸™</h1>
 								<div class="shop">Sriundee Shop</div>
 							</div>
 						</div>
 						<div class="meta">
-							<div><strong>เลขที่คำสั่งซื้อ:</strong> %s</div>
-							<div><strong>วันที่:</strong> %s</div>
+							<div><strong>à¹€à¸¥à¸‚à¸—à¸µà¹ˆà¸„à¸³à¸ªà¸±à¹ˆà¸‡à¸‹à¸·à¹‰à¸­:</strong> %s</div>
+							<div><strong>à¸§à¸±à¸™à¸—à¸µà¹ˆ:</strong> %s</div>
 						</div>
 					</div>
 					<div class="info">
-						<div><strong>ลูกค้า:</strong> %s</div>
-						<div><strong>สถานะชำระเงิน:</strong> %s</div>
-						<div><strong>หมายเหตุ:</strong> %s</div>
+						<div><strong>à¸¥à¸¹à¸à¸„à¹‰à¸²:</strong> %s</div>
+						<div><strong>à¸ªà¸–à¸²à¸™à¸°à¸Šà¸³à¸£à¸°à¹€à¸‡à¸´à¸™:</strong> %s</div>
+						<div><strong>à¸«à¸¡à¸²à¸¢à¹€à¸«à¸•à¸¸:</strong> %s</div>
 					</div>
 					<table>
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>สินค้า</th>
-								<th class="right">จำนวน</th>
-								<th class="right">ราคาเต็ม</th>
-								<th class="right">มัดจำ</th>
-								<th class="right">คงเหลือ</th>
+								<th>à¸ªà¸´à¸™à¸„à¹‰à¸²</th>
+								<th class="right">à¸ˆà¸³à¸™à¸§à¸™</th>
+								<th class="right">à¸£à¸²à¸„à¸²à¹€à¸•à¹‡à¸¡</th>
+								<th class="right">à¸¡à¸±à¸”à¸ˆà¸³</th>
+								<th class="right">à¸„à¸‡à¹€à¸«à¸¥à¸·à¸­</th>
 							</tr>
 						</thead>
 						<tbody>%s</tbody>
 					</table>
 					<div class="summary">
-						<div class="summary-row"><span>ราคาสินค้า</span><strong class="right">%s</strong></div>
-						<div class="summary-row"><span>ค่าส่ง</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>à¸£à¸²à¸„à¸²à¸ªà¸´à¸™à¸„à¹‰à¸²</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>à¸„à¹ˆà¸²à¸ªà¹ˆà¸‡</span><strong class="right">%s</strong></div>
 						%s
-						<div class="summary-row"><span>มัดจำ</span><strong class="right">%s</strong></div>
-						<div class="summary-row"><span>ยอดคงเหลือ</span><strong class="right">%s</strong></div>
-						<div class="summary-row total"><span>สุทธิ</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>à¸¡à¸±à¸”à¸ˆà¸³</span><strong class="right">%s</strong></div>
+						<div class="summary-row"><span>à¸¢à¸­à¸”à¸„à¸‡à¹€à¸«à¸¥à¸·à¸­</span><strong class="right">%s</strong></div>
+						<div class="summary-row total"><span>à¸ªà¸¸à¸—à¸˜à¸´</span><strong class="right">%s</strong></div>
 					</div>
 				</div>
 				""".formatted(
@@ -545,7 +598,7 @@ public class OrderListController {
 				</head>
 				<body>
 					%s
-					<div class="actions"><button type="button" onclick="window.print()">พิมพ์ใบเสร็จ</button></div>
+					<div class="actions"><button type="button" onclick="window.print()">à¸žà¸´à¸¡à¸žà¹Œà¹ƒà¸šà¹€à¸ªà¸£à¹‡à¸ˆ</button></div>
 				</body>
 				</html>
 				""".formatted(
@@ -632,3 +685,5 @@ public class OrderListController {
 	private record DateRange(String startDate, String endDate) {
 	}
 }
+
+

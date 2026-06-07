@@ -315,6 +315,36 @@ function delete_data(id) {
 	});
 }
 
+function modal_order_summary(id, button) {
+	const productName = button?.getAttribute("data-product-name") || "";
+	const productNameEl = document.getElementById("order_summary_product_name");
+	const summaryBody = document.getElementById("order_summary_body");
+
+	if (productNameEl) {
+		productNameEl.textContent = productName;
+	}
+	if (summaryBody) {
+		summaryBody.innerHTML = "<tr><td colspan='4' class='text-center text-muted'>Loading...</td></tr>";
+	}
+
+	const modal = new bootstrap.Modal(document.getElementById("modalOrderSummary"));
+	modal.show();
+
+	fetch("/product/order-summary/" + id)
+		.then(response => response.text())
+		.then(html => {
+			if (summaryBody) {
+				summaryBody.innerHTML = html;
+			}
+		})
+		.catch(err => {
+			console.error("Error fetching order summary:", err);
+			if (summaryBody) {
+				summaryBody.innerHTML = "<tr><td colspan='4' class='text-center text-danger'>Error</td></tr>";
+			}
+		});
+}
+
 document.addEventListener("DOMContentLoaded", function() {
 	bind_product_image_preview();
 });

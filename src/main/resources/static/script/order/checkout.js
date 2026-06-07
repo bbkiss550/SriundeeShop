@@ -123,7 +123,7 @@ function save_new_order_duplicate_old() {
 		return;
 	}
 
-	fetch('/order/save', {
+	fetch('/api/order/save', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(payload)
@@ -296,7 +296,7 @@ function save_new_order_preview_old() {
 		return;
 	}
 
-	fetch('/order/save', {
+	fetch('/api/order/save', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(payload)
@@ -597,7 +597,7 @@ function save_new_order_legacy() {
 	};
 	
 
-	fetch('/order/save', {
+	fetch('/api/order/save', {
 	    method: 'POST',
 	    headers: { 'Content-Type': 'application/json' },
 	    body: JSON.stringify(payload)
@@ -670,7 +670,7 @@ function save_new_order() {
 		}
 
 		setCheckoutSaveBusy(true);
-		fetch('/order/save', {
+		fetch('/api/order/save', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload)

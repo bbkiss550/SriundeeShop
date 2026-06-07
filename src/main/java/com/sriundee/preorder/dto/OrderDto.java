@@ -1,5 +1,7 @@
 package com.sriundee.preorder.dto;
 
+import java.util.List;
+
 public class OrderDto {
 
     private Integer id;
@@ -15,6 +17,9 @@ public class OrderDto {
     private double price_balance;
     private double net;
     private String remark;
+    private String active_status;
+    private String id_active_status;
+    private List<OrderDetailDto> items;
 	public Integer getId() {
 		return id;
 	}
@@ -92,5 +97,23 @@ public class OrderDto {
 	}
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+	public String getActive_status() {
+		return active_status;
+	}
+	public void setActive_status(String active_status) {
+		this.active_status = active_status;
+	}
+	public String getId_active_status() {
+		return id_active_status;
+	}
+	public void setId_active_status(String id_active_status) {
+		this.id_active_status = id_active_status;
+	}
+	public List<OrderDetailDto> getItems() {
+		return items;
+	}
+	public void setItems(List<OrderDetailDto> items) {
+		this.items = items;
 	}
 }

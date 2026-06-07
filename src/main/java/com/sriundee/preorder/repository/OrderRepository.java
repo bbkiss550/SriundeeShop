@@ -48,6 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
+			       COALESCE(o.id_active_status, 'A') AS id_active_status,
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
@@ -75,7 +76,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			         o.o_price_pledge,
 			         o.o_price_balance,
 			         o.o_net,
-			         o.o_remark
+			         o.o_remark,
+			         o.id_active_status
 			ORDER BY o.o_order_code DESC, o.ID_order DESC
 			""", nativeQuery = true)
     List<OrderListBean> getOrderList(
@@ -99,12 +101,14 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
+			       COALESCE(o.id_active_status, 'A') AS id_active_status,
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
 			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
 			WHERE o.ID_pay_method = 2
+			  AND COALESCE(o.id_active_status, 'A') = 'A'
 			  AND COALESCE(o.o_price_balance, 0) > 0
 			  AND (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= CAST(:startDate AS DATE))
 			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= CAST(:endDate AS DATE))
@@ -121,7 +125,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			         o.o_price_pledge,
 			         o.o_price_balance,
 			         o.o_net,
-			         o.o_remark
+			         o.o_remark,
+			         o.id_active_status
 			ORDER BY o.o_order_code DESC, o.ID_order DESC
 			""", nativeQuery = true)
     List<OrderListBean> getDepositBalanceList(
@@ -136,6 +141,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			    o_price_balance = 0
 			WHERE ID_order = :ID_order
 			  AND ID_pay_method = 2
+			  AND COALESCE(id_active_status, 'A') = 'A'
 			""", nativeQuery = true)
 	int receiveDepositBalance(@Param("ID_order") Integer orderId);
 
@@ -153,6 +159,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       o.o_price_balance,
 			       o.o_net,
 			       o.o_remark,
+			       COALESCE(o.id_active_status, 'A') AS id_active_status,
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
@@ -171,7 +178,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			         o.o_price_pledge,
 			         o.o_price_balance,
 			         o.o_net,
-			         o.o_remark
+			         o.o_remark,
+			         o.id_active_status
 			""", nativeQuery = true)
 	OrderListBean getOrderReceipt(@Param("ID_order") Integer orderId);
 }

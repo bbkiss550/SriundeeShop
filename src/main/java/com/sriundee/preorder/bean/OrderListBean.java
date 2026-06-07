@@ -14,6 +14,7 @@ public interface OrderListBean {
     String geto_price_balance();
     String geto_net();
     String geto_remark();
+    String getid_active_status();
     String getorder_status_names();
     String getorder_status_colors();
 }

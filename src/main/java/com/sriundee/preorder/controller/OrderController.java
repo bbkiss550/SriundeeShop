@@ -12,10 +12,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -141,6 +143,40 @@ public class OrderController {
 	    model.addAttribute("CartCount", orderList.size());
 
         return "order/order";
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping(value = "/api/order/mainProduct_card", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String mainProductCard() {
+        List<ProductBean> productList = productRepository.getDataOrder();
+        StringBuilder strProductCard = new StringBuilder();
+        int bootstrapCol = 12 / 5;
+        strProductCard.append("<div class='row g-4 product-grid-list'>");
+
+        for (ProductBean p : productList) {
+            boolean isOpenPreorder = Integer.valueOf(1).equals(p.getID_pro_status());
+            strProductCard.append("<div class='col-md-" + bootstrapCol + " d-flex product-grid-item" + (isOpenPreorder ? "" : " is-hidden-closed") + "' data-product-status='" + p.getID_pro_status() + "' data-artist-id='" + p.getID_art() + "' data-product-name='" + escapeHtml(p.getp_name()) + "'>");
+            strProductCard.append("<div class='card card-move product-grid-card w-100 d-flex flex-column " + (isOpenPreorder ? "" : "product-grid-card-closed") + "'");
+            strProductCard.append(" onclick='modal_order(" + p.getID_product() + ")'");
+            strProductCard.append(">");
+            strProductCard.append("<div class='product-grid-image-wrap'>");
+            strProductCard.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + p.getps_name() + "</span></span>");
+            strProductCard.append("<img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'>");
+            strProductCard.append("</div>");
+            strProductCard.append("<div class='card-body d-flex flex-column'>");
+            strProductCard.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
+            strProductCard.append("<div class='mt-auto d-flex justify-content-between align-items-end'>");
+            strProductCard.append("<div class='date-info' style='font-size: 0.85rem; color: #555;'>");
+            strProductCard.append("<p class='mb-0'>à¸›à¸´à¸”à¸£à¸±à¸š : " + displayScheduleDate(p.getp_end_date()) + "</p>");
+            strProductCard.append("<p class='mb-0'>à¸§à¸±à¸™à¸—à¸µà¹ˆà¸ªà¹ˆà¸‡ : " + displayScheduleDate(p.getp_send_date()) + "</p>");
+            strProductCard.append("</div>");
+            strProductCard.append("<span class='product-days-left-badge'>" + getDaysLeftLabel(p.getp_end_date()) + "</span>");
+            strProductCard.append("</div></div></div></div>");
+        }
+
+        strProductCard.append("</div>");
+        return strProductCard.toString();
     }
     
     @GetMapping("/order/load/{id}")
@@ -368,12 +404,25 @@ public class OrderController {
     @ResponseBody
     @Transactional
     public synchronized ResponseEntity<?> saveOrderData(@RequestBody OrderDto orderDto) {
+        return saveOrderData(orderDto, true);
+    }
+
+    @CrossOrigin(origins = "*")
+    @PostMapping("/api/order/save")
+    @ResponseBody
+    @Transactional
+    public synchronized ResponseEntity<?> saveOrderDataApi(@RequestBody OrderDto orderDto) {
+        return saveOrderData(orderDto, orderDto.getItems() == null || orderDto.getItems().isEmpty());
+    }
+
+    private ResponseEntity<?> saveOrderData(OrderDto orderDto, boolean useCart) {
         try {
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         	
             LocalDate orderDate = parseRequiredOrderDate(orderDto.getOrder_date());
-            Integer currentUserId = settingController.currentUserId();
-            List<OrderDetail> orderDetail = orderDetailRepository.getDataIsNull(currentUserId);
+            List<OrderDetail> orderDetail = useCart
+                    ? orderDetailRepository.getDataIsNull(settingController.currentUserId())
+                    : buildOrderDetails(orderDto.getItems());
             if (orderDetail == null || orderDetail.isEmpty()) {
                 return ResponseEntity.badRequest().body("Cart is empty");
             }
@@ -391,7 +440,7 @@ public class OrderController {
         	}
             order.setSend_cost(orderDto.getSend_cost());
             order.setDiscount(orderDto.getDiscount());
-            double cartProductTotal = getCartProductTotal();
+            double cartProductTotal = useCart ? getCartProductTotal() : sumPriceTotal(orderDetail);
             order.setPrice_total(cartProductTotal);
             if (orderDto.getPay_method() == 1) {
                 order.setPrice_pledge(0);
@@ -402,6 +451,7 @@ public class OrderController {
             }
             order.setNet(orderDto.getNet());
             order.setRemark(orderDto.getRemark());
+            order.setActive_status(resolveActiveStatus(orderDto));
 
             orderRepository.save(order);
             
@@ -422,6 +472,44 @@ public class OrderController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
+    }
+
+    private List<OrderDetail> buildOrderDetails(List<OrderDetailDto> items) {
+        return items.stream().map(item -> {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(null);
+            orderDetail.setCover(item.getCover());
+            orderDetail.setQty(item.getQty());
+            orderDetail.setPrice_total(item.getPrice_total());
+            orderDetail.setPrice_pledge(item.getPrice_pledge());
+            orderDetail.setPrice_balance(item.getPrice_balance());
+            orderDetail.setOrder_status(item.getOrder_status() == null ? 1 : item.getOrder_status());
+            return orderDetail;
+        }).toList();
+    }
+
+    private double sumPriceTotal(List<OrderDetail> orderDetails) {
+        return orderDetails.stream()
+                .mapToDouble(OrderDetail::getPrice_total)
+                .sum();
+    }
+
+    private String resolveActiveStatus(OrderDto orderDto) {
+        String activeStatus = firstText(orderDto.getId_active_status(), orderDto.getActive_status());
+        if ("R".equalsIgnoreCase(activeStatus)) {
+            return "R";
+        }
+        return "A";
+    }
+
+    private String firstText(String first, String second) {
+        if (first != null && !first.isBlank()) {
+            return first.trim();
+        }
+        if (second != null && !second.isBlank()) {
+            return second.trim();
+        }
+        return null;
     }
 
     private synchronized String generateOrderCode(LocalDate orderDate) {
@@ -577,15 +665,18 @@ public class OrderController {
     }
 
     private void saveOrderIncome(Order order, LocalDate incomeDate) {
+        if (!"A".equalsIgnoreCase(order.getActive_status())) {
+            return;
+        }
         Integer payMethod = order.getPay_method();
         if (Integer.valueOf(1).equals(payMethod)) {
-            saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "จ่ายเต็ม", order.getId());
+            saveIncome(incomeDate, order.getCustomer_name(), 1, order.getNet(), "จ่ายเต็ม", order.getId(), order.getActive_status());
         } else if (Integer.valueOf(2).equals(payMethod)) {
-            saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId());
+            saveIncome(incomeDate, order.getCustomer_name(), 2, order.getPrice_pledge(), "จ่ายมัดจำ", order.getId(), order.getActive_status());
         }
     }
 
-    private void saveIncome(LocalDate createDate, String customerName, Integer typeIncome, double price, String note, Integer orderId) {
+    private void saveIncome(LocalDate createDate, String customerName, Integer typeIncome, double price, String note, Integer orderId, String activeStatus) {
         Income income = new Income();
         income.setCreateDate(createDate.toString());
         income.setCustomerName(customerName);
@@ -594,6 +685,7 @@ public class OrderController {
         income.setNote(note);
         income.setDelete("A");
         income.setOrder(orderId);
+        income.setActiveStatus(activeStatus == null || activeStatus.isBlank() ? "A" : activeStatus);
         incomeRepository.save(income);
     }
 
@@ -642,3 +734,4 @@ public class OrderController {
         }
     }
 }
+

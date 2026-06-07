@@ -44,8 +44,10 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 	@Query(value = """
 			SELECT q.*, os.os_color AS os_color
 			FROM q_order_detail q
+			JOIN t_order o ON o.ID_order = q.ID_order
 			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
 			WHERE q.ID_Order IS NOT NULL
+			AND COALESCE(o.id_active_status, 'A') = 'A'
 			AND (:ID_order_status IS NULL OR q.ID_order_status = :ID_order_status)
 			AND (:a_name IS NULL OR :a_name = '' OR q.a_name ILIKE ('%' || :a_name || '%'))
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
@@ -67,8 +69,10 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 	@Query(value = """
 			SELECT q.*, os.os_color AS os_color
 			FROM q_order_detail q
+			JOIN t_order o ON o.ID_order = q.ID_order
 			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
 			WHERE q.ID_Order IS NOT NULL
+			AND COALESCE(o.id_active_status, 'A') = 'A'
 			AND (:ID_art IS NULL OR q.ID_art = :ID_art)
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
 			AND (:customer_name IS NULL OR :customer_name = '' OR q.o_customer_name ILIKE ('%' || :customer_name || '%'))

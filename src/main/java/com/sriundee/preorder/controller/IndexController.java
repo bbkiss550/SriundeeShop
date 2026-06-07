@@ -57,32 +57,38 @@ public class IndexController {
 	    		SELECT COUNT(*)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate));
 	    model.addAttribute("totalItems", getLong("""
 	    		SELECT COUNT(*)
 	    		FROM t_order_detail od
 	    		JOIN t_order o ON o.ID_order = od.ID_order
 	    		WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate));
 	    BigDecimal totalSales = getBigDecimal("""
 	    		SELECT COALESCE(SUM(o_net), 0)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate);
 	    BigDecimal totalBalance = getBigDecimal("""
 	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_balance ELSE 0 END), 0)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate);
 	    BigDecimal totalFullPaid = getBigDecimal("""
 	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method = 1 THEN o_net ELSE 0 END), 0)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate);
 	    BigDecimal totalPledgePaid = getBigDecimal("""
 	    		SELECT COALESCE(SUM(CASE WHEN ID_pay_method IN (2, 3) THEN o_price_pledge ELSE 0 END), 0)
 	    		FROM q_order
 	    		WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 	    		""", selectedStartDate, selectedEndDate);
 	    model.addAttribute("totalSales", formatMoney(totalSales));
 	    model.addAttribute("totalFullPaid", formatMoney(totalFullPaid));
@@ -143,6 +149,7 @@ public class IndexController {
 				       COALESCE(SUM(CASE WHEN ID_pay_method = 2 THEN o_price_pledge ELSE 0 END), 0) AS pledgePaid
 				FROM q_order
 				WHERE o_order_date BETWEEN ? AND ?
+                  AND COALESCE(id_active_status, 'A') = 'A'
 				GROUP BY o_order_date
 				ORDER BY o_order_date
 				""", startDate, endDate);
@@ -201,6 +208,7 @@ public class IndexController {
 				FROM q_order_detail q
 				JOIN t_order o ON o.ID_order = q.ID_order
 				WHERE o.o_order_date BETWEEN ? AND ?
+                  AND COALESCE(o.id_active_status, 'A') = 'A'
 				GROUP BY %s, %s
 				ORDER BY value DESC, label
 				""".formatted(labelExpression, groupExpression, labelExpression), startDate, endDate);

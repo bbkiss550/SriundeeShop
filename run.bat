@@ -26,7 +26,7 @@ if not exist "%JAVA_HOME%\bin\java.exe" (
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 echo Using Java from: %JAVA_HOME%
 echo.
-echo Make sure MySQL is running and the database settings in application.properties are correct.
+echo Local profile uses database: sriundee_shop_test
 echo URL: http://localhost:8080
 echo.
 
@@ -39,7 +39,7 @@ echo.
 if not exist "%~dp0logs" mkdir "%~dp0logs"
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$arguments = @('spring-boot:run', '-Dspring-boot.run.arguments=--server.port=8080');" ^
+    "$arguments = @('spring-boot:run', '-Dspring-boot.run.arguments=--server.port=8080 --spring.profiles.active=local');" ^
     "Start-Process -FilePath '%~dp0mvnw.cmd' -ArgumentList $arguments -WorkingDirectory '%~dp0' -WindowStyle Hidden -RedirectStandardOutput '%~dp0logs\run-output.log' -RedirectStandardError '%~dp0logs\run-error.log' | Out-Null"
 
 if errorlevel 1 (

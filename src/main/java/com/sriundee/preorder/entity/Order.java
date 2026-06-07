@@ -64,6 +64,9 @@ public class Order {
     @Column(name = "o_remark")
     private String remark;
 
+    @Column(name = "id_active_status")
+    private String active_status;
+
 	public Integer getId() {
 		return id;
 	}
@@ -176,10 +179,21 @@ public class Order {
 		this.remark = remark;
 	}
 
+	public String getActive_status() {
+		return active_status;
+	}
+
+	public void setActive_status(String active_status) {
+		this.active_status = active_status;
+	}
+
 	@PrePersist
 	public void prePersist() {
 		if (order_date == null) {
 			order_date = new Date();
+		}
+		if (active_status == null || active_status.isBlank()) {
+			active_status = "A";
 		}
 	}
 }

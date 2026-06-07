@@ -45,6 +45,12 @@
 		white-space: nowrap;
 	}
 
+	.order-active-status-col {
+		width: 150px;
+		min-width: 150px;
+		white-space: nowrap;
+	}
+
 	.order-list-badge {
 		display: inline-flex;
 		align-items: center;
@@ -330,6 +336,7 @@
 	                                        <th class="order-money-col text-end">สุทธิ</th>
 	                                        <th class="order-payment-col">ชำระเงิน</th>
 	                                        <th class="auto_width">สถานะสั่งซื้อ</th>
+	                                        <th class="order-active-status-col">สถานะคำสั่งซื้อ</th>
 	                                    </tr>
 	                                </thead>
 	                                <tbody id="orderListRows" th:utext="${orderRows}"></tbody>
@@ -462,6 +469,12 @@
 						<div class="modal-footer detail-modal-footer">
 							<div id="orderDetailSummary" class="detail-summary-footer"></div>
 							<div class="detail-modal-actions">
+								<button type="button" class="btn btn-success d-none" id="btnApproveOrderForm" onclick="approve_order_form_request()">
+									<i data-feather="check"></i> &#3629;&#3609;&#3640;&#3617;&#3633;&#3605;&#3636;
+								</button>
+								<button type="button" class="btn btn-warning d-none" id="btnRejectOrderForm" onclick="reject_order_form_request()">
+									<i data-feather="x-circle"></i> &#3611;&#3599;&#3636;&#3648;&#3626;&#3608;
+								</button>
 								<button type="button" class="btn btn-success" id="btnCreateReceipt" onclick="create_order_receipt()">
 									<i data-feather="file-text"></i> สร้างใบเสร็จ
 								</button>

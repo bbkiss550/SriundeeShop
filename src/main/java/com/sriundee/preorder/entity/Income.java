@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,6 +40,9 @@ public class Income {
 
     @Column(name = "ID_sale")
     private Integer sale;
+
+    @Column(name = "id_active_status")
+    private String activeStatus;
 
     public Integer getId() {
         return id;
@@ -110,5 +114,20 @@ public class Income {
 
     public void setSale(Integer sale) {
         this.sale = sale;
+    }
+
+    public String getActiveStatus() {
+        return activeStatus;
+    }
+
+    public void setActiveStatus(String activeStatus) {
+        this.activeStatus = activeStatus;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (activeStatus == null || activeStatus.isBlank()) {
+            activeStatus = "A";
+        }
     }
 }
