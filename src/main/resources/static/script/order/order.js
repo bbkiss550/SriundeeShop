@@ -1,6 +1,6 @@
 function modal_order(id) {
 	document.getElementById('IdProduct').value = id;
-	fetch('/order/load/' + id)
+	fetch('/api/order/load/' + id)
 	    .then(response => {
 			if (!response.ok) {
 				throw new Error('load-product');
@@ -102,7 +102,7 @@ function select_cover(selectFirstCover = true) {
 	const select_version = document.querySelector('input[name="group-version"]:checked');
 
 	if (select_product && select_website?.value && select_version?.value) {
-		fetch('/order/loadcover/' + select_product + '/' + select_website.value + '/' + select_version.value)
+		fetch('/api/order/loadcover/' + select_product + '/' + select_website.value + '/' + select_version.value)
 		    .then(response => response.json())
 			.then(data => {
 				document.getElementById('data_cover').innerHTML = data.listCover || '';
@@ -124,7 +124,7 @@ function select_price() {
 	const select_cover = document.querySelector('input[name="group-cover"]:checked');
 
 	if (select_cover?.value) {
-		fetch('/order/getprice/' + select_cover.value)
+		fetch('/api/order/getprice/' + select_cover.value)
 		    .then(response => response.json())
 			.then(data => {
 				document.getElementById('price_total').value = data.price_total;

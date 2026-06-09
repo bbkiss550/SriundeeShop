@@ -10,6 +10,14 @@
                 <div class="top-navigation-actions">
                     <div class="top-navigation-settings-stack">
                         <div class="top-navigation-settings-row">
+                            <div class="dropdown notification-dropdown">
+                                <button type="button" id="orderFormNotificationToggle" class="btn notification-toggle-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="แจ้งเตือน Order Form" title="แจ้งเตือน Order Form">
+                                    <i class="bi bi-bell-fill"></i>
+                                </button>
+                                <div class="dropdown-menu notification-dropdown-menu dropdown-menu-end" aria-labelledby="orderFormNotificationToggle">
+                                    <div id="orderFormNotificationList" class="notification-list"></div>
+                                </div>
+                            </div>
                             <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="ตั้งค่าลำดับเมนู" title="ตั้งค่าลำดับเมนู">
                                 <i class="bi bi-gear-fill"></i>
                             </button>
