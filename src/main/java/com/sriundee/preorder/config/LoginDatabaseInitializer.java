@@ -190,6 +190,20 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("""
                 INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
                 VALUES (
+                    6,
+                    '1.0.5',
+                    '2026-06-09',
+                    '\u0e1b\u0e23\u0e31\u0e1a\u0e15\u0e31\u0e27\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e08\u0e33\u0e19\u0e27\u0e19\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e15\u0e48\u0e2d\u0e2b\u0e19\u0e49\u0e32\u0e43\u0e19\u0e15\u0e32\u0e23\u0e32\u0e07\u0e40\u0e1b\u0e47\u0e19 50/100/150/200 \u0e41\u0e25\u0e30\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19 50
+\u0e1b\u0e23\u0e31\u0e1a\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a modal \u0e2a\u0e23\u0e38\u0e1b\u0e08\u0e33\u0e19\u0e27\u0e19\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32 Product \u0e43\u0e2b\u0e49\u0e41\u0e2a\u0e14\u0e07\u0e40\u0e2a\u0e49\u0e19\u0e41\u0e1a\u0e48\u0e07\u0e04\u0e2d\u0e25\u0e31\u0e21\u0e19\u0e4c\u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e2a\u0e25\u0e31\u0e1a\u0e2a\u0e35\u0e41\u0e16\u0e27'
+                )
+                ON CONFLICT (id_log_version) DO UPDATE
+                SET lv_version = EXCLUDED.lv_version,
+                    lv_date = EXCLUDED.lv_date,
+                    lv_desc = EXCLUDED.lv_desc
+                """);
+        jdbcTemplate.execute("""
+                INSERT INTO t_log_version (id_log_version, lv_version, lv_date, lv_desc)
+                VALUES (
                     5,
                     '1.0.4',
                     '2026-06-07',
@@ -232,7 +246,7 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("""
                 SELECT setval(
                     pg_get_serial_sequence('t_log_version', 'id_log_version'),
-                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 5)
+                    GREATEST(COALESCE((SELECT MAX(id_log_version) FROM t_log_version), 1), 6)
                 )
                 """);
     }

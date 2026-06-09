@@ -4,8 +4,8 @@
     <div class="app-version-footer">
         <button type="button" class="app-version-link" id="deployDetailButton">
             <span>Version</span>
-            <span>1.0.4</span>
-            <span>2026-06-03</span>
+            <span>1.0.5</span>
+            <span>2026-06-09</span>
         </button>
     </div>
     <div th:if="${appUsername != null and !#strings.isEmpty(appUsername)}" class="app-footer-user">
@@ -172,7 +172,9 @@
 	    let table1 = document.querySelector('.table:not([data-datatable-managed])');
 	    if (table1) {
 	        const defaultDataTable = new simpleDatatables.DataTable(table1, {
-	            fixedColumns: false
+	            fixedColumns: false,
+	            perPage: 50,
+	            perPageSelect: [50, 100, 150, 200]
 	        });
 
 	        defaultDataTable.on("datatable.sort", refreshDataTableIcons);

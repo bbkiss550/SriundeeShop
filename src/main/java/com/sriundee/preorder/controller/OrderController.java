@@ -120,17 +120,17 @@ public class OrderController {
 	        strProduct_card.append(" onclick='modal_order(" + p.getID_product() + ")'");
 	        strProduct_card.append(">");
 	        strProduct_card.append("<div class='product-grid-image-wrap'>");
-	        strProduct_card.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + p.getps_name() + "</span></span>");
-	        strProduct_card.append("<img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'>");
+	        strProduct_card.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + escapeHtml(p.getps_name()) + "</span></span>");
+	        strProduct_card.append("<img class='product-grid-image' src='" + escapeHtml(p.getp_pic()) + "' alt='Card image'>");
 	        strProduct_card.append("</div>");
 	        strProduct_card.append("<div class='card-body d-flex flex-column'>");
-	        strProduct_card.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
+	        strProduct_card.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + escapeHtml(p.getp_name()) + "</h4>");
 	        strProduct_card.append("<div class='mt-auto d-flex justify-content-between align-items-end'>"); 
 	        strProduct_card.append("<div class='date-info' style='font-size: 0.85rem; color: #555;'>"); 
 	        strProduct_card.append("<p class='mb-0'>ปิดรับ : " + displayScheduleDate(p.getp_end_date()) + "</p>");
 	        strProduct_card.append("<p class='mb-0'>วันที่ส่ง : " + displayScheduleDate(p.getp_send_date()) + "</p>");
 	        strProduct_card.append("</div>");
-	        strProduct_card.append("<span class='product-days-left-badge'>" + getDaysLeftLabel(p.getp_end_date()) + "</span>");
+	        strProduct_card.append("<span class='product-days-left-badge'>" + escapeHtml(getDaysLeftLabel(p.getp_end_date())) + "</span>");
 	        strProduct_card.append("</div></div></div></div>");
 	    }
 	    strProduct_card.append("</div>");
@@ -145,41 +145,45 @@ public class OrderController {
         return "order/order";
     }
 
-    @CrossOrigin(origins = "http://localhost:8081")
+    @CrossOrigin(origins = "*")
     @GetMapping(value = "/api/order/mainProduct_card", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String mainProductCard() {
-        List<ProductBean> productList = productRepository.getDataOrder();
-        StringBuilder strProductCard = new StringBuilder();
-        int bootstrapCol = 12 / 5;
-        strProductCard.append("<div class='row g-4 product-grid-list'>");
+        return buildProductCards(productRepository.getDataOrder());
+    }
 
-        for (ProductBean p : productList) {
-            boolean isOpenPreorder = Integer.valueOf(1).equals(p.getID_pro_status());
-            strProductCard.append("<div class='col-md-" + bootstrapCol + " d-flex product-grid-item" + (isOpenPreorder ? "" : " is-hidden-closed") + "' data-product-status='" + p.getID_pro_status() + "' data-artist-id='" + p.getID_art() + "' data-product-name='" + escapeHtml(p.getp_name()) + "'>");
-            strProductCard.append("<div class='card card-move product-grid-card w-100 d-flex flex-column " + (isOpenPreorder ? "" : "product-grid-card-closed") + "'");
-            strProductCard.append(" onclick='modal_order(" + p.getID_product() + ")'");
-            strProductCard.append(">");
-            strProductCard.append("<div class='product-grid-image-wrap'>");
-            strProductCard.append("<span class='product-status-tag " + getProductStatusTagClass(p.getID_pro_status()) + "'><span class='product-status-text'>" + p.getps_name() + "</span></span>");
-            strProductCard.append("<img class='product-grid-image' src='" + p.getp_pic() + "' alt='Card image'>");
-            strProductCard.append("</div>");
-            strProductCard.append("<div class='card-body d-flex flex-column'>");
-            strProductCard.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + p.getp_name() + "</h4>");
-            strProductCard.append("<div class='mt-auto d-flex justify-content-between align-items-end'>");
-            strProductCard.append("<div class='date-info' style='font-size: 0.85rem; color: #555;'>");
-            strProductCard.append("<p class='mb-0'>à¸›à¸´à¸”à¸£à¸±à¸š : " + displayScheduleDate(p.getp_end_date()) + "</p>");
-            strProductCard.append("<p class='mb-0'>à¸§à¸±à¸™à¸—à¸µà¹ˆà¸ªà¹ˆà¸‡ : " + displayScheduleDate(p.getp_send_date()) + "</p>");
-            strProductCard.append("</div>");
-            strProductCard.append("<span class='product-days-left-badge'>" + getDaysLeftLabel(p.getp_end_date()) + "</span>");
-            strProductCard.append("</div></div></div></div>");
+    private String buildProductCards(List<ProductBean> productList) {
+        StringBuilder productCards = new StringBuilder();
+        int bootstrapCol = 12 / 5;
+        productCards.append("<div class='row g-4 product-grid-list'>");
+
+        for (ProductBean product : productList) {
+            boolean isOpenPreorder = Integer.valueOf(1).equals(product.getID_pro_status());
+            productCards.append("<div class='col-md-" + bootstrapCol + " d-flex product-grid-item" + (isOpenPreorder ? "" : " is-hidden-closed") + "' data-product-status='" + product.getID_pro_status() + "' data-artist-id='" + product.getID_art() + "' data-product-name='" + escapeHtml(product.getp_name()) + "'>");
+            productCards.append("<div class='card card-move product-grid-card w-100 d-flex flex-column " + (isOpenPreorder ? "" : "product-grid-card-closed") + "'");
+            productCards.append(" onclick='modal_order(" + product.getID_product() + ")'");
+            productCards.append(">");
+            productCards.append("<div class='product-grid-image-wrap'>");
+            productCards.append("<span class='product-status-tag " + getProductStatusTagClass(product.getID_pro_status()) + "'><span class='product-status-text'>" + escapeHtml(product.getps_name()) + "</span></span>");
+            productCards.append("<img class='product-grid-image' src='" + escapeHtml(product.getp_pic()) + "' alt='Card image'>");
+            productCards.append("</div>");
+            productCards.append("<div class='card-body d-flex flex-column'>");
+            productCards.append("<h4 class='card-title' style='font-weight: bold; font-size: 1.1rem;'>" + escapeHtml(product.getp_name()) + "</h4>");
+            productCards.append("<div class='mt-auto d-flex justify-content-between align-items-end'>");
+            productCards.append("<div class='date-info' style='font-size: 0.85rem; color: #555;'>");
+            productCards.append("<p class='mb-0'>\u0e1b\u0e34\u0e14\u0e23\u0e31\u0e1a : " + escapeHtml(displayScheduleDate(product.getp_end_date())) + "</p>");
+            productCards.append("<p class='mb-0'>\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07 : " + escapeHtml(displayScheduleDate(product.getp_send_date())) + "</p>");
+            productCards.append("</div>");
+            productCards.append("<span class='product-days-left-badge'>" + escapeHtml(getDaysLeftLabel(product.getp_end_date())) + "</span>");
+            productCards.append("</div></div></div></div>");
         }
 
-        strProductCard.append("</div>");
-        return strProductCard.toString();
+        productCards.append("</div>");
+        return productCards.toString();
     }
     
-    @GetMapping("/order/load/{id}")
+    @CrossOrigin(origins = "*")
+    @GetMapping({"/order/load/{id}", "/api/order/load/{id}"})
 	@ResponseBody
 	public Object getData(@PathVariable Integer id) {
     	List<ProductBean> productList = productRepository.getDataAllByID(id);
@@ -199,14 +203,14 @@ public class OrderController {
 		List<GroupWebsiteBean> websietList = orderRepository.getDataByID_pro(id);
 		for (GroupWebsiteBean w : websietList) {
 			ListCheckWebsite.append("<input type='radio' class='btn-check' name='group-website' id='website" + w.getID_web() + "' value='" + w.getID_web() + "' onchange='select_cover()'>");
-			ListCheckWebsite.append("<label class='btn btn-outline-primary' for='website" + w.getID_web() + "'>" + w.getw_name() + "</label>");
+			ListCheckWebsite.append("<label class='btn btn-outline-primary' for='website" + w.getID_web() + "'>" + escapeHtml(w.getw_name()) + "</label>");
 		}
 		
     	StringBuilder ListCheckVersion = new StringBuilder();
 		List<Version> versionList = versionRepository.getDataByID_pro(id);
 		for (Version v : versionList) {
 			ListCheckVersion.append("<input type='radio' class='btn-check' name='group-version' id='version" + v.getId() + "' value='" + v.getId() + "' onchange='select_cover()'>");
-			ListCheckVersion.append("<label class='btn btn-outline-primary' for='version" + v.getId() + "'>" + v.getName() + "</label>");
+			ListCheckVersion.append("<label class='btn btn-outline-primary' for='version" + v.getId() + "'>" + escapeHtml(v.getName()) + "</label>");
 		}
 
         Map<String, Object> response = new HashMap<>();
@@ -217,14 +221,15 @@ public class OrderController {
         return response;
 	}
     
-    @GetMapping("/order/loadcover/{idProduct}/{idWebsite}/{idVersion}")
+    @CrossOrigin(origins = "*")
+    @GetMapping({"/order/loadcover/{idProduct}/{idWebsite}/{idVersion}", "/api/order/loadcover/{idProduct}/{idWebsite}/{idVersion}"})
 	@ResponseBody
 	public Object getDataCover(@PathVariable("idProduct") Integer idProduct,@PathVariable("idWebsite") Integer idWebsite,@PathVariable("idVersion") Integer idVersion) {
     	StringBuilder ListCheckCover = new StringBuilder();
 		List<CoverBean> coverList = coverRepository.SearchData(idProduct,idWebsite,idVersion);
 		for (CoverBean c : coverList) {
 			ListCheckCover.append("<input type='radio' class='btn-check' name='group-cover' id='cover" + c.getID_cover() + "' value='" + c.getID_cover() + "' onchange='select_price()'>");
-			ListCheckCover.append("<label class='btn btn-outline-primary' for='cover" + c.getID_cover() + "'>" + c.getc_name() + "</label>");
+			ListCheckCover.append("<label class='btn btn-outline-primary' for='cover" + c.getID_cover() + "'>" + escapeHtml(c.getc_name()) + "</label>");
 		}
 
         Map<String, Object> response = new HashMap<>();
@@ -232,7 +237,8 @@ public class OrderController {
         return response;
 	}
     
-    @GetMapping("/order/getprice/{id}")
+    @CrossOrigin(origins = "*")
+    @GetMapping({"/order/getprice/{id}", "/api/order/getprice/{id}"})
     @ResponseBody
     public ResponseEntity<Cover> getDataById(@PathVariable Integer id) {
         return coverRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());

@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     myDataTable = new simpleDatatables.DataTable("#tableRecordKod", {
         searchable: true,
         fixedColumns: false,
-        perPage: 25
+        perPage: 50,
+        perPageSelect: [50, 100, 150, 200]
     });
 
     // Event delegation — รองรับ checkbox ทั้งที่ render ตอนโหลดและหลัง search

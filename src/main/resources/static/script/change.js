@@ -49,7 +49,8 @@ function initDataTable() {
     myDataTable = new simpleDatatables.DataTable("#table2", {
         searchable: true,
         fixedColumns: false,
-        perPage: 25
+        perPage: 50,
+        perPageSelect: [50, 100, 150, 200]
     });
     myDataTable.on("datatable.page", syncDataTableInfo);
     myDataTable.on("datatable.search", syncDataTableInfo);

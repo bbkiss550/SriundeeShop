@@ -34,4 +34,3 @@ build/
 .vscode/
 bin
 logs
-src/main/resources/static/database
