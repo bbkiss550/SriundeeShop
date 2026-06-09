@@ -172,7 +172,9 @@
 	    let table1 = document.querySelector('.table:not([data-datatable-managed])');
 	    if (table1) {
 	        const defaultDataTable = new simpleDatatables.DataTable(table1, {
-	            fixedColumns: false
+	            fixedColumns: false,
+	            perPage: 50,
+	            perPageSelect: [50, 100, 150, 200]
 	        });
 
 	        defaultDataTable.on("datatable.sort", refreshDataTableIcons);
