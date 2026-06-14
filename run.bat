@@ -39,7 +39,7 @@ echo.
 if not exist "%~dp0logs" mkdir "%~dp0logs"
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$arguments = @('spring-boot:run', '-Dspring-boot.run.arguments=--server.port=8080 --spring.profiles.active=local');" ^
+    "$arguments = @('spring-boot:run', '-Dspring-boot.run.arguments=--server.port=8080', '-Dspring-boot.run.profiles=local');" ^
     "Start-Process -FilePath '%~dp0mvnw.cmd' -ArgumentList $arguments -WorkingDirectory '%~dp0' -WindowStyle Hidden -RedirectStandardOutput '%~dp0logs\run-output.log' -RedirectStandardError '%~dp0logs\run-error.log' | Out-Null"
 
 if errorlevel 1 (

@@ -68,7 +68,7 @@ public class ChangeController {
 	
     @GetMapping("/change")
     public String index(Model model) {
-		String menuList = menuService.getMenuList(8,null);
+		String menuList = menuService.getMenuList(8,22);
 	    model.addAttribute("mainMenus", menuList);
 
 		String osCheckList = orderStatusController.getDataCheckList();

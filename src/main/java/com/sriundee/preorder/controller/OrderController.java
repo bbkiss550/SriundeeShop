@@ -87,7 +87,7 @@ public class OrderController {
 	
     @GetMapping("/order")
     public String index(Model model) {
-		String menuList = menuService.getMenuList(7,null);
+		String menuList = menuService.getMenuList(7,22);
 	    model.addAttribute("mainMenus", menuList);
 
 		List<ProductBean> productList = productRepository.getDataOrder();

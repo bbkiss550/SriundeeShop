@@ -53,7 +53,7 @@ public class DepositBalanceController {
 			@RequestParam(value = "customerName", required = false) String customerName,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-		model.addAttribute("mainMenus", menuService.getMenuList(13, null));
+		model.addAttribute("mainMenus", menuService.getMenuList(13, 22));
 		model.addAttribute("depositRows", buildDepositRows(dateRange.startDate(), dateRange.endDate(), customerName));
 		model.addAttribute("startDate", dateRange.startDate());
 		model.addAttribute("endDate", dateRange.endDate());

@@ -27,7 +27,7 @@ public class TypeController {
 	
     @GetMapping("/type")
     public String index(Model model) {
-		String menuList = menuService.getMenuList(3,2);
+		String menuList = menuService.getMenuList(4,2);
 	    model.addAttribute("mainMenus", menuList);
 	    
 		List<Type> typeList = typeRepository.getDataAll();

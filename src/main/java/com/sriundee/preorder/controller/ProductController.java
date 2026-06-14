@@ -41,7 +41,7 @@ public class ProductController {
 	
 	@GetMapping("/product")
 	public String index(Model model) {
-		String menuList = menuService.getMenuList(6,null);
+		String menuList = menuService.getMenuList(6,2);
 	    model.addAttribute("mainMenus", menuList);
 	    
 		List<ProductBean> productList = productRepository.getDataAll();

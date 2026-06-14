@@ -151,7 +151,7 @@ body {
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 180px;
+    width: 320px;
     padding: 0;
 }
 
@@ -161,6 +161,37 @@ body {
     height: 68px !important;
     max-height: 68px !important;
     object-fit: contain;
+}
+
+.top-navigation-calendar-btn {
+    position: absolute;
+    top: 0.65rem;
+    left: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    color: #ffffff;
+    background: rgba(148, 163, 184, 0.18);
+    border: 1px solid rgba(226, 232, 240, 0.35);
+    border-radius: 0.25rem;
+}
+
+.top-navigation-calendar-btn i {
+    display: block;
+    font-size: 1.55rem;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+}
+
+.top-navigation-calendar-btn:hover,
+.top-navigation-calendar-btn:focus {
+    color: #ffffff;
+    background: #435ebe;
+    border-color: #435ebe;
 }
 
 .top-navigation-actions {
@@ -561,6 +592,7 @@ html[data-theme="light"] .top-navigation .menu .submenu {
 }
 
 html[data-theme="light"] .top-navigation .theme-toggle-btn,
+html[data-theme="light"] .top-navigation .top-navigation-calendar-btn,
 html[data-theme="light"] .top-navigation .menu-order-toggle-btn,
 html[data-theme="light"] .top-navigation .notification-toggle-btn,
 html[data-theme="light"] .top-navigation .dashboard-manage-toggle-btn,

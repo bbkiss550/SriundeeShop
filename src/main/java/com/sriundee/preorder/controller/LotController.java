@@ -58,7 +58,7 @@ public class LotController {
 			@RequestParam(value = "lotNumber", required = false) String lotNumber,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-		model.addAttribute("mainMenus", menuService.getMenuList(10, null));
+		model.addAttribute("mainMenus", menuService.getMenuList(10, 23));
 	    model.addAttribute("mainLot", buildLotRows(dateRange.startDate(), dateRange.endDate(), status, lotNumber));
 	    model.addAttribute("startDate", dateRange.startDate());
 	    model.addAttribute("endDate", dateRange.endDate());

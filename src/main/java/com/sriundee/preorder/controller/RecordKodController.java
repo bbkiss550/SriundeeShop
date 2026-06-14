@@ -29,7 +29,7 @@ public class RecordKodController {
 
     @GetMapping("/recordkod")
     public String index(Model model) {
-        String menuList = menuService.getMenuList(9, null);
+        String menuList = menuService.getMenuList(9, 23);
         model.addAttribute("mainMenus", menuList);
 
         String listArtist = artistController.getDataList();

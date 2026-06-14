@@ -56,7 +56,7 @@ public class CostShippingController {
 			@RequestParam(value = "status", required = false) String status,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-	    model.addAttribute("mainMenus", menuService.getMenuList(11, null));
+	    model.addAttribute("mainMenus", menuService.getMenuList(11, 23));
 	    model.addAttribute("mainCostShipping", buildCostRows(dateRange.startDate(), dateRange.endDate(), status));
 	    model.addAttribute("startDate", dateRange.startDate());
 	    model.addAttribute("endDate", dateRange.endDate());

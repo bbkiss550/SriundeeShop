@@ -15,7 +15,7 @@ public class PricingCalculatorController {
 
     @GetMapping("/pricing-calculator")
     public String index(Model model) {
-        model.addAttribute("mainMenus", menuService.getMenuList(MENU_ID, null));
+        model.addAttribute("mainMenus", menuService.getMenuList(MENU_ID, 24));
         return "pricing/calculator";
     }
 }

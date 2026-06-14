@@ -74,7 +74,7 @@ public class OrderListController {
 			@RequestParam(value = "orderStatus", required = false) Integer orderStatus,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-	    model.addAttribute("mainMenus", menuService.getMenuList(12, null));
+	    model.addAttribute("mainMenus", menuService.getMenuList(12, 22));
 	    model.addAttribute("orderRows", buildOrderRows(dateRange.startDate(), dateRange.endDate(), customerName, payMethod, orderStatus));
 	    model.addAttribute("startDate", dateRange.startDate());
 	    model.addAttribute("endDate", dateRange.endDate());

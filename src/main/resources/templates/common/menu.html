@@ -4,24 +4,27 @@
     <div id="sidebar" class="active top-navigation">
         <div class="sidebar-wrapper active top-navigation-wrapper">
             <div class="sidebar-header top-navigation-header">
+                <a th:href="@{/schedule-calendar}" class="btn top-navigation-calendar-btn" aria-label="Calendar" title="Calendar">
+                    <i class="bi bi-calendar-event-fill"></i>
+                </a>
                 <a th:href="@{/}" class="top-navigation-logo">
-                    <img th:src="@{/mazer/dist/assets/images/logo/logo-web.png}" alt="Logo">
+                    <img th:src="@{/mazer/dist/assets/images/logo/new%20logo.png}" alt="Logo">
                 </a>
                 <div class="top-navigation-actions">
                     <div class="top-navigation-settings-stack">
                         <div class="top-navigation-settings-row">
                             <div class="dropdown notification-dropdown">
-                                <button type="button" id="orderFormNotificationToggle" class="btn notification-toggle-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="แจ้งเตือน Order Form" title="แจ้งเตือน Order Form">
+                                <button type="button" id="orderFormNotificationToggle" class="btn notification-toggle-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Order Form notifications" title="Order Form notifications">
                                     <i class="bi bi-bell-fill"></i>
                                 </button>
                                 <div class="dropdown-menu notification-dropdown-menu dropdown-menu-end" aria-labelledby="orderFormNotificationToggle">
                                     <div id="orderFormNotificationList" class="notification-list"></div>
                                 </div>
                             </div>
-                            <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="ตั้งค่าลำดับเมนู" title="ตั้งค่าลำดับเมนู">
+                            <button type="button" id="menuOrderToggle" class="btn menu-order-toggle-btn" aria-label="Menu settings" title="Menu settings">
                                 <i class="bi bi-gear-fill"></i>
                             </button>
-                            <a th:href="@{/dashboard/manage}" class="btn dashboard-manage-toggle-btn" aria-label="จัดการ Dashboard" title="จัดการ Dashboard">
+                            <a th:href="@{/dashboard/manage}" class="btn dashboard-manage-toggle-btn" aria-label="Dashboard settings" title="Dashboard settings">
                                 <i class="bi bi-grid-1x2-fill"></i>
                             </a>
                         </div>

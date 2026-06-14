@@ -57,7 +57,7 @@ public class CostExpenseController {
         DateRange dateRange = defaultDateRange(startDate, endDate);
         Integer selectedType = normalizeTypeFilter(typeCost);
 
-        model.addAttribute("mainMenus", menuService.getMenuList(MENU_ID, null));
+        model.addAttribute("mainMenus", menuService.getMenuList(MENU_ID, 23));
         model.addAttribute("costTypes", costTypes());
         model.addAttribute("startDate", dateRange.startDate());
         model.addAttribute("endDate", dateRange.endDate());

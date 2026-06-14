@@ -56,7 +56,7 @@ public class CostPressController {
 			@RequestParam(value = "status", required = false) String status,
 			Model model) {
 		DateRange dateRange = defaultDateRange(startDate, endDate);
-		String menuList = menuService.getMenuList(9, null);
+		String menuList = menuService.getMenuList(9, 23);
 	    model.addAttribute("mainMenus", menuList);
 	    model.addAttribute("mainCostPress", buildCostRows(dateRange.startDate(), dateRange.endDate(), status));
 	    model.addAttribute("startDate", dateRange.startDate());
