@@ -11,6 +11,11 @@ import com.sriundee.preorder.entity.Artist;
 
 @Repository
 public interface ArtistRepository extends JpaRepository<Artist, Integer> {
+
+    List<Artist> findByDeleteOrderByNameAsc(String delete);
+
+    @Query(value = "SELECT pg_try_advisory_xact_lock(hashtext('sriundee-artist-create'))", nativeQuery = true)
+    Boolean lockArtistCreation();
 	
     @Query(value = "SELECT * FROM q_artist WHERE a_delete = 'A' ORDER BY ID_art ASC", nativeQuery = true)
     List<ArtistBean> getDataAll();

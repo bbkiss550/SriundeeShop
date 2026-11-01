@@ -12,6 +12,8 @@ import com.sriundee.preorder.entity.Cover;
 
 @Repository
 public interface CoverRepository extends JpaRepository<Cover, Integer> {
+
+    List<Cover> findByProductAndDeleteOrderByIdAsc(Integer product, String delete);
 	
 	@Query(value = "SELECT * FROM q_cover WHERE c_delete = 'A' AND ID_pro = :ID_pro ORDER BY ID_cover ASC", nativeQuery = true)
     List<CoverBean> getDataByID_pro(@Param("ID_pro") Integer IDproduct);

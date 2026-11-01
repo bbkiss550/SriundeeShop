@@ -1,0 +1,27 @@
+.ai-settings { max-width: 1240px; margin: auto; }
+.ai-settings-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 24px; align-items: start; }
+.ai-settings .card { min-width: 0; }
+.ai-settings .ai-field { margin-top: 20px; }
+.ai-settings .ai-field > label { display: block; font-weight: 600; margin-bottom: 8px; }
+.ai-settings small { display: block; margin-top: 6px; }
+.ai-settings .ai-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 18px; cursor: pointer; }
+.ai-settings .ai-check input { flex-shrink: 0; margin-top: 3px; width: 18px; height: 18px; }
+.ai-settings .ai-check small { margin-top: 4px; }
+.ai-settings .ai-key-row { display: flex; gap: 8px; }
+.ai-settings .ai-key-row input { min-width: 0; }
+.ai-settings .ai-key-row button { flex-shrink: 0; }
+.ai-settings .ai-timeout { max-width: 280px; }
+.ai-settings .ai-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; border-top: 1px solid #dce4ef; padding-top: 20px; }
+.ai-settings .ai-actions #aiSave { margin-left: auto; }
+.ai-settings .ai-settings-help li + li { margin-top: 12px; }
+.ai-settings .ai-settings-help code { overflow-wrap: anywhere; }
+.ai-settings [hidden] { display: none !important; }
+.ai-settings button { cursor: pointer; }
+.ai-settings button:disabled { cursor: not-allowed; }
+.ai-settings :focus-visible { outline: 2px solid #8499e8; outline-offset: 2px; }
+html[data-theme="dark"] .ai-settings .ai-actions { border-color: #3b4c66; }
+html[data-theme="dark"] .ai-settings .btn-outline-primary { color: #c4d1ff; border-color: #7d97f0; }
+html[data-theme="dark"] .ai-settings .btn-outline-secondary { color: #d0d9e8; border-color: #738198; }
+html[data-theme="dark"] .ai-settings .btn-outline-primary:hover { color: #fff; background: #435ebe; }
+@media(max-width: 900px) { .ai-settings-layout { grid-template-columns: minmax(0, 1fr); } }
+@media(max-width: 575px) { .ai-settings .ai-actions > button { width: 100%; } .ai-settings .ai-key-row { flex-wrap: wrap; } .ai-settings .ai-key-row input { flex: 1; min-width: 140px; } }

@@ -41,7 +41,7 @@ public class ProductController {
 	
 	@GetMapping("/product")
 	public String index(Model model) {
-		String menuList = menuService.getMenuList(6,2);
+		String menuList = menuService.getMenuList(6,null);
 	    model.addAttribute("mainMenus", menuList);
 	    
 		List<ProductBean> productList = productRepository.getDataAll();
@@ -50,10 +50,8 @@ public class ProductController {
 		for (ProductBean p : productList) {
 			row_id +=1;
 			strProduct.append("<tr>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-warning' onclick='edit_data(" + p.getID_product() + ")'><i data-feather='edit'></i></a></div></td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-dark' onclick='modal_cover(" + p.getID_product() + ")'><i data-feather='image'></i></a></div></td>");
-			strProduct.append("<td><div class='buttons'><a class='btn icon btn-primary' onclick='modal_version(" + p.getID_product() + ")'><i data-feather='list'></i></a></div></td>");
+			strProduct.append("<td class='setup-action-col'><button type='button' class='btn btn-warning' onclick='edit_data(" + p.getID_product() + ")' aria-label='ตั้งค่าสินค้า' title='ตั้งค่าสินค้า'><i class='bi bi-gear-fill' aria-hidden='true'></i></button></td>");
+			strProduct.append("<td class='product-delete-action'><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
 			strProduct.append("<td class='product-image-cell'><img src='" + p.getp_pic() + "' class='table-img product-table-img' tabindex='0'></td>");
 			strProduct.append("<td>" + p.getp_name() + "</td>");

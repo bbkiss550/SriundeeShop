@@ -5,6 +5,13 @@
 <script th:src="@{/script/product/product.js}"></script>
 <script th:src="@{/script/product/version.js}"></script>
 <script th:src="@{/script/product/cover.js}"></script>
+<script th:src="@{/script/product/pricing-view.js?v=ocr-price7}"></script>
+<script th:src="@{/script/product/pricing-accordion.js?v=ocr-price7}"></script>
+<script th:src="@{/script/product/setup.js?v=save-alert1}"></script>
+<script th:src="@{/script/product/setup-steps.js?v=text-source1}"></script>
+<script th:src="@{/script/product/image-crop.js}"></script>
+<script th:src="@{/script/product/image-import.js?v=result-table1}"></script>
+<link rel="stylesheet" th:href="@{/css/product-setup.css?v=result-table1}">
 
 <style>
 	.product-table {
@@ -193,7 +200,7 @@
 								<div class="card">
 									<div class="card-header">
 										<div class="buttons">
-									        <a class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มข้อมูลใหม่</a>
+									        <button type="button" class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มสินค้าและตั้งราคา</button>
 									    </div>
 										<hr>
 									</div>
@@ -201,10 +208,8 @@
 			                            <table class="table table-striped product-table" id="table1">
 			                                <thead>
 			                                    <tr>
-													<th class="fix_width">แก้ไข</th>
+													<th class="setup-action-col">ตั้งค่า</th>
 													<th class="fix_width">ลบ</th>
-													<th class="fix_width">ปก</th>
-													<th class="fix_width">เวอร์ชั่น</th>
 													<th class="fix_width">#</th>
 													<th class="product-image-col">ภาพ</th>
 			                                        <th class="auto_width">ชื่อ</th>

@@ -10,6 +10,9 @@ import com.sriundee.preorder.entity.Website;
 
 @Repository
 public interface WebsiteRepository extends JpaRepository<Website, Integer> {
+
+    @Query(value = "SELECT pg_try_advisory_xact_lock(hashtext('sriundee-website-create'))", nativeQuery = true)
+    Boolean lockWebsiteCreation();
 	
     @Query(value = "SELECT * FROM t_website WHERE w_delete = 'A' ORDER BY ID_web ASC", nativeQuery = true)
     List<Website> getDataAll();

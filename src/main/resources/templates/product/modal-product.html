@@ -1,99 +1,204 @@
-<div class="modal fade text-left" id="modalManageData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel18" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+<div class="modal fade product-setup" id="modalManageData" tabindex="-1" aria-labelledby="productSetupTitle" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel18">จัดการข้อมูล</h4>
+                <div>
+                    <h4 class="modal-title" id="productSetupTitle">เพิ่มสินค้า</h4>
+                    <p class="setup-subtitle">ตั้งค่าข้อมูล เวอร์ชัน และราคาทุกเว็บ แล้วบันทึกพร้อมกันครั้งเดียว</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิดหน้าตั้งค่าสินค้า"></button>
             </div>
-			<div class="modal-body">
-				<div class="row">
-	                <div class="col-md-12 form-group">
-						<div class="input-group">
-				            <span class="input-group-text product-field-label">ชื่อสินค้า</span>
-	                    	<input type="text" placeholder="..." class="form-control" id="pName">
-	                    	<input type="hidden" id="IdProduct">
-	                    </div>
-	                </div>
-				</div>
-			    <div class="row">
-			        <div class="col-md-5">
-			            <div class="row">
-			                <div class="col-md-12 form-group">
-								<div class="input-group">
-						            <span class="input-group-text product-field-label">ประเภท</span>
-			                    	<select class="form-select" th:utext="${ListType}" id="IdType"></select>
-			                    </div>
-			                </div>
-			            </div>
-			            <div class="row">
-			                <div class="col-md-12 form-group">
-								<div class="input-group">
-						            <span class="input-group-text product-field-label">ศิลปิน</span>
-			                    	<select class="form-select" th:utext="${ListArtist}" id="IdArtist"></select>
-			                	</div>
-			                </div>
-			            </div>
-			            <div class="row">
-		                	<div class="col-md-12 form-group">
-		                		<div class="input-group">
-						            <span class="input-group-text product-field-label">วันที่ปิดรับ</span>
-			                    	<input type="date" class="form-control" id="end_date">
-			                    	<span class="input-group-text product-unscheduled-check">
-			                    		<input class="form-check-input mt-0" type="checkbox" id="end_date_unscheduled" onchange="toggleProductScheduleDate('end_date', 'end_date_unscheduled')">
-			                    		<label class="form-check-label" for="end_date_unscheduled">ไม่มีกำหนด</label>
-			                    	</span>
-			                    </div>
-			                </div>
-			            </div>
-			            <div class="row">
-			                <div class="col-md-12 form-group">
-						        <div class="input-group">
-						        	<span class="input-group-text product-field-label">วันที่กำหนดส่ง</span>
-			                    	<input type="date" class="form-control" id="send_date">
-			                    	<span class="input-group-text product-unscheduled-check">
-			                    		<input class="form-check-input mt-0" type="checkbox" id="send_date_unscheduled" onchange="toggleProductScheduleDate('send_date', 'send_date_unscheduled')">
-			                    		<label class="form-check-label" for="send_date_unscheduled">ไม่มีกำหนด</label>
-			                    	</span>
-			                    </div>
-			                </div>
-			            </div>
-			            <div class="row">
-			                <div class="col-md-12 form-group">
-								<div class="input-group">
-						            <span class="input-group-text product-field-label">สถานะ</span>
-			                    	<select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus"></select>
-			                    </div>
-			                </div>
-			            </div>
-			        </div>
-			        <div class="col-md-7">
-			            <div class="row">
-			                <div class="col-md-12 form-group">
-			                    <div class="input-group">
-			                        <input type="text" class="form-control" placeholder="ลิ้งภาพ . . ." id="pPic" oninput="updateImagePreview()">
-			                    </div>
-			                </div>
-			            </div>
-			            <div class="row">
-				            <label class="mb-2  text-center">ตัวอย่างรูปภาพ</label>
-				            <div class="product-image-box">
-				                <img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" class="img-fluid" id="showImage">
-				            </div>
-			            </div>
-			        </div>
-			    </div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-warning ml-1" onclick="save_edit_data()" id="btn_edit" style="display: none;">
-				    <i class="bx bx-check d-block d-sm-none"></i>
-				    <span class="d-none d-sm-block">แก้ไข</span>
-				</button>
-				<button type="button" class="btn btn-success ml-1" onclick="save_new_data()" id="btn_save">
-				    <i class="bx bx-check d-block d-sm-none"></i>
-				    <span class="d-none d-sm-block">บันทึก</span>
-				</button>
-		        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-		            <i class="bx bx-x d-block d-sm-none"></i><span class="d-none d-sm-block">ปิด</span>
-		        </button>
+            <div class="modal-body">
+                <div class="setup-step-tabs" role="tablist" aria-label="ขั้นตอนตั้งค่าสินค้า">
+                    <button type="button" role="tab" id="setupStepTab0" aria-controls="setupStepPanel0" data-setup-step="0">1 ภาพ / ข้อความ</button>
+                    <button type="button" role="tab" id="setupStepTab1" aria-controls="setupStepPanel1" data-setup-step="1">2 ข้อมูลสินค้า</button>
+                    <button type="button" role="tab" id="setupStepTab2" aria-controls="setupStepPanel2" data-setup-step="2">3 เว็บ / เวอ / ปก / ราคา</button>
+                </div>
+                <div id="productSetupLoading" class="setup-loading" role="status" hidden>กำลังโหลดข้อมูลสินค้า…</div>
+                <div id="productSetupError" class="alert alert-danger" role="alert" tabindex="-1" hidden></div>
+                <form id="productSetupForm" novalidate>
+                    <fieldset id="productSetupFields">
+                        <section class="setup-image-import" id="setupStepPanel0" role="tabpanel" aria-labelledby="setupStepTab0">
+                            <h5 id="setupImageImportTitle">เริ่มจากภาพหรือข้อความประกาศเปิดรับ</h5>
+                            <div class="setup-import-sources" role="group" aria-label="เลือกแหล่งข้อมูล">
+                                <button type="button" class="btn btn-primary" data-import-source="image" aria-pressed="true" data-ocr-control>อ่านจากภาพ</button>
+                                <button type="button" class="btn btn-outline-primary" data-import-source="text" aria-pressed="false" data-ocr-control>วางข้อความ</button>
+                            </div>
+                            <div id="setupImageSource">
+                            <div class="setup-upload-row">
+                                <div class="setup-field"><label for="setupImageFile">ภาพที่ต้องการอ่าน (PNG / JPEG ไม่เกิน 8 MB)</label>
+                                    <input class="form-control" type="file" accept="image/png,image/jpeg" id="setupImageFile" data-ocr-control></div>
+                                <button type="button" class="btn btn-primary" id="setupReadImage" disabled>อ่านภาพนี้</button>
+                            </div>
+                            <div id="setupImagePaste" class="setup-image-paste" tabindex="0" role="group" aria-label="วางภาพจากคลิปบอร์ด">คลิกที่นี่แล้วกด Ctrl+V เพื่อวางภาพจาก clipboard</div>
+                            <div id="setupImageCrop" class="setup-crop" hidden>
+                                <p id="setupCropHelp" class="visually-hidden">ลากบนภาพเพื่อเลือกส่วนที่ต้องการอ่าน ลากในกรอบเพื่อย้าย</p>
+                                <div class="setup-crop-stage"><canvas id="setupCropCanvas" tabindex="0" role="img" aria-label="เลือกกรอบครอปภาพ ใช้ลูกศรเพื่อย้ายกรอบ กด Shift พร้อมลูกศรเพื่อปรับขนาด" aria-describedby="setupCropHelp"></canvas></div>
+                                <div class="setup-crop-toolbar" hidden>
+                                    <button type="button" class="btn btn-light" data-crop-action="new">เลือกกรอบใหม่</button>
+                                    <button type="button" class="btn btn-light" data-crop-action="full">ใช้ทั้งภาพ</button>
+                                </div>
+                                <div class="setup-crop-fields" hidden>
+                                    <div class="setup-field"><label for="setupCropX">ซ้าย (px)</label><input id="setupCropX" type="number" min="0" step="1" class="form-control" data-crop-field="x" data-ocr-control></div>
+                                    <div class="setup-field"><label for="setupCropY">บน (px)</label><input id="setupCropY" type="number" min="0" step="1" class="form-control" data-crop-field="y" data-ocr-control></div>
+                                    <div class="setup-field"><label for="setupCropWidth">กว้าง (px)</label><input id="setupCropWidth" type="number" min="20" step="1" class="form-control" data-crop-field="width" data-ocr-control></div>
+                                    <div class="setup-field"><label for="setupCropHeight">สูง (px)</label><input id="setupCropHeight" type="number" min="20" step="1" class="form-control" data-crop-field="height" data-ocr-control></div>
+                                </div>
+                                <div class="setup-crop-output">
+                                    <p id="setupCropSize" class="setup-hint" hidden></p>
+                                    <p class="setup-hint">ภาพส่วนที่จะส่งให้อ่าน</p>
+                                    <canvas id="setupCropPreview" role="img" aria-label="ภาพเฉพาะส่วนที่เลือกสำหรับ OCR"></canvas>
+                                </div>
+                            </div>
+                            </div>
+                            <div id="setupTextSource" hidden>
+                                <label for="setupTextInput" class="form-label">ข้อความประกาศเปิดรับ</label>
+                                <p id="setupTextHelp" class="setup-hint">วางข้อความที่คัดลอกมา แล้วจัดกลุ่มเว็บ เวอร์ชัน ปก และราคา โดยไม่ต้องอัปโหลดภาพ เช่น เว็บ → เวอร์ชัน → บั้มละ 550 (มัดจำ 300) → SET(3) 1,590 (มัดจำ 900)</p>
+                                <textarea id="setupTextInput" class="form-control" rows="10" maxlength="30000" aria-describedby="setupTextHelp" data-ocr-control placeholder="วางข้อความที่นี่…"></textarea>
+                                <button type="button" id="setupReadText" class="btn btn-primary" data-ocr-control>จัดกลุ่มข้อความ</button>
+                            </div>
+                            <div id="setupImageProgress" class="setup-image-progress" hidden>
+                                <div class="setup-progress-heading" aria-live="polite"><span id="setupImageProgressStage">กำลังเตรียมข้อมูล</span><strong id="setupImagePercent">0%</strong></div>
+                                <progress id="setupImageProgressBar" max="100" value="0" aria-label="ความคืบหน้าการจัดกลุ่มข้อมูล"></progress>
+                            </div>
+                            <p id="setupImageStatus" role="status" class="setup-hint" aria-live="polite"></p>
+                            <div id="setupImageError" class="alert alert-danger" role="alert" hidden></div>
+                            <div id="setupImageResult" hidden>
+                                <p id="setupImageReadMethod" class="setup-hint" role="status" hidden></p>
+                                <p id="setupImageSummary"></p>
+                                <ul id="setupImageWarnings" class="setup-image-warnings"></ul>
+                                <div id="setupUnknownWebsites" class="setup-unknown-sites" hidden></div>
+                                <div id="setupResultTableWrap" class="setup-result-scroll" tabindex="0" role="region" aria-label="ตารางผลการจัดกลุ่มก่อนเติมลงฟอร์ม" hidden>
+                                    <table class="setup-result-table">
+                                        <caption>ตรวจผลก่อนเติมลงฟอร์ม</caption>
+                                        <thead><tr><th scope="col">เว็บ</th><th scope="col">เวอร์ชัน</th><th scope="col">ปก</th><th scope="col">ราคาเต็ม (บาท)</th><th scope="col">มัดจำ (บาท)</th><th scope="col">คงเหลือ (บาท)</th></tr></thead>
+                                        <tbody id="setupResultRows"></tbody>
+                                    </table>
+                                </div>
+                                <p class="setup-hint">รายการที่ไม่ได้ระบุมัดจำใช้ 0 บาท · ตรวจแก้ข้อความและจัดกลุ่มใหม่ได้ก่อนเติมลงฟอร์ม</p>
+                                <details class="setup-ocr-text"><summary>ตรวจ / แก้ไขข้อความที่อ่านได้</summary>
+                                    <label for="setupOcrText" class="setup-hint">แก้ข้อความที่อ่านผิดได้ โดยเรียงเว็บ → เวอร์ชัน → ราคา เช่น กล่องละ 1,350 (มัดจำ 700)</label>
+                                    <textarea class="form-control" id="setupOcrText" rows="8" maxlength="30000" data-ocr-control></textarea>
+                                    <button type="button" class="btn btn-light" id="setupParseText">จัดกลุ่มจากข้อความนี้อีกครั้ง</button>
+                                </details>
+                                <button type="button" class="btn btn-primary" id="setupApplyImage">เติมข้อมูลลงฟอร์ม</button>
+                                <p class="setup-hint">เพิ่มข้อมูลต่อจากที่กรอกไว้ รายการที่มีอยู่แล้วจะไม่ถูกเขียนทับ และยังไม่บันทึกจนกว่าคุณจะกดบันทึกสินค้าทั้งหมด</p>
+                            </div>
+                        </section>
+                        <section class="setup-section" id="setupStepPanel1" role="tabpanel" aria-labelledby="setupStepTab1" hidden>
+                            <div class="setup-section-heading">
+                                <span class="setup-step" aria-hidden="true">2</span>
+                                <div><h5 id="setupInfoTitle">ข้อมูลสินค้า</h5><p>กรอกครั้งเดียว ใช้ร่วมกันทุกเวอร์ชัน</p></div>
+                            </div>
+                            <input type="hidden" id="IdProduct">
+                            <div class="setup-info-grid">
+                                <div class="setup-field setup-name">
+                                    <label for="pName">ชื่อสินค้า <span class="setup-required">*</span></label>
+                                    <input type="text" class="form-control" id="pName" maxlength="255" autocomplete="off" data-field="product.name" placeholder="เช่น ALD1 Garage Season’s Greetings">
+                                </div>
+                                <div class="setup-field setup-field-add">
+                                    <label for="IdType">ประเภท <span class="setup-required">*</span></label>
+                                    <select class="form-select" th:utext="${ListType}" id="IdType" data-field="product.type"></select>
+                                    <button type="button" class="btn btn-success setup-inline-add" id="setupTypeAdd" aria-label="เพิ่มประเภท">＋</button>
+                                </div>
+                                <div class="setup-field setup-field-add">
+                                    <label id="setupArtistLabel" for="setupArtistChoice">ศิลปิน <span class="setup-required">*</span></label>
+                                    <select class="form-select" th:utext="${ListArtist}" id="IdArtist" data-field="product.artist" hidden></select>
+                                    <details id="setupArtistPicker" class="setup-search-dropdown">
+                                        <summary class="form-select" id="setupArtistChoice" aria-labelledby="setupArtistLabel setupArtistChoice">เลือกศิลปิน</summary>
+                                        <div class="setup-dropdown-panel">
+                                            <input type="search" id="setupArtistSearch" class="form-control" data-picker-search placeholder="พิมพ์ค้นหาศิลปิน…" aria-label="ค้นหาศิลปิน" autocomplete="off">
+                                            <div class="setup-dropdown-options" id="setupArtistOptions"></div>
+                                            <p class="setup-hint setup-search-empty" hidden>ไม่พบศิลปินที่ค้นหา</p>
+                                            <button type="button" class="btn btn-success setup-artist-add" id="setupArtistAdd">＋ เพิ่มศิลปิน</button>
+                                        </div>
+                                    </details>
+                                    <button type="button" class="btn btn-success setup-inline-add" id="setupArtistAddOutside" aria-label="เพิ่มศิลปิน">＋</button>
+                                </div>
+                                <div class="setup-field">
+                                    <label for="end_date">วันที่ปิดรับ</label>
+                                    <input type="date" class="form-control" id="end_date" data-native-date="true" data-field="product.end_date">
+                                    <label class="setup-check"><input type="checkbox" id="end_date_unscheduled" onchange="toggleProductScheduleDate('end_date', 'end_date_unscheduled')"> ไม่มีกำหนด</label>
+                                </div>
+                                <div class="setup-field">
+                                    <label for="send_date">วันที่กำหนดส่ง</label>
+                                    <input type="date" class="form-control" id="send_date" data-native-date="true" data-field="product.send_date">
+                                    <label class="setup-check"><input type="checkbox" id="send_date_unscheduled" onchange="toggleProductScheduleDate('send_date', 'send_date_unscheduled')"> ไม่มีกำหนด</label>
+                                </div>
+                                <div class="setup-field">
+                                    <label for="IdProductStatus">สถานะ <span class="setup-required">*</span></label>
+                                    <select class="form-select" th:utext="${ListProductstatus}" id="IdProductStatus" data-field="product.product_status"></select>
+                                </div>
+                                <div class="setup-field">
+                                    <label for="pPic">ลิงก์รูปสินค้า</label>
+                                    <input type="url" class="form-control" id="pPic" placeholder="https://…" oninput="updateImagePreview()">
+                                </div>
+                                <div class="setup-image"><img th:src="@{/mazer/dist/assets/images/samples/no-photo.png}" id="showImage" alt="ตัวอย่างภาพสินค้า"></div>
+                            </div>
+                        </section>
+                        <section class="setup-section" id="setupStepPanel2" role="tabpanel" aria-labelledby="setupStepTab2" hidden>
+                            <div class="setup-section-heading">
+                                <span class="setup-step" aria-hidden="true">3</span>
+                                <div><h5 id="setupVariantsTitle">รายการขาย <span id="setupReviewCount"></span></h5><p>กลุ่มเว็บ → เวอร์ชัน → ปก · ราคากำหนดตามปกและใช้ร่วมกันทุกเว็บในกลุ่ม</p></div>
+                            </div>
+                            <div id="setupWebsiteNotice" class="alert alert-success" role="status" hidden></div>
+                            <div id="setupVersions" data-field="versions"></div>
+                            <p class="setup-hint">เลือกเวอเดิมหรือพิมพ์ชื่อใหม่ได้ หากไม่มีเวอใช้ Standard และไม่มีปกใช้ ทั่วไป</p>
+                        </section>
+                    </fieldset>
+                </form>
+                <dialog id="setupTypeDialog" class="setup-website-dialog" aria-labelledby="setupTypeTitle">
+                    <form id="setupTypeForm" novalidate>
+                        <h5 id="setupTypeTitle">เพิ่มประเภทสินค้า</h5>
+                        <p class="setup-hint">บันทึกประเภทใหม่และเลือกให้ในฟอร์มนี้</p>
+                        <fieldset id="setupTypeFields">
+                            <div class="setup-field"><label for="setupTypeName">ชื่อประเภท *</label><input id="setupTypeName" class="form-control" maxlength="255" autocomplete="off" required></div>
+                            <p id="setupTypeError" class="setup-field-error" role="alert" hidden></p>
+                            <div class="setup-website-buttons">
+                                <button type="button" class="btn btn-light" id="setupTypeCancel">ยกเลิก</button>
+                                <button type="button" class="btn btn-success" id="setupTypeSave">บันทึกและเลือกประเภท</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </dialog>
+                <dialog id="setupArtistDialog" class="setup-website-dialog" aria-labelledby="setupArtistTitle">
+                    <form id="setupArtistForm" novalidate>
+                        <h5 id="setupArtistTitle">เพิ่มศิลปิน</h5>
+                        <p class="setup-hint">บันทึกศิลปินลงรายการทันทีและเลือกให้ในฟอร์มนี้</p>
+                        <fieldset id="setupArtistFields">
+                            <div class="setup-field"><label for="setupArtistName">ชื่อศิลปิน *</label><input id="setupArtistName" class="form-control" maxlength="255" autocomplete="off" required></div>
+                            <div class="setup-field"><label for="setupArtistGroup">สังกัด *</label><select id="setupArtistGroup" class="form-select" required></select></div>
+                            <p id="setupArtistError" class="setup-field-error" role="alert" hidden></p>
+                            <div class="setup-website-buttons">
+                                <button type="button" class="btn btn-light" id="setupArtistCancel">ยกเลิก</button>
+                                <button type="button" class="btn btn-primary" id="setupArtistSave">บันทึกและเลือกศิลปิน</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </dialog>
+                <dialog id="setupWebsiteDialog" class="setup-website-dialog" aria-labelledby="setupWebsiteTitle">
+                    <form id="setupWebsiteForm" novalidate>
+                        <h5 id="setupWebsiteTitle">เพิ่มเว็บจากหน้านี้</h5>
+                        <p class="setup-hint">เพิ่มเว็บลงรายการเว็บทันที แล้วใช้ต่อในฟอร์มนี้ได้ ข้อมูลสินค้ายังไม่ถูกบันทึก</p>
+                        <fieldset id="setupWebsiteFields">
+                            <div class="setup-field"><label for="setupWebsiteName">ชื่อเว็บ <span class="setup-required">*</span></label>
+                                <input id="setupWebsiteName" class="form-control" type="text" maxlength="255" autocomplete="off" required></div>
+                            <p id="setupWebsiteError" class="setup-field-error" role="alert" hidden></p>
+                            <div class="setup-website-buttons">
+                                <button type="button" class="btn btn-light" id="setupWebsiteCancel">ยกเลิก</button>
+                                <button type="button" class="btn btn-primary" id="setupWebsiteSave">บันทึกและใช้เว็บนี้</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </dialog>
+            </div>
+            <div class="modal-footer setup-footer">
+                <div id="setupSaveSummary" class="setup-save-summary" aria-live="polite"></div>
+                <button type="button" class="btn btn-light" id="setupStepPrevious">ย้อนกลับ</button>
+                <button type="button" class="btn btn-primary" id="setupStepNext">ถัดไป</button>
+                <button type="button" class="btn btn-danger" id="setupStopImage" hidden>หยุดอ่านภาพ</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-success" onclick="save_new_data()" id="setupSaveButton">บันทึกสินค้าทั้งหมด</button>
             </div>
         </div>
     </div>

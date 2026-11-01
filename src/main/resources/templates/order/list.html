@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/header :: header_head"></head>
+<link rel="stylesheet" th:href="@{/css/order-import.css?v=3}">
 
 <style>
 	.order-list-row:hover > td {
@@ -268,6 +269,9 @@
 
             <div class="page-heading">
                 <h3>รายการสั่งซื้อ</h3>
+                <button type="button" class="btn btn-success" id="openOrderImport" data-bs-toggle="modal" data-bs-target="#orderImportModal">
+                    <i class="bi bi-file-earmark-excel" aria-hidden="true"></i> นำเข้าคำสั่งซื้อจาก Excel
+                </button>
             </div>
 
 			<div class="page-content">
@@ -347,6 +351,63 @@
                 </section>
 			</div>
 
+            <div class="modal fade" id="orderImportModal" tabindex="-1" aria-labelledby="orderImportTitle" aria-describedby="orderImportDescription" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div>
+                                <h5 class="modal-title" id="orderImportTitle">นำเข้าคำสั่งซื้อจาก Excel</h5>
+                                <p id="orderImportDescription" class="text-muted mb-0 mt-2">ย้ายคำสั่งซื้อเดิมจาก Excel เข้าสู่ระบบ</p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิดหน้าต่างนำเข้า"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="order-import-rules">
+                                <strong>ก่อนนำเข้า</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>ต้องมีสินค้า เว็บ เวอร์ชัน และปกตรงกับข้อมูลในระบบก่อน</li>
+                                    <li>ตรวจทุกแถวให้ครบ หากมีข้อผิดพลาดจะปฏิเสธทั้งไฟล์</li>
+                                    <li>รายงานข้อผิดพลาดจะแสดงชีต เลขแถว Excel และทุกปัญหาที่พบ</li>
+                                    <li>ราคาเต็มรวมเป็นยอดของทั้งแถว หากมียอดชำระแล้วต้องระบุวันที่ชำระ</li>
+                                </ul>
+                            </div>
+                            <div class="order-import-upload">
+                                <div class="order-import-file-icon" aria-hidden="true"><svg width="40" height="44" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 1H4a2 2 0 0 0-2 2v22a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9Z"/><path d="M14 1v8h8M7 13l10 10M17 13 7 23"/></svg></div>
+                                <p class="text-muted">ไฟล์ Excel (.xlsx) ขนาดไม่เกิน 8 MB</p>
+                                <p><a th:href="@{/orders/import/template}">ดาวน์โหลดรูปแบบ Excel สำหรับนำเข้า</a></p>
+                                <button type="button" class="btn btn-primary" id="orderImportChooseFile">
+                                    <i class="bi bi-upload" aria-hidden="true"></i> อัปโหลด Excel
+                                </button>
+                                <input type="file" id="orderImportFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden aria-label="ไฟล์คำสั่งซื้อ Excel">
+                            </div>
+                            <div id="orderImportError" class="alert alert-danger" role="alert" hidden></div>
+                            <div id="orderImportSelection" class="order-import-selection" role="status" aria-live="polite" hidden>
+                                <div><strong id="orderImportFilename"></strong><p class="text-muted mb-0" id="orderImportFilesize"></p></div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="orderImportRemoveFile" aria-label="นำไฟล์ที่เลือกออก">×</button>
+                            </div>
+                            <section id="orderImportMapping" class="mt-3" hidden aria-labelledby="orderImportMappingTitle">
+                                <h6 id="orderImportMappingTitle">ตรวจและแก้การจับคู่คอลัมน์</h6>
+                                <p id="orderImportMappingMessage" class="alert alert-info"></p>
+                                <ul id="orderImportMappingSuggestions"></ul>
+                                <div id="orderImportMappingSheets"></div>
+                                <p class="text-muted">การจับคู่เปลี่ยนเฉพาะความหมายของคอลัมน์ ไม่แก้ค่าจริงใน Excel จากนั้นระบบจะตรวจสินค้าและข้อมูลครบทุกแถวอีกครั้ง</p>
+                            </section>
+                            <div id="orderImportResult" class="mt-3" hidden aria-live="polite">
+                                <p id="orderImportSummary" class="fw-bold"></p>
+                                <div id="orderImportPreview" class="table-responsive order-import-report" hidden><table class="table table-striped"><thead><tr><th>ชีต / แถว</th><th>ลูกค้า</th><th>สินค้า / เว็บ / เวอ / ปก</th><th>จำนวน</th><th>ราคาเต็มรวม</th><th>ชำระแล้ว</th><th>คงเหลือ</th></tr></thead><tbody id="orderImportPreviewRows"></tbody></table></div>
+                                <div class="table-responsive order-import-report"><table class="table table-striped"><thead><tr><th>ชีต</th><th>แถว Excel</th><th>ข้อมูลต้นฉบับ</th><th>ปัญหาที่พบ</th></tr></thead><tbody id="orderImportIssues"></tbody></table></div>
+                            </div>
+                            <p class="text-muted mt-3 mb-0">การเลือกไฟล์ยังไม่บันทึกคำสั่งซื้อ ต้องตรวจข้อมูลและยืนยันนำเข้าก่อน</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" id="orderImportDownload" hidden>ดาวน์โหลดรายงานข้อผิดพลาด</button>
+                            <button type="button" class="btn btn-primary" id="orderImportValidate" disabled>อ่านและตรวจสอบข้อมูล</button>
+                            <button type="button" class="btn btn-success" id="orderImportConfirm" hidden>ยืนยันนำเข้าทั้งไฟล์</button>
+                            <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">ปิด</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 			<div class="modal fade text-left" id="orderEditModal" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
 					<div class="modal-content">
@@ -512,5 +573,6 @@
     </div>
 	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 	<script th:src="@{/script/order/list.js}"></script>
+    <script th:src="@{/script/order/import.js?v=3}"></script>
 </body>
 </html>

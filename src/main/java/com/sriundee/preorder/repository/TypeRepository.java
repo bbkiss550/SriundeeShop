@@ -10,6 +10,9 @@ import com.sriundee.preorder.entity.Type;
 
 @Repository
 public interface TypeRepository extends JpaRepository<Type, Integer> {
+
+    @Query(value = "SELECT pg_try_advisory_xact_lock(731204, 3)", nativeQuery = true)
+    Boolean lockTypeCreation();
 	
     @Query(value = "SELECT * FROM t_type WHERE t_delete = 'A' ORDER BY ID_type ASC", nativeQuery = true)
     List<Type> getDataAll();

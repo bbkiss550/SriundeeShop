@@ -31,6 +31,7 @@
     }
 
     function isSaveAction(element) {
+        if (!element || !element.matches("button, input[type='button'], input[type='submit'], a.btn")) return false;
         const text = actionText(element);
         return actionPatterns.some(pattern => text.includes(pattern.toLowerCase()));
     }

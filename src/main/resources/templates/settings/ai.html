@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: header_head"></head>
+<link rel="stylesheet" th:href="@{/css/ai-settings.css?v=1}">
+<body>
+<div id="app">
+    <div th:replace="common/menu :: menu"></div>
+    <div id="main">
+        <header th:replace="common/header :: header_nav"></header>
+        <main class="ai-settings">
+            <div class="page-heading"><h3>ตั้งค่า AI API</h3><p class="text-muted">ตั้งค่าการเชื่อมต่อ AI สำหรับบัญชีนี้</p></div>
+            <div class="ai-settings-layout">
+                <section class="card"><div class="card-body">
+                    <h5>การเชื่อมต่อ</h5>
+                    <div id="aiSettingsStatus" class="alert mt-3" role="status" aria-live="polite" hidden></div>
+                    <form id="aiSettingsForm" autocomplete="off">
+                        <fieldset id="aiSettingsFields" disabled>
+                            <label class="ai-check"><input id="aiEnabled" class="form-check-input" type="checkbox"><span>เปิดใช้ AI สำหรับอ่านภาพและช่วยจับคู่คอลัมน์ Excel<small class="text-muted d-block">ใช้บริการและโมเดลที่เลือกหลังทดสอบการเชื่อมต่อสำเร็จ หาก AI ไม่พร้อมจะใช้ระบบเดิม</small></span></label>
+                            <div class="ai-field"><label for="aiProvider">บริการ AI</label><select id="aiProvider" class="form-select"><option value="OLLAMA">Ollama</option><option value="LM_STUDIO">LM Studio</option><option value="GEMINI">Google Gemini</option><option value="COMPATIBLE">API ที่รองรับ OpenAI-compatible</option></select></div>
+                            <p id="aiGeminiHint" class="alert alert-info mt-3" hidden>Gemini เชื่อมต่อ API ของ Google กรุณาเปิดอนุญาตปลายทางนอกเครื่อง และกรอก API key จาก <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a></p>
+                            <div class="ai-field"><label for="aiBaseUrl">Base URL <span class="text-danger">*</span></label><input id="aiBaseUrl" class="form-control" type="url" maxlength="512" required spellcheck="false" placeholder="http://localhost:11434" aria-describedby="aiBaseUrlHint"><small id="aiBaseUrlHint" class="text-muted">ระบุ URL ที่เครื่องรันระบบร้านเข้าถึงได้ โดย localhost หมายถึงเครื่องรันระบบร้าน</small></div>
+                            <label class="ai-check"><input id="aiAllowRemote" class="form-check-input" type="checkbox"><span>อนุญาต API ปลายทางนอกเครื่อง<small class="text-muted d-block">เปิดเมื่อต้องการเชื่อมต่อเครื่องอื่นหรือบริการภายนอก</small></span></label>
+                            <div class="ai-field"><label for="aiModel">ชื่อโมเดล <span class="text-danger">*</span></label><input id="aiModel" class="form-control" list="aiModels" maxlength="128" required spellcheck="false" placeholder="ทดสอบการเชื่อมต่อเพื่อเลือกโมเดล"><datalist id="aiModels"></datalist><small id="aiModelHint" class="text-muted">ใช้ชื่อโมเดลตามที่บริการปลายทางระบุ</small></div>
+                            <div class="ai-field"><label for="aiKey">API key</label><div class="ai-key-row"><input id="aiKey" class="form-control" type="password" autocomplete="new-password" maxlength="2048" spellcheck="false" aria-describedby="aiKeyHint"><button id="aiShowKey" type="button" class="btn btn-outline-secondary" aria-pressed="false">แสดง</button></div><small id="aiKeyHint" class="text-muted">ไม่จำเป็นสำหรับบริการในเครื่องที่ไม่ได้เปิดการยืนยันตัวตน</small></div>
+                            <label id="aiRemoveKeyRow" class="ai-check" hidden><input id="aiRemoveKey" class="form-check-input" type="checkbox"><span>ลบ API key ที่บันทึกไว้เมื่อกดบันทึก</span></label>
+                            <div class="ai-field ai-timeout"><label for="aiTimeout">เวลารอการเชื่อมต่อ (วินาที)</label><input id="aiTimeout" type="number" class="form-control" min="3" max="60" value="15" required></div>
+                            <div class="ai-actions"><button id="aiTest" type="button" class="btn btn-outline-primary">ทดสอบและโหลดรายชื่อโมเดล</button><button id="aiReload" type="button" class="btn btn-light-secondary">โหลดค่าล่าสุด</button><button id="aiSave" type="button" class="btn btn-primary">บันทึกการตั้งค่า</button></div>
+                        </fieldset>
+                    </form>
+                    <button type="button" id="aiRetry" class="btn btn-outline-primary" hidden>ลองโหลดการตั้งค่าอีกครั้ง</button>
+                </div></section>
+                <aside class="card ai-settings-help"><div class="card-body">
+                    <h5>เริ่มใช้งาน</h5>
+                    <ol><li>เปิด AI Server และเตรียมโมเดลที่ต้องการ</li><li>เลือกบริการและระบุ Base URL</li><li>ทดสอบการเชื่อมต่อ แล้วเลือกชื่อโมเดล</li><li>กดบันทึกการตั้งค่า</li></ol>
+                    <hr><strong>ค่าตั้งต้นในเครื่อง</strong><p class="mt-2 mb-1">Ollama</p><code>http://localhost:11434</code><p class="mt-3 mb-1">LM Studio</p><code>http://localhost:1234/v1</code>
+                    <hr><p class="text-muted">การทดสอบเรียกดูรายชื่อโมเดลเท่านั้น ไม่ส่งภาพหรือข้อมูลคำสั่งซื้อ</p>
+                    <p>Gemini: กรอก API key แล้วโหลดรายชื่อโมเดลที่บัญชีใช้งานได้</p>
+                    <p class="text-muted mb-0">เมื่อเปิดใช้ AI รูปภาพที่ครอปจะถูกส่งไปยังบริการที่เลือก ส่วน Excel ส่งเฉพาะหัวคอลัมน์และตัวอย่างรูปแบบที่ปกปิดข้อมูลจริงแล้ว ระบบไม่เปลี่ยนโมเดลให้เอง</p>
+                </div></aside>
+            </div>
+        </main>
+        <footer th:replace="common/footer :: footer"></footer>
+    </div>
+</div>
+<script th:src="@{/script/settings/ai.js?v=3}"></script>
+</body>
+</html>

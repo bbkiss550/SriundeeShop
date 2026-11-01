@@ -1,0 +1,22 @@
+.page-heading:has(#openOrderImport) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.page-heading:has(#openOrderImport) h3 { margin-bottom: 0; }
+#orderImportModal { --import-soft: #f5f7fc; --import-line: #dce4ef; }
+#orderImportModal .modal-header { align-items: flex-start; gap: 16px; }
+#orderImportModal .modal-header .btn-close { flex-shrink: 0; }
+#orderImportModal .order-import-rules { padding: 16px 18px; border: 1px solid var(--import-line); border-radius: 8px; background: var(--import-soft); }
+#orderImportModal .order-import-rules li + li { margin-top: 7px; }
+#orderImportModal .order-import-upload { text-align: center; padding: 28px 16px; margin-top: 18px; border: 1px dashed var(--import-line); border-radius: 8px; }
+#orderImportModal .order-import-file-icon { display: flex; justify-content: center; height: 44px; color: #198754; margin-bottom: 16px; }
+#orderImportModal .order-import-selection { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid var(--import-line); border-radius: 8px; margin-top: 16px; }
+#orderImportModal .order-import-selection > div { min-width: 0; overflow-wrap: anywhere; }
+#orderImportModal [hidden] { display: none !important; }
+#orderImportModal .order-import-report { max-height: 320px; overflow: auto; }
+#orderImportModal .order-import-report th { position: sticky; top: 0; background: var(--import-soft); z-index: 1; white-space: nowrap; }
+#orderImportModal .order-import-report td { min-width: 80px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#orderImportModal .order-import-report td:nth-child(3) { min-width: 210px; }
+#orderImportModal #orderImportMappingMessage { background: var(--import-soft); color: inherit; border: 1px solid var(--import-line); }
+#orderImportModal #orderImportMappingMessage.alert-warning { border-color: #b88826; }
+#orderImportModal button, #openOrderImport { cursor: pointer; }
+html[data-theme="dark"] #orderImportModal { --import-soft: #202e44; --import-line: #3b4c66; }
+html[data-theme="dark"] #orderImportModal .order-import-file-icon { color: #57d49a; }
+@media (max-width: 575px) { #openOrderImport { width: 100%; } }
