@@ -34,3 +34,5 @@ build/
 .vscode/
 bin
 logs
+/spring-boot-8080.log
+/spring-boot-8080.err.log

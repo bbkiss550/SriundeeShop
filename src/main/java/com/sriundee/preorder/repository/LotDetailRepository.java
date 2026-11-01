@@ -50,6 +50,7 @@ public interface LotDetailRepository extends JpaRepository<LotDetail, Integer> {
             JOIN q_order_detail q ON q.ID_order_detail = ld.ID_order_detail
             LEFT JOIN t_order o ON o.ID_order = q.ID_order
             WHERE ld.ID_lot = :ID_lot
+              AND COALESCE(q.ID_order_status, 1) <> 0
             ORDER BY ld.ID_lot_detail ASC
             """, nativeQuery = true)
     List<LotDetailBean> getDataByLot(@Param("ID_lot") Integer IDLot);

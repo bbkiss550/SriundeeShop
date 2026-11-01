@@ -170,6 +170,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = od.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
                 """, start, end));
         return metrics;
     }
@@ -208,6 +209,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
                 GROUP BY q.ID_art, q.a_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -218,6 +220,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
                 GROUP BY q.ID_type, q.t_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -228,6 +231,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
                 GROUP BY q.ID_art, q.a_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -238,6 +242,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
                 GROUP BY q.ID_type, q.t_name
                 ORDER BY value DESC, label
                 """, start, end));
@@ -248,6 +253,7 @@ public class DashboardManageController {
                 JOIN t_order o ON o.ID_order = q.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
                 GROUP BY ID_order_status, os_name
                 ORDER BY value DESC, label
                 """, start, end));

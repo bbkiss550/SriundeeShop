@@ -65,6 +65,7 @@ public class IndexController {
 	    		JOIN t_order o ON o.ID_order = od.ID_order
 	    		WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
 	    		""", selectedStartDate, selectedEndDate));
 	    BigDecimal totalSales = getBigDecimal("""
 	    		SELECT COALESCE(SUM(o_net), 0)
@@ -209,6 +210,7 @@ public class IndexController {
 				JOIN t_order o ON o.ID_order = q.ID_order
 				WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(q.ID_order_status, 1) <> 0
 				GROUP BY %s, %s
 				ORDER BY value DESC, label
 				""".formatted(labelExpression, groupExpression, labelExpression), startDate, endDate);

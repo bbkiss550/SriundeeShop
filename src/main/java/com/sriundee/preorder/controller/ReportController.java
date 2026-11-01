@@ -119,6 +119,7 @@ public class ReportController {
                 JOIN t_order o ON o.ID_order = od.ID_order
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
                 """, start, end));
         model.addAttribute("productSales", displayMoney(sales));
         model.addAttribute("productRows", productRows(start, end));
@@ -532,7 +533,7 @@ public class ReportController {
                        o.o_price_pledge, o.o_price_balance,
                        COALESCE(STRING_AGG(DISTINCT os.os_name, ', '), '-') AS statuses
                 FROM q_order o
-                LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+                LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order AND COALESCE(od.ID_order_status, 1) <> 0
                 LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
                 WHERE o.ID_pay_method = 2
                   AND COALESCE(o.id_active_status, 'A') = 'A'
@@ -589,6 +590,7 @@ public class ReportController {
                 JOIN t_type ty ON ty.ID_type = p.ID_type
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
                 GROUP BY p.ID_product, p.p_name, a.a_name, ty.t_name
                 ORDER BY qty DESC, p.p_name
                 """, start, end), row -> map(
@@ -614,7 +616,7 @@ public class ReportController {
                        COALESCE(c.shipping_cost, 0) AS shipping_cost,
                        COALESCE(o.o_price_total, 0) - COALESCE(c.press_cost, 0) - COALESCE(c.shipping_cost, 0) AS profit
                 FROM t_order o
-                LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+                LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order AND COALESCE(od.ID_order_status, 1) <> 0
                 LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
                 LEFT JOIN (
                     SELECT ID_order,
@@ -636,6 +638,7 @@ public class ReportController {
                         JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
                         JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
                         WHERE qc.c_delete = 'A'
+                          AND COALESCE(qod.ID_order_status, 1) <> 0
                           AND qc.ID_type_cost IN (1, 2)
                     ) allocated
                     GROUP BY ID_order
@@ -685,6 +688,7 @@ public class ReportController {
                         JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
                         JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
                         WHERE qc.c_delete = 'A'
+                          AND COALESCE(qod.ID_order_status, 1) <> 0
                           AND qc.ID_type_cost IN (1, 2)
                     ) allocated
                     GROUP BY ID_order
@@ -744,12 +748,14 @@ public class ReportController {
                         JOIN q_cost qc ON qc.ID_cost = cd.ID_cost
                         JOIN q_order_detail qod ON qod.ID_order_detail = cd.ID_order_detail
                         WHERE qc.c_delete = 'A'
+                          AND COALESCE(qod.ID_order_status, 1) <> 0
                           AND qc.ID_type_cost IN (1, 2)
                     ) allocated
                     GROUP BY ID_order_detail
                 ) c ON c.ID_order_detail = qod.ID_order_detail
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(qod.ID_order_status, 1) <> 0
                 ORDER BY qod.ID_order, qod.ID_order_detail
                 """, start, end);
 
@@ -790,6 +796,7 @@ public class ReportController {
                 JOIN t_version v ON v.ID_ver = c.ID_ver
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
                 GROUP BY c.ID_cover, p.p_name, w.w_name, v.v_name, c.c_name
                 ORDER BY p.p_name, w.w_name, v.v_name, c.c_name
                 """, start, end), row -> map(
@@ -807,12 +814,12 @@ public class ReportController {
     private List<Map<String, Object>> lotRows(LocalDate start, LocalDate end) {
         return transform(jdbcTemplate.queryForList("""
                 SELECT l.l_lot_number, l.l_create_date, l.l_start_date, l.l_end_date, l.l_arrive_date,
-                       COUNT(DISTINCT ld.ID_lot_detail) AS detail_count,
+                       COUNT(DISTINCT od.ID_order_detail) AS detail_count,
                        COALESCE(SUM(od.od_qty), 0) AS qty,
                        COALESCE(SUM(od.od_price_total), 0) AS value
                 FROM t_lot l
                 LEFT JOIN t_lot_detail ld ON ld.ID_lot = l.ID_lot
-                LEFT JOIN t_order_detail od ON od.ID_order_detail = ld.ID_order_detail
+                LEFT JOIN t_order_detail od ON od.ID_order_detail = ld.ID_order_detail AND COALESCE(od.ID_order_status, 1) <> 0
                 WHERE l.l_delete = 'A'
                   AND CAST(l.l_create_date AS DATE) BETWEEN ? AND ?
                 GROUP BY l.ID_lot, l.l_lot_number, l.l_create_date, l.l_start_date, l.l_end_date, l.l_arrive_date
@@ -839,6 +846,7 @@ public class ReportController {
                 JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
                 WHERE o.o_order_date BETWEEN ? AND ?
                   AND COALESCE(o.id_active_status, 'A') = 'A'
+                  AND COALESCE(od.ID_order_status, 1) <> 0
                 GROUP BY os.ID_order_status, os.os_name, os.os_color
                 ORDER BY os.ID_order_status
                 """, start, end), row -> map(

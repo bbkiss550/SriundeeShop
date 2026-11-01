@@ -307,9 +307,10 @@ function delete_order(orderId, event) {
             return;
         }
         fetch("/orders/" + orderId + "/delete", { method: "POST" })
-            .then(response => {
+            .then(async response => {
                 if (!response.ok) {
-                    throw new Error("Delete failed");
+                    const message = await response.text();
+                    throw new Error(message || "Delete failed");
                 }
                 load_order_list_data();
                 Swal.fire({ title: "ยกเลิกคำสั่งซื้อสำเร็จ", icon: "success", confirmButtonText: "ตกลง" });

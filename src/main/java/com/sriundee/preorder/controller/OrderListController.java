@@ -150,8 +150,15 @@ public class OrderListController {
 		if (order == null) {
 			return ResponseEntity.notFound().build();
 		}
+		if (!"A".equalsIgnoreCase(order.getActive_status())) {
+			return ResponseEntity.badRequest().body("Order is already inactive");
+		}
+		if (!canCancelOrder(id)) {
+			return ResponseEntity.badRequest().body("Can cancel only orders where all items are waiting press");
+		}
 		order.setActive_status("C");
 		orderRepository.save(order);
+		orderDetailRepository.cancelByOrder(id);
 		incomeRepository.updateActiveStatusByOrderId(id, "C");
 		return ResponseEntity.ok("Success");
 	}
@@ -245,10 +252,7 @@ public class OrderListController {
 		StringBuilder rows = new StringBuilder();
 		for (OrderListBean order : orderList) {
 			rows.append("<tr class='order-list-row' onclick='open_order_detail(" + order.getID_order() + ")'>");
-			rows.append("<td class='order-action-col'>"
-					+ "<button type='button' class='btn icon btn-warning' onclick='edit_order(" + order.getID_order() + ", event)'><i data-feather='edit-2'></i></button>"
-					+ "<button type='button' class='btn icon btn-danger ms-1' onclick='delete_order(" + order.getID_order() + ", event)'><i data-feather='trash-2'></i></button>"
-					+ "</td>");
+			rows.append("<td class='order-action-col'>" + buildOrderActionButtons(order) + "</td>");
 			rows.append("<td class='order-code-col'>" + toDisplay(order.geto_order_code()) + "</td>");
 			rows.append("<td class='order-date-col'>" + formatDate(order.geto_order_date()) + "</td>");
 			rows.append("<td>" + toDisplay(order.geto_customer_name()) + "</td>");
@@ -263,6 +267,28 @@ public class OrderListController {
 			rows.append("</tr>");
 		}
 		return rows.toString();
+	}
+
+	private String buildOrderActionButtons(OrderListBean order) {
+		StringBuilder buttons = new StringBuilder();
+		buttons.append("<button type='button' class='btn icon btn-warning' onclick='edit_order(")
+				.append(order.getID_order())
+				.append(", event)'><i data-feather='edit-2'></i></button>");
+		if ("A".equalsIgnoreCase(order.getid_active_status()) && canCancelOrder(order.getID_order())) {
+			buttons.append("<button type='button' class='btn icon btn-danger ms-1' onclick='delete_order(")
+					.append(order.getID_order())
+					.append(", event)'><i data-feather='trash-2'></i></button>");
+		} else {
+			buttons.append("<button type='button' class='btn icon btn-secondary ms-1' disabled title='Can cancel only waiting press orders'><i data-feather='trash-2'></i></button>");
+		}
+		return buttons.toString();
+	}
+
+	private boolean canCancelOrder(Integer orderId) {
+		List<OrderDetail> details = orderDetailRepository.findByOrder(orderId);
+		return details != null
+				&& !details.isEmpty()
+				&& details.stream().allMatch(detail -> Integer.valueOf(1).equals(detail.getOrder_status()));
 	}
 
 	private DateRange defaultDateRange(String startDate, String endDate) {

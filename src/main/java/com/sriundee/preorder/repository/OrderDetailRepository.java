@@ -3,6 +3,7 @@ package com.sriundee.preorder.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,21 +15,21 @@ import com.sriundee.preorder.entity.OrderDetail;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
 	
-	@Query(value = "SELECT * FROM q_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+	@Query(value = "SELECT * FROM q_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
     List<OrderDetailBean> getCartIsNull(@Param("ID_user") Integer userId);
 
-	@Query(value = "SELECT * FROM q_order_detail where ID_order_detail = :IDod", nativeQuery = true)
+	@Query(value = "SELECT * FROM q_order_detail where ID_order_detail = :IDod AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
     List<OrderDetailBean> getCartByID(@Param("IDod") Integer IDod);
 	
-	@Query(value = "SELECT COALESCE(sum(od_price_total), 0) as sum_price_total,COALESCE(sum(od_price_pledge), 0) as sum_price_pledge,COALESCE(sum(od_price_balance), 0) as sum_price_balance FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+	@Query(value = "SELECT COALESCE(sum(od_price_total), 0) as sum_price_total,COALESCE(sum(od_price_pledge), 0) as sum_price_pledge,COALESCE(sum(od_price_balance), 0) as sum_price_balance FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
 	List<OrderSummaryBean> getCartSummary(@Param("ID_user") Integer userId);
 	
-	@Query(value = "SELECT * FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user", nativeQuery = true)
+	@Query(value = "SELECT * FROM t_order_detail WHERE ID_order IS NULL AND ID_user = :ID_user AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
     List<OrderDetail> getDataIsNull(@Param("ID_user") Integer userId);
 
 	List<OrderDetail> findByOrder(Integer orderId);
 	
-	@Query(value = "SELECT * FROM q_order_detail where ID_Order IS NOT NULL", nativeQuery = true)
+	@Query(value = "SELECT * FROM q_order_detail where ID_Order IS NOT NULL AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
     List<OrderDetailBean> getDataByIDOrderIsNull();
 
 	@Query(value = """
@@ -48,6 +49,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
 			WHERE q.ID_Order IS NOT NULL
 			AND COALESCE(o.id_active_status, 'A') = 'A'
+			AND COALESCE(q.ID_order_status, 1) <> 0
 			AND (:ID_order_status IS NULL OR q.ID_order_status = :ID_order_status)
 			AND (:a_name IS NULL OR :a_name = '' OR q.a_name ILIKE ('%' || :a_name || '%'))
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
@@ -73,6 +75,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			JOIN t_order_status os ON os.ID_order_status = q.ID_order_status
 			WHERE q.ID_Order IS NOT NULL
 			AND COALESCE(o.id_active_status, 'A') = 'A'
+			AND COALESCE(q.ID_order_status, 1) <> 0
 			AND (:ID_art IS NULL OR q.ID_art = :ID_art)
 			AND (:ID_web IS NULL OR q.ID_web = :ID_web)
 			AND (:customer_name IS NULL OR :customer_name = '' OR q.o_customer_name ILIKE ('%' || :customer_name || '%'))
@@ -82,4 +85,8 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 			@Param("ID_art") Integer artistId,
 			@Param("ID_web") Integer websiteId,
 			@Param("customer_name") String customerName);
+
+	@Modifying
+	@Query(value = "UPDATE t_order_detail SET ID_order_status = 0 WHERE ID_order = :ID_order", nativeQuery = true)
+	int cancelByOrder(@Param("ID_order") Integer orderId);
 }

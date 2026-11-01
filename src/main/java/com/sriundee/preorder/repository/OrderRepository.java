@@ -52,7 +52,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
-			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order AND COALESCE(od.ID_order_status, 1) <> 0
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
 			WHERE (:startDate IS NULL OR :startDate = '' OR o.o_order_date >= CAST(:startDate AS DATE))
 			  AND (:endDate IS NULL OR :endDate = '' OR o.o_order_date <= CAST(:endDate AS DATE))
@@ -62,6 +62,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			      SELECT 1
 			      FROM t_order_detail od_filter
 			      WHERE od_filter.ID_order = o.ID_order
+			        AND COALESCE(od_filter.ID_order_status, 1) <> 0
 			        AND od_filter.ID_order_status = :orderStatus
 			  ))
 			GROUP BY o.ID_order,
@@ -105,7 +106,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
-			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order AND COALESCE(od.ID_order_status, 1) <> 0
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
 			WHERE o.ID_pay_method = 2
 			  AND COALESCE(o.id_active_status, 'A') = 'A'
@@ -163,7 +164,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 			       STRING_AGG(DISTINCT os.os_name, '||') AS order_status_names,
 			       STRING_AGG(DISTINCT os.os_color, '||') AS order_status_colors
 			FROM q_order o
-			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order
+			LEFT JOIN t_order_detail od ON od.ID_order = o.ID_order AND COALESCE(od.ID_order_status, 1) <> 0
 			LEFT JOIN t_order_status os ON os.ID_order_status = od.ID_order_status
 			WHERE o.ID_order = :ID_order
 			GROUP BY o.ID_order,

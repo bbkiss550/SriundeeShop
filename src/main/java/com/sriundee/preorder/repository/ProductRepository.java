@@ -57,6 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 			  AND p.ID_product = :ID_product
 			  AND COALESCE(c.c_delete, 'A') = 'A'
 			  AND COALESCE(o.id_active_status, 'A') = 'A'
+			  AND COALESCE(od.ID_order_status, 1) <> 0
 			GROUP BY p.ID_product, w.w_name, v.v_name, c.c_name
 			ORDER BY w.w_name, v.v_name, c.c_name
 			""", nativeQuery = true)

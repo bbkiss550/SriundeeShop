@@ -19,15 +19,16 @@ public interface CostDetailRepository extends JpaRepository<CostDetail, Integer>
             FROM q_cost_detail qcd
             LEFT JOIN t_order o ON o.ID_order = qcd.ID_order
             WHERE qcd.ID_cost = :ID_cost
+              AND COALESCE(qcd.ID_order_status, 1) <> 0
             """, nativeQuery = true)
     List<CostDetailBean> getDataByCost(@Param("ID_cost") Integer IDCost);
 
-    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost AND COALESCE(ID_order_status, 1) <> 0", nativeQuery = true)
     Integer countDataByCost(@Param("ID_cost") Integer IDCost);
 
-    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost AND (ID_order_status IS NULL OR ID_order_status <> 2)", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost AND COALESCE(ID_order_status, 1) <> 0 AND (ID_order_status IS NULL OR ID_order_status <> 2)", nativeQuery = true)
     Integer countNotPressedByCost(@Param("ID_cost") Integer IDCost);
 
-    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost AND (ID_order_status IS NULL OR ID_order_status <> :status)", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM q_cost_detail WHERE ID_cost = :ID_cost AND COALESCE(ID_order_status, 1) <> 0 AND (ID_order_status IS NULL OR ID_order_status <> :status)", nativeQuery = true)
     Integer countNotStatusByCost(@Param("ID_cost") Integer IDCost, @Param("status") Integer status);
 }

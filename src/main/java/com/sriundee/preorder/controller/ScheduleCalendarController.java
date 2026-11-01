@@ -182,6 +182,7 @@ public class ScheduleCalendarController {
 				       COALESCE(SUM(od_qty), 0) AS qty
 				FROM q_order_detail
 				WHERE ID_pro = ?
+				  AND COALESCE(ID_order_status, 1) <> 0
 				GROUP BY ID_web, w_name, ID_ver, v_name, ID_cover, c_name
 				ORDER BY w_name, v_name, c_name
 				""", productId);
@@ -200,6 +201,7 @@ public class ScheduleCalendarController {
 				FROM t_lot_detail ld
 				JOIN q_order_detail q ON q.ID_order_detail = ld.ID_order_detail
 				WHERE ld.ID_lot = ?
+				  AND COALESCE(q.ID_order_status, 1) <> 0
 				GROUP BY q.ID_pro, q.p_name, q.ID_web, q.w_name, q.ID_ver, q.v_name, q.ID_cover, q.c_name
 				ORDER BY q.p_name, q.w_name, q.v_name, q.c_name
 				""", lotId);

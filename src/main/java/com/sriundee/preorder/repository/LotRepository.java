@@ -24,9 +24,10 @@ public interface LotRepository extends JpaRepository<Lot, Integer> {
                    l.l_end_date,
                    l.l_arrive_date,
                    l.l_delete,
-                   COUNT(ld.ID_lot_detail) AS detail_count
+                   COUNT(od.ID_order_detail) AS detail_count
             FROM t_lot l
             LEFT JOIN t_lot_detail ld ON ld.ID_lot = l.ID_lot
+            LEFT JOIN t_order_detail od ON od.ID_order_detail = ld.ID_order_detail AND COALESCE(od.ID_order_status, 1) <> 0
             WHERE (:startDate IS NULL OR :startDate = '' OR l.l_create_date >= :startDate)
               AND (:endDate IS NULL OR :endDate = '' OR l.l_create_date <= :endDate)
               AND (:status IS NULL OR :status = '' OR l.l_delete = :status)
@@ -48,9 +49,10 @@ public interface LotRepository extends JpaRepository<Lot, Integer> {
                    l.l_end_date,
                    l.l_arrive_date,
                    l.l_delete,
-                   COUNT(ld.ID_lot_detail) AS detail_count
+                   COUNT(od.ID_order_detail) AS detail_count
             FROM t_lot l
             LEFT JOIN t_lot_detail ld ON ld.ID_lot = l.ID_lot
+            LEFT JOIN t_order_detail od ON od.ID_order_detail = ld.ID_order_detail AND COALESCE(od.ID_order_status, 1) <> 0
             WHERE l.l_delete = 'A'
               AND l.l_start_date IS NOT NULL
               AND l.l_end_date IS NOT NULL

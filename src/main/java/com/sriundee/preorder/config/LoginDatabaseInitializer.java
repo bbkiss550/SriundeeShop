@@ -34,6 +34,21 @@ public class LoginDatabaseInitializer {
         jdbcTemplate.execute("ALTER TABLE t_cost ALTER COLUMN id_active_status SET DEFAULT 'A'");
         jdbcTemplate.execute("UPDATE t_cost SET id_active_status = 'A' WHERE id_active_status IS NULL");
         jdbcTemplate.execute("""
+                INSERT INTO t_order_status (id_order_status, os_name, os_color)
+                VALUES (0, 'ยกเลิก', 'danger')
+                ON CONFLICT (id_order_status) DO UPDATE
+                SET os_name = EXCLUDED.os_name,
+                    os_color = EXCLUDED.os_color
+                """);
+        jdbcTemplate.execute("""
+                UPDATE t_order_detail od
+                SET id_order_status = 0
+                FROM t_order o
+                WHERE o.id_order = od.id_order
+                  AND COALESCE(o.id_active_status, 'A') = 'C'
+                  AND COALESCE(od.id_order_status, 1) <> 0
+                """);
+        jdbcTemplate.execute("""
                 WITH pending_cost AS (
                     SELECT id_cost,
                            CAST(c_create_date AS DATE) AS cost_date,
