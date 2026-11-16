@@ -98,7 +98,7 @@ public class CostShippingController {
 					.toList();
 			List<OrderDetail> orderDetails = orderDetailRepository.findAllById(orderDetailIds);
 			for (OrderDetail orderDetail : orderDetails) {
-				orderDetail.setOrder_status(3);
+				orderDetail.setOrder_status(4);
 			}
 			orderDetailRepository.saveAll(orderDetails);
 
@@ -275,7 +275,7 @@ public class CostShippingController {
 
 	private boolean canCancelCost(Integer costId) {
 		Integer detailCount = costDetailRepository.countDataByCost(costId);
-		Integer notArrivedCount = costDetailRepository.countNotStatusByCost(costId, 4);
+		Integer notArrivedCount = costDetailRepository.countNotStatusByCost(costId, 5);
 		return detailCount != null && detailCount > 0 && (notArrivedCount == null || notArrivedCount == 0);
 	}
 

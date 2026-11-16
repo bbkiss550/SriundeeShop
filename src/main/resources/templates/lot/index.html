@@ -137,7 +137,7 @@
 											<th class="fix_width">#</th>
 	                                        <th class="lot-date-col">วันที่</th>
 	                                        <th class="auto_width">เลข LOT</th>
-	                                        <th class="lot-range-col">คาดว่าจะถึงร้าน</th>
+	                                        <th class="lot-range-col">คาดว่าจะถึงไทย</th>
 	                                        <th class="lot-date-col">วันที่ของถึงร้าน</th>
 	                                        <th class="lot-count-col text-end">จำนวนรายการ</th>
 	                                        <th class="status_width">สถานะ</th>
@@ -194,6 +194,6 @@
             <footer th:replace="common/footer :: footer"></footer>
         </div>
     </div>
-	<script th:src="@{/script/lot/index.js}"></script>
+	<script th:src="@{/script/lot/index.js(v='lot-thailand')}"></script>
 </body>
 </html>

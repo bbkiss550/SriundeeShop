@@ -118,7 +118,7 @@ public class ProductImageAiReader {
         Never union shop headers from different columns. Applemusic on the left must keep its own prices;
         FANS SHOP / YES24 / Musicplant on the right share only the right-column prices across all following versions.
         Transcribe rawText in column reading order, repeating each column's shop header before its version/price blocks.
-        A single top multi-shop header (for example Applemusic / Ktown4u / Soundwave), followed by several version/price blocks
+        A single top shop header (Soundwave alone, or for example Applemusic / Ktown4u / Soundwave), followed by several version/price blocks
         with no later shop header, applies to ALL those versions and offers. Do not assign no-shop to later versions in that block.
         Explicit no-website text overrides this rule; multiple separate shop headers must not be treated as one global header.
         A standalone ไม่มีการ์ดเบเน / ไม่มีเบเน / ไม่มี POB / no benefit heading starts a NEW no-benefit section.

@@ -3,6 +3,7 @@
 <head th:replace="common/header :: header_head"></head>
 
 <script th:src="@{/script/product/product.js}"></script>
+<script th:src="@{/script/product/price-table.js?v=1}"></script>
 <script th:src="@{/script/product/version.js}"></script>
 <script th:src="@{/script/product/cover.js}"></script>
 <script th:src="@{/script/product/pricing-view.js?v=ocr-price7}"></script>
@@ -11,7 +12,8 @@
 <script th:src="@{/script/product/setup-steps.js?v=text-source1}"></script>
 <script th:src="@{/script/product/image-crop.js}"></script>
 <script th:src="@{/script/product/image-import.js?v=result-table1}"></script>
-<link rel="stylesheet" th:href="@{/css/product-setup.css?v=result-table1}">
+<link rel="stylesheet" th:href="@{/css/product-setup.css?v=readonly-prices2}">
+<link rel="stylesheet" th:href="@{/css/product-list.css?v=1}">
 
 <style>
 	.product-table {
@@ -183,7 +185,7 @@
 	}
 </style>
 
-<body>
+<body class="product-list-page">
     <div id="app">
         <div th:replace="common/menu :: menu"></div>
 		
@@ -197,32 +199,36 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col-12">
-								<div class="card">
+								<div class="card product-list-card">
 									<div class="card-header">
 										<div class="buttons">
 									        <button type="button" class="btn btn-lg icon icon-left btn-success" onclick="new_data()"><i data-feather="plus-square"></i> เพิ่มสินค้าและตั้งราคา</button>
 									    </div>
 										<hr>
 									</div>
-			                        <div class="card-body">
+			                        <div class="card-body product-list-body">
+                                    <div class="product-table-scroll">
 			                            <table class="table table-striped product-table" id="table1">
 			                                <thead>
 			                                    <tr>
 													<th class="setup-action-col">ตั้งค่า</th>
-													<th class="fix_width">ลบ</th>
-													<th class="fix_width">#</th>
+													<th class="product-price-action">ราคา</th>
+													<th class="product-delete-col">ลบ</th>
+													<th class="product-number-col">#</th>
 													<th class="product-image-col">ภาพ</th>
-			                                        <th class="auto_width">ชื่อ</th>
-													<th class="auto_width">ประเภท</th>
-													<th class="auto_width">ศิลปิน</th>
-													<th class="status_width">ปิดรับ</th>
-													<th class="status_width">สถานะ</th>
-                                                    <th class="auto_width">&#3626;&#3619;&#3640;&#3611;&#3592;&#3635;&#3609;&#3623;&#3609;&#3626;&#3633;&#3656;&#3591;&#3595;&#3639;&#3657;&#3629;</th>
+			                                        <th class="product-name-col">ชื่อ</th>
+													<th class="product-type-col">ประเภท</th>
+													<th class="product-artist-col">ศิลปิน</th>
+													<th class="product-date-col">ปิดรับ</th>
+													<th class="product-status-col">สถานะ</th>
+                                                    <th class="product-summary-col">สรุปจำนวนสั่งซื้อ</th>
 			                                    </tr>
 			                                </thead>
 			                                <tbody th:utext="${mainProduct}"></tbody>
 			                            </table>
+                                    </div>
 			                            <div th:include="./product/modal-product"></div>
+                                    <div th:include="./product/modal-price-table"></div>
 			                            <div th:include="./product/modal-cover"></div>
 			                            <div th:include="./product/modal-version"></div>
 			                            <div th:include="./product/modal-order-summary"></div>

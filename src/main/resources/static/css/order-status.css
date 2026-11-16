@@ -1,0 +1,46 @@
+/* Shared order-status palette. Tokens are stored in os_color, independent of Bootstrap presets. */
+.bg-order-status-0, .btn-outline-order-status-0 { --status-color: #DC3545; --status-on-color: #fff; }
+.bg-order-status-1, .btn-outline-order-status-1 { --status-color: #D99A00; --status-on-color: #111827; }
+.bg-order-status-2, .btn-outline-order-status-2 { --status-color: #EA580C; --status-on-color: #111827; }
+.bg-order-status-3, .btn-outline-order-status-3 { --status-color: #7C3AED; --status-on-color: #fff; }
+.bg-order-status-4, .btn-outline-order-status-4 { --status-color: #0284C7; --status-on-color: #050B14; }
+.bg-order-status-5, .btn-outline-order-status-5 { --status-color: #435EBE; --status-on-color: #fff; }
+.bg-order-status-6, .btn-outline-order-status-6 { --status-color: #15803D; --status-on-color: #fff; }
+
+[class*="bg-order-status-"] {
+    background-color: var(--status-color) !important;
+    color: var(--status-on-color) !important;
+}
+
+.btn[class*="btn-outline-order-status-"] {
+    --status-ink: color-mix(in srgb, var(--status-color) 75%, #000);
+    color: var(--status-ink) !important;
+    border-color: var(--status-color) !important;
+    background-color: transparent !important;
+    cursor: pointer;
+    transition: background-color 160ms ease-in-out, color 160ms ease-in-out;
+}
+
+html[data-theme="dark"] .btn[class*="btn-outline-order-status-"] {
+    --status-ink: color-mix(in srgb, var(--status-color) 65%, #fff);
+}
+
+.btn[class*="btn-outline-order-status-"]:hover,
+.btn[class*="btn-outline-order-status-"].active,
+.btn[class*="btn-outline-order-status-"]:active,
+.btn-check:checked + .btn[class*="btn-outline-order-status-"] {
+    background-color: var(--status-color) !important;
+    border-color: var(--status-color) !important;
+    color: var(--status-on-color) !important;
+}
+
+.btn-check:focus-visible + .btn[class*="btn-outline-order-status-"],
+.btn[class*="btn-outline-order-status-"]:focus-visible {
+    outline: 3px solid var(--status-color);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn[class*="btn-outline-order-status-"] { transition: none; }
+}

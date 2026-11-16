@@ -243,9 +243,9 @@ function toggle_row_from_click(row, event) {
 }
 
 function toggle_row_check(checkbox) {
-    if (checkbox.disabled || checkbox.dataset.statusId === "5") {
+    if (checkbox.disabled || checkbox.dataset.statusId === "6") {
         checkbox.checked = false;
-        showStatusWarning("ส่งของสำเร็จ");
+        showStatusWarning("ส่งแล้ว");
         return;
     }
 
@@ -411,8 +411,8 @@ function open_change_status_modal() {
         return;
     }
 
-    if (selectedStatusId === "5") {
-        showStatusWarning("ส่งของสำเร็จ");
+    if (selectedStatusId === "6") {
+        showStatusWarning("ส่งแล้ว");
         return;
     }
 
@@ -466,111 +466,16 @@ function configureNewStatusOptions() {
         return;
     }
 
+    const nextStatus = Number(selectedStatusId) + 1;
     Array.from(select.options).forEach(option => {
-        option.hidden = false;
-        option.disabled = false;
+        option.hidden = Number(option.value) !== nextStatus;
+        option.disabled = option.hidden;
     });
-
-    if (selectedStatusId === "1") {
-        Array.from(select.options).forEach(option => {
-            if (option.value !== "2") {
-                option.hidden = true;
-                option.disabled = true;
-            }
-        });
-        select.value = "2";
-        if (costInputGroup) {
-            costInputGroup.style.display = "";
-        }
-        if (lotInputGroup) {
-            lotInputGroup.style.display = "none";
-        }
-        if (shippingInputGroup) {
-            shippingInputGroup.style.display = "none";
-        }
-        if (postalInputGroup) {
-            postalInputGroup.style.display = "none";
-        }
-    } else if (selectedStatusId === "2") {
-        Array.from(select.options).forEach(option => {
-            if (option.value !== "3") {
-                option.hidden = true;
-                option.disabled = true;
-            }
-        });
-        select.value = "3";
-        if (costInputGroup) {
-            costInputGroup.style.display = "none";
-        }
-        if (lotInputGroup) {
-            lotInputGroup.style.display = "";
-        }
-        if (shippingInputGroup) {
-            shippingInputGroup.style.display = "none";
-        }
-        if (postalInputGroup) {
-            postalInputGroup.style.display = "none";
-        }
-    } else if (selectedStatusId === "3") {
-        Array.from(select.options).forEach(option => {
-            if (option.value !== "4") {
-                option.hidden = true;
-                option.disabled = true;
-            }
-        });
-        select.value = "4";
-        if (costInputGroup) {
-            costInputGroup.style.display = "none";
-        }
-        if (lotInputGroup) {
-            lotInputGroup.style.display = "none";
-        }
-        if (shippingInputGroup) {
-            shippingInputGroup.style.display = "";
-        }
-        if (postalInputGroup) {
-            postalInputGroup.style.display = "none";
-        }
-    } else if (selectedStatusId === "4") {
-        Array.from(select.options).forEach(option => {
-            if (option.value !== "5") {
-                option.hidden = true;
-                option.disabled = true;
-            }
-        });
-        select.value = "5";
-        if (costInputGroup) {
-            costInputGroup.style.display = "none";
-        }
-        if (lotInputGroup) {
-            lotInputGroup.style.display = "none";
-        }
-        if (shippingInputGroup) {
-            shippingInputGroup.style.display = "none";
-        }
-        if (postalInputGroup) {
-            postalInputGroup.style.display = "";
-        }
-    } else {
-        if (select.value === selectedStatusId) {
-            const nextOption = Array.from(select.options).find(option => option.value !== selectedStatusId);
-            if (nextOption) {
-                select.value = nextOption.value;
-            }
-        }
-        if (costInputGroup) {
-            costInputGroup.style.display = "none";
-        }
-        if (lotInputGroup) {
-            lotInputGroup.style.display = "none";
-        }
-        if (shippingInputGroup) {
-            shippingInputGroup.style.display = "none";
-        }
-        if (postalInputGroup) {
-            postalInputGroup.style.display = "none";
-        }
-    }
+    select.value = nextStatus >= 2 && nextStatus <= 6 ? String(nextStatus) : "";
+    if (costInputGroup) costInputGroup.style.display = selectedStatusId === "1" ? "" : "none";
+    if (lotInputGroup) lotInputGroup.style.display = selectedStatusId === "2" ? "" : "none";
+    if (shippingInputGroup) shippingInputGroup.style.display = selectedStatusId === "4" ? "" : "none";
+    if (postalInputGroup) postalInputGroup.style.display = selectedStatusId === "5" ? "" : "none";
 
     if (costPrice) {
         costPrice.value = "";
@@ -681,28 +586,9 @@ function save_change_status() {
         return;
     }
 
-    if (selectedStatusId === "5") {
-        showStatusWarning("ส่งของสำเร็จ");
-        return;
-    }
-
-    if (selectedStatusId === "1" && newOrderStatus !== "2") {
-        showStatusWarning("รอกดของ");
-        return;
-    }
-
-    if (selectedStatusId === "2" && newOrderStatus !== "3") {
-        showStatusWarning("กดของแล้ว รอเข้าโกดัง");
-        return;
-    }
-
-    if (selectedStatusId === "3" && newOrderStatus !== "4") {
-        showStatusWarning("รอของถึงร้าน");
-        return;
-    }
-
-    if (selectedStatusId === "4" && newOrderStatus !== "5") {
-        showStatusWarning("ถึงร้านแล้วรอส่ง");
+    if (Number(selectedStatusId) < 1 || Number(selectedStatusId) >= 6
+            || Number(newOrderStatus) !== Number(selectedStatusId) + 1) {
+        showStatusWarning(selectedStatusName);
         return;
     }
 
@@ -728,7 +614,7 @@ function save_change_status() {
         return;
     }
 
-    if (selectedStatusId === "3" && (!normalizedShippingPrice || !/^\d+(\.\d*)?$/.test(normalizedShippingPrice))) {
+    if (selectedStatusId === "4" && (!normalizedShippingPrice || !/^\d+(\.\d*)?$/.test(normalizedShippingPrice))) {
         if (window.Swal) {
             Swal.fire({
                 title: "กรุณากรอกค่าส่ง",
@@ -739,7 +625,7 @@ function save_change_status() {
         return;
     }
 
-    if (selectedStatusId === "3" && !lotArriveDate) {
+    if (selectedStatusId === "4" && !lotArriveDate) {
         if (window.Swal) {
             Swal.fire({
                 title: "กรุณากรอกวันที่ของถึงร้าน",
@@ -750,7 +636,7 @@ function save_change_status() {
         return;
     }
 
-    if (selectedStatusId === "4" && (!normalizedPostalPrice || !/^\d+(\.\d*)?$/.test(normalizedPostalPrice))) {
+    if (selectedStatusId === "5" && (!normalizedPostalPrice || !/^\d+(\.\d*)?$/.test(normalizedPostalPrice))) {
         if (window.Swal) {
             Swal.fire({
                 title: "กรุณากรอกค่าส่งไปรษณีย์",
@@ -764,7 +650,7 @@ function save_change_status() {
     if (selectedStatusId === "2" && (!lotStartDate || !lotEndDate)) {
         if (window.Swal) {
             Swal.fire({
-                title: "กรุณากรอกช่วงวันที่คาดว่าจะถึงร้าน",
+                title: "กรุณากรอกช่วงวันที่คาดว่าจะถึงไทย",
                 icon: "warning",
                 confirmButtonText: "ตกลง"
             });

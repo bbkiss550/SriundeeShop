@@ -27,12 +27,12 @@ public class OrderStatusController {
     public String getDataCheckList() {
 	    List<OrderStatus> mainOrderStatus = orderStatusRepository.getDataAll();
 	    StringBuilder strOrderStatus = new StringBuilder();
-    	strOrderStatus.append("<div class='col-2'>");
+            strOrderStatus.append("<div class='change-status-filter'>");
     	strOrderStatus.append("<input type='radio' class='btn-check' name='group-os' id='osAll' value='' onchange='load_change_data()' checked>");
     	strOrderStatus.append("<label class='btn btn-outline-primary btn-status-grid w-100' for='osAll'>ทั้งหมด</label>");
     	strOrderStatus.append("</div>");
 	    for (OrderStatus os : mainOrderStatus) {
-	    	strOrderStatus.append("<div class='col-2'>");
+            strOrderStatus.append("<div class='change-status-filter'>");
 	    	strOrderStatus.append("<input type='radio' class='btn-check' name='group-os' id='os" + os.getId() + "' value='" + os.getId() + "' onchange='load_change_data()'>");
 	    	strOrderStatus.append("<label class='btn btn-outline-" + os.getColor() + " btn-status-grid w-100' for='os" + os.getId() + "'>" + os.getName() + "</label>");
 	    	strOrderStatus.append("</div>");

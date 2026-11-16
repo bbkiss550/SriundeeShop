@@ -786,8 +786,8 @@ public class ReportController {
                        SUM(od.od_qty) AS ordered,
                        SUM(CASE WHEN od.ID_order_status >= 2 THEN od.od_qty ELSE 0 END) AS pressed,
                        SUM(CASE WHEN od.ID_order_status >= 3 THEN od.od_qty ELSE 0 END) AS in_lot,
-                       SUM(CASE WHEN od.ID_order_status >= 4 THEN od.od_qty ELSE 0 END) AS arrived,
-                       SUM(CASE WHEN od.ID_order_status = 5 THEN od.od_qty ELSE 0 END) AS sent
+                       SUM(CASE WHEN od.ID_order_status >= 5 THEN od.od_qty ELSE 0 END) AS arrived,
+                       SUM(CASE WHEN od.ID_order_status = 6 THEN od.od_qty ELSE 0 END) AS sent
                 FROM t_order_detail od
                 JOIN t_order o ON o.ID_order = od.ID_order
                 JOIN t_cover c ON c.ID_cover = od.ID_cover

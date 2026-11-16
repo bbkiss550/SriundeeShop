@@ -312,7 +312,7 @@ public class ProductImageTextParser {
                 offer.deposit() == null ? null : offer.deposit().stripTrailingZeros());
     }
 
-    /** A single multi-shop heading immediately preceding the first version scopes the whole price block.
+    /** A single shop heading (one or several stores) before the first version scopes the price block.
      * Multiple shop blocks, prices before any version, or explicit no-shop text remain local. */
     public static List<String> commonHeaderWebsites(String raw) {
         return sharedHeaderWebsites(raw,false);
@@ -330,7 +330,7 @@ public class ProductImageTextParser {
             if(!names.isEmpty()){if(!previousSites)blocks++;if(!seenVersion)for(String name:names)if(!header.contains(name))header.add(name);previousSites=true;}
             else previousSites=false;
         }
-        return blocks==1 && header.size()>1 && headerFollowedByVersion && !priceBeforeVersion?List.copyOf(header):List.of();
+        return blocks==1 && !header.isEmpty() && headerFollowedByVersion && !priceBeforeVersion?List.copyOf(header):List.of();
     }
     private static List<String> sites(String line) {
         List<String> found = new ArrayList<>();

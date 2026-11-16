@@ -89,7 +89,7 @@ function cancel_lot(id, event) {
 
     Swal.fire({
         title: "ยืนยันการยกเลิก",
-        text: "ต้องการยกเลิก LOT นี้และเปลี่ยนสถานะสินค้ากลับเป็นกดของแล้ว รอเข้าโกดังหรือไม่",
+        text: "ต้องการยกเลิก LOT นี้และเปลี่ยนสถานะสินค้ากลับเป็นรอเว็บส่งของหรือไม่",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "ยืนยัน",
@@ -248,7 +248,7 @@ function edit_lot_number(id, currentLotNumber, currentStartDate, currentEndDate,
                     <input type="text" id="editLotNumber" class="form-control" value="${escape_lot_attr(currentLotNumber || "")}" placeholder="เลข LOT">
                 </div>
                 <div class="input-group mb-3">
-                    <span class="input-group-text">วันที่คาดว่าจะถึงร้าน</span>
+                    <span class="input-group-text">วันที่คาดว่าจะถึงไทย</span>
                     <input type="date" id="editLotStartDate" class="form-control" value="${escape_lot_attr(currentStartDate || "")}">
                 </div>
                 <div class="input-group mb-3">
@@ -275,11 +275,11 @@ function edit_lot_number(id, currentLotNumber, currentStartDate, currentEndDate,
                 return false;
             }
             if ((startDate && !endDate) || (!startDate && endDate)) {
-                Swal.showValidationMessage("กรุณากรอกวันที่คาดว่าจะถึงร้านให้ครบ");
+                Swal.showValidationMessage("กรุณากรอกวันที่คาดว่าจะถึงไทยให้ครบ");
                 return false;
             }
             if (startDate && endDate && endDate < startDate) {
-                Swal.showValidationMessage("วันที่ ถึง ต้องไม่น้อยกว่าวันที่คาดว่าจะถึงร้าน");
+                Swal.showValidationMessage("วันที่ ถึง ต้องไม่น้อยกว่าวันที่คาดว่าจะถึงไทย");
                 return false;
             }
             return { lotNumber, startDate, endDate, arriveDate };

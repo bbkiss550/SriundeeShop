@@ -109,30 +109,20 @@ public class ChangeController {
             if (hasInactiveOrderDetails(ids)) {
                 return ResponseEntity.badRequest().body("Order is not approved");
             }
-            boolean sent = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(5).equals(orderDetail.getOrder_status()));
-            if (sent) {
-                return ResponseEntity.badRequest().body("Sent status cannot be changed");
+            if (orderDetails.size() != new java.util.HashSet<>(ids).size()
+                    || orderDetails.isEmpty()) {
+                return ResponseEntity.badRequest().body("Order details not found");
             }
-
-            boolean waitingPress = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(1).equals(orderDetail.getOrder_status()));
-            if (waitingPress && !Integer.valueOf(2).equals(orderStatus)) {
-                return ResponseEntity.badRequest().body("Waiting press status can only change to pressed status");
+            Integer currentStatus = orderDetails.get(0).getOrder_status();
+            if (currentStatus == null || currentStatus < 1 || currentStatus >= 6
+                    || orderStatus != currentStatus + 1
+                    || orderDetails.stream().anyMatch(detail -> !currentStatus.equals(detail.getOrder_status()))) {
+                return ResponseEntity.badRequest().body("Only the next status is allowed for items with the same current status");
             }
-
-            boolean pressed = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(2).equals(orderDetail.getOrder_status()));
-            if (pressed && !Integer.valueOf(3).equals(orderStatus)) {
-                return ResponseEntity.badRequest().body("Pressed status can only change to warehouse waiting status");
-            }
-
-            boolean waitingStore = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(3).equals(orderDetail.getOrder_status()));
-            if (waitingStore && !Integer.valueOf(4).equals(orderStatus)) {
-                return ResponseEntity.badRequest().body("Waiting store status can only change to arrived store status");
-            }
-
-            boolean arrivedStore = orderDetails.stream().anyMatch(orderDetail -> Integer.valueOf(4).equals(orderDetail.getOrder_status()));
-            if (arrivedStore && !Integer.valueOf(5).equals(orderStatus)) {
-                return ResponseEntity.badRequest().body("Arrived store status can only change to sent status");
-            }
+            boolean waitingPress = currentStatus == 1;
+            boolean departingForThailand = currentStatus == 2;
+            boolean waitingStore = currentStatus == 4;
+            boolean arrivedStore = currentStatus == 5;
 
             String costPrice = toStringValue(payload.get("costPrice"));
             if (waitingPress && costPrice.isBlank()) {
@@ -140,15 +130,15 @@ public class ChangeController {
             }
 
             String lotNumber = toStringValue(payload.get("l_lot_number"));
-            if (pressed && lotNumber.isBlank()) {
+            if (departingForThailand && lotNumber.isBlank()) {
                 return ResponseEntity.badRequest().body("Lot number is required");
             }
             String lotStartDate = toStringValue(payload.get("l_start_date"));
             String lotEndDate = toStringValue(payload.get("l_end_date"));
-            if (pressed && (lotStartDate.isBlank() || lotEndDate.isBlank())) {
+            if (departingForThailand && (lotStartDate.isBlank() || lotEndDate.isBlank())) {
                 return ResponseEntity.badRequest().body("Lot expected arrival date range is required");
             }
-            if (pressed) {
+            if (departingForThailand) {
             	LocalDate startDate = parseDate(lotStartDate);
             	LocalDate endDate = parseDate(lotEndDate);
             	if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
@@ -206,7 +196,7 @@ public class ChangeController {
             	saveCost(orderDetails, 5, postalPrice, toStringValue(payload.get("postalNote")), recordDate);
             }
 
-            if (pressed) {
+            if (departingForThailand) {
             	Lot lot = lotRepository.getActiveByLotNumber(lotNumber);
             	if (lot == null) {
             		lot = new Lot();
@@ -314,7 +304,7 @@ public class ChangeController {
 		List<OrderDetailBean> orderdetailList = orderDetailRepository.getDataByFilter(orderStatus, artist, website, lot);
 		Map<Integer, String> lotNumbersByOrderDetail = getLotNumbersByOrderDetail(orderdetailList);
 		for (OrderDetailBean od : orderdetailList) {
-			boolean sent = Integer.valueOf(5).equals(od.getID_order_status());
+			boolean sent = Integer.valueOf(6).equals(od.getID_order_status());
 			ListDetail.append("<tr class='" + (sent ? "change-locked-row" : "change-selectable-row") + "'" + (sent ? "" : " onclick='toggle_row_from_click(this, event)'") + ">");
 			ListDetail.append("<td>");
 			if (sent) {

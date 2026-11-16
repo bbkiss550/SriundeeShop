@@ -95,6 +95,15 @@ const imageDraft = {
         const typeAdds = [];
         await page.route('**/product/setup/**', async route => {
             const request = route.request();
+            if (/\/200[1-4]$/.test(request.url())) {
+                assert.equal(request.method(),'GET','price viewer must use read-only API');
+                if (request.url().endsWith('/2003')) return route.fulfill({status:503,json:{message:'ทดสอบโหลดราคาไม่สำเร็จ'}});
+                if (request.url().endsWith('/2004')) {
+                    await new Promise(resolve=>setTimeout(resolve,1500));
+                    return route.fulfill({json:{...existing,product:{...existing.product,name:'Stale product'}}}).catch(()=>{});
+                }
+                return route.fulfill({json:{...existing,product:{...existing.product,name:'NMIXX <MIXX ON THE ROAD>'},versions:request.url().endsWith('/2002')?[]:existing.versions}});
+            }
             if (request.url().endsWith('/types')) {
                 typeAdds.push(request.postDataJSON());
                 if (failType) return route.fulfill({ status: 500, json: { message: 'เพิ่มประเภทไม่สำเร็จ' } });
@@ -157,7 +166,41 @@ const imageDraft = {
         sites.push({id:50,name:'Applemusic',delete:'A'},{id:51,name:'Soundwave',delete:'A'});
         nextImageDraft=JSON.parse(fs.readFileSync(path.join(root,'.runtime/product-setup-qa/shared-shop-draft.json'),'utf8'));
         nextImageDraft.readSource='OCR';nextImageDraft.readMessage='OCR local; AI not enabled';
-        await page.goto(url);await page.evaluate(()=>new_data());
+        await page.goto(url);
+        await page.evaluate(()=>ProductPriceTable.open(2001));
+        await page.locator('#productPricesTableWrap:not([hidden])').waitFor();
+        assert.equal(await page.locator('#productPricesName').textContent(),'NMIXX <MIXX ON THE ROAD>');
+        assert.equal(await page.locator('#productPricesRows tr').count(),2);
+        assert.deepEqual(await page.locator('#productPricesRows tr').first().locator('td').allTextContents(),['Ktown4u / YES24','T-SHIRT VER.','ทั่วไป','1,350.00','700.00','650.00']);
+        assert.equal(await page.locator('#productPricesModal input, #productPricesModal select, #productPricesModal textarea, #productPricesModal [contenteditable="true"]').count(),0);
+        assert.equal(submissions.length,0);
+        for(const theme of ['light','dark']){
+            await page.evaluate(value=>document.documentElement.setAttribute('data-theme',value),theme);
+            for(const width of [1440,768,390]){
+                await page.setViewportSize({width,height:1050});
+                assert.equal(await page.locator('#productPricesModal .modal-body').evaluate(node=>node.scrollWidth>node.clientWidth+1),false);
+                await page.screenshot({path:path.join(output,`saved-prices-${theme}-${width}.png`)});
+            }
+        }
+        await page.setViewportSize({width:1440,height:1050});
+        await page.evaluate(()=>document.documentElement.setAttribute('data-theme','light'));
+        await page.locator('#productPricesModal .modal-footer button').click();
+        await page.locator('#productPricesModal').waitFor({state:'hidden'});
+        await page.evaluate(()=>ProductPriceTable.open(2002));
+        await page.locator('#productPricesEmpty:not([hidden])').waitFor();
+        await page.locator('#productPricesModal .modal-footer button').click();
+        await page.locator('#productPricesModal').waitFor({state:'hidden'});
+        await page.evaluate(()=>ProductPriceTable.open(2003));
+        await page.locator('#productPricesError:not([hidden])').waitFor();
+        await page.locator('#productPricesModal .modal-footer button').click();
+        await page.locator('#productPricesModal').waitFor({state:'hidden'});
+        await page.evaluate(()=>{ProductPriceTable.open(2004);ProductPriceTable.open(2001);});
+        await page.locator('#productPricesTableWrap:not([hidden])').waitFor();
+        assert.equal(await page.locator('#productPricesName').textContent(),'NMIXX <MIXX ON THE ROAD>');
+        await page.waitForFunction(()=>!bootstrap.Modal.getInstance(document.getElementById('productPricesModal'))._isTransitioning);
+        await page.keyboard.press('Escape');
+        await page.locator('#productPricesModal').waitFor({state:'hidden'});
+        await page.evaluate(()=>new_data());
         await page.locator('#setupSaveButton:enabled').waitFor({state:'attached'});
         await page.locator('[data-setup-step="0"]').click();
         await page.locator('[data-import-source="text"]').click();
@@ -390,6 +433,18 @@ const imageDraft = {
         assert.equal(await page.locator('.pricing-group').count(),2);
         assert.deepEqual(await page.locator('.pricing-group').nth(0).locator('[data-prop="price"]').evaluateAll(nodes=>nodes.map(node=>node.value)),['650','780']);
         assert.deepEqual(await page.locator('.pricing-group').nth(1).locator('[data-prop="price"]').evaluateAll(nodes=>nodes.map(node=>node.value)),['550','350','250','2220']);
+        nextImageDraft=JSON.parse(fs.readFileSync(path.join(root,'.runtime/product-setup-qa/soundwave-merch-draft.json'),'utf8'));
+        page.once('dialog',dialog=>dialog.accept());await page.evaluate(()=>new_data());
+        await page.locator('#setupSaveButton:enabled').waitFor({state:'attached'});
+        await page.locator('[data-setup-step="0"]').click();await page.locator('[data-import-source="text"]').click();
+        await page.locator('#setupTextInput').fill(nextImageDraft.rawText);await page.locator('#setupReadText').click();
+        await page.locator('#setupApplyImage:enabled').waitFor({state:'visible'});
+        assert.deepEqual(await page.locator('#setupResultRows tr td:first-child').allTextContents(),Array(13).fill('Soundwave'));
+        await page.locator('#setupApplyImage').click();
+        assert.equal(await page.locator('.pricing-group').count(),1);
+        assert.equal(await page.locator('.pricing-version').count(),13);
+        assert.equal(await page.locator('.setup-price-group').count(),13);
+        assert.match(await page.locator('.pricing-tag').first().textContent(),/Soundwave/);
         assert.deepEqual(errors,[]);
         console.log('PASS: image/text selection, text validation/retry/preservation/import, responsive text input, shared shops/prices and OCR provenance');
     }finally{await browser.close();server.close();}

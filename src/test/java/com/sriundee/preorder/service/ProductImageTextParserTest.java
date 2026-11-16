@@ -11,6 +11,53 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 class ProductImageTextParserTest {
+    @Test void singleSoundwaveHeaderAppliesToAllThirteenMerchandiseVersions() throws Exception {
+        var draft=parser.parse("""
+            Soundwave
+            3D STICKER VER.
+            ราคา250 (มัดจำ0)
+            BANDANA VER.
+            ราคา450 (มัดจำ0)
+            ACRYLIC HAIRPIN VER.
+            ระบุปก เลือกเมม ver.
+            ราคา520 (มัดจำ0)
+            MINI BAG VER.
+            ราคา800 (มัดจำ0)
+            DECO SET VER.
+            ราคา230 (มัดจำ0)
+            MINI POUCH KEYRING VER.
+            ราคา620 (มัดจำ0)
+            RANDOM KEYCAP KEYRING VER.
+            สุ่ม450 (มัดจำ0)
+            MOUSE PAD VER.
+            ราคา400 (มัดจำ0)
+            BOOK COVER VER.
+            ราคา820 (มัดจำ0)
+            RANDOM CARD VER.
+            สุ่ม200 (มัดจำ0)
+            PHOTO SET VER.
+            ราคา450 (มัดจำ0)
+            RANDOM ACRYLIC MAGNET VER.
+            สุ่ม180 (มัดจำ0)
+            RANDOM CAN BADGE VER.
+            สุ่ม180 (มัดจำ0)
+            """);
+        assertThat(draft.versions()).hasSize(13);
+        var offers=draft.versions().stream().flatMap(version->version.groups().stream()).toList();
+        assertThat(offers).hasSize(13).allSatisfy(offer->assertThat(offer.websites()).containsExactly("Soundwave"));
+        assertThat(offers).extracting(offer->offer.price().intValue()).containsExactly(250,450,520,800,230,620,450,400,820,200,450,180,180);
+        assertThat(draft.warnings()).noneMatch(message->message.contains("ไม่ได้ระบุเว็บ"));
+        Path folder=Path.of(".runtime/product-setup-qa");Files.createDirectories(folder);
+        Files.writeString(folder.resolve("soundwave-merch-draft.json"),new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(draft));
+    }
+    @Test void singleHeaderInheritanceStopsAtExplicitNoWebsiteOrNoBenefitSection() {
+        for(String boundary:java.util.List.of("ไม่มีเว็บ","ไม่มีการ์ดเบเน")) {
+            var draft=parser.parse("Soundwave\nSTICKER VER.\nราคา250\nBANDANA VER.\nราคา450\n"+boundary+"\nMOUSE PAD VER.\nราคา400");
+            assertThat(draft.versions().get(0).groups().getFirst().websites()).containsExactly("Soundwave");
+            assertThat(draft.versions().get(1).groups().getFirst().websites()).containsExactly("Soundwave");
+            assertThat(draft.versions().get(2).groups().getFirst().websites()).containsExactly("ไม่มีเว็บ");
+        }
+    }
     @Test
     @EnabledIfSystemProperty(named="ocr.benefit.cached",matches=".+")
     void actualNoBenefitPosterKeepsTheSectionBoundaryAndTwoAlbumSet() throws Exception {

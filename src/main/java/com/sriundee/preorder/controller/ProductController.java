@@ -51,10 +51,11 @@ public class ProductController {
 			row_id +=1;
 			strProduct.append("<tr>");
 			strProduct.append("<td class='setup-action-col'><button type='button' class='btn btn-warning' onclick='edit_data(" + p.getID_product() + ")' aria-label='ตั้งค่าสินค้า' title='ตั้งค่าสินค้า'><i class='bi bi-gear-fill' aria-hidden='true'></i></button></td>");
+			strProduct.append("<td class='product-price-action'><button type='button' class='btn btn-info' onclick='ProductPriceTable.open(" + p.getID_product() + ")' aria-label='ดูตารางราคา' title='ดูตารางราคา'><i class='bi bi-table' aria-hidden='true'></i></button></td>");
 			strProduct.append("<td class='product-delete-action'><div class='buttons'><a class='btn icon btn-danger' onclick='delete_data(" + p.getID_product() + ")'><i data-feather='trash-2'></i></a></div></td>");
 			strProduct.append("<td>" + row_id + "</td>");
 			strProduct.append("<td class='product-image-cell'><img src='" + p.getp_pic() + "' class='table-img product-table-img' tabindex='0'></td>");
-			strProduct.append("<td>" + p.getp_name() + "</td>");
+			strProduct.append("<td>" + escapeHtml(p.getp_name()) + "</td>");
 			strProduct.append("<td>" + p.gett_name() + "</td>");
 			strProduct.append("<td>" + p.geta_name() + "</td>");
 			strProduct.append("<td>" + displayScheduleDate(p.getp_end_date()) + "</td>");

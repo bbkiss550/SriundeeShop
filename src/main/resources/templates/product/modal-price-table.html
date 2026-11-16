@@ -1,0 +1,28 @@
+<div class="modal fade product-setup" id="productPricesModal" tabindex="-1" aria-labelledby="productPricesTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h4 class="modal-title" id="productPricesTitle">ตารางราคาสินค้า</h4>
+                    <p id="productPricesName" class="setup-subtitle"></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิดตารางราคา"></button>
+            </div>
+            <div class="modal-body">
+                <p id="productPricesLoading" role="status" aria-live="polite">กำลังโหลดราคา…</p>
+                <div id="productPricesError" class="alert alert-danger" role="alert" hidden></div>
+                <p id="productPricesEmpty" class="setup-hint" hidden>สินค้านี้ยังไม่มีรายการราคา</p>
+                <div id="productPricesTableWrap" class="setup-result-scroll" role="region" aria-label="ตารางราคาสินค้าแบบดูอย่างเดียว" tabindex="0" hidden>
+                    <table class="setup-result-table">
+                        <caption>ราคาที่บันทึกไว้ · ดูอย่างเดียว</caption>
+                        <thead><tr><th scope="col">เว็บ</th><th scope="col">เวอร์ชัน</th><th scope="col">ปก</th><th scope="col">ราคาเต็ม (บาท)</th><th scope="col">มัดจำ (บาท)</th><th scope="col">คงเหลือ (บาท)</th></tr></thead>
+                        <tbody id="productPricesRows"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
